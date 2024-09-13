@@ -1,5 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary Theme -->
+    <style name="Theme.Personfinanceapp" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/pastelOrangePrimary</item>
+        <item name="colorPrimaryVariant">@color/pastelOrangePrimaryVariant</item>
+        <item name="colorOnPrimary">@color/pastelOrangeOnPrimary</item>
+        <item name="colorSecondary">@color/pastelOrangeSecondary</item>
+        <item name="colorOnSecondary">@color/pastelOrangeOnSecondary</item>
+        <item name="colorBackground">@color/colorBackground</item>
+        <item name="colorOnBackground">@color/colorOnBackground</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+    </style>
 
-    <style name="Theme.Personfinanceapp" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Splash Theme -->
+    <style name="Theme.SplashTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
 </resources>

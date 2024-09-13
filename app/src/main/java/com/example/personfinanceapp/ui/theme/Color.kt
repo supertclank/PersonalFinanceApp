@@ -2,10 +2,10 @@ package com.example.personfinanceapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val PastelOrange80 = Color(0xFFFFDAB9)
+val PastelOrangeGrey80 = Color(0xFFE0BFBF)
+val PastelOrangePink80 = Color(0xFFF8C8DC)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val PastelOrange40 = Color(0xFFFFAB91)
+val PastelOrangeGrey40 = Color(0xFFD3B8B8)
+val PastelOrangePink40 = Color(0xFFE8AFAF)

@@ -1,3 +1,20 @@
 <resources>
-    <string name="app_name">Personfinanceapp</string>
+    <string name="username">Username</string>
+    <string name="todo">To Do</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="personal_finance_app">Personal Finance App</string>
+    <string name="personalfinance">Personal Finance App</string>
+    <string name="forgot_details">Forgot Your Details?</string>
+    <string name="enter_details">Enter Your Details</string>
+    <string name="register">Register</string>
+    <string name="password_conformation">Re-Enter Password</string>
+    <string name="first_name">First Name</string>
+    <string name="surname">Surname</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="email">Email</string>
+    <string name="back">Back</string>
+    <string name="submit">Submit</string>
+    <string name="invalid_details">Your Details Appear To Be Incorrect</string>
+    <string name="try_again">Please Try again</string>
 </resources>
