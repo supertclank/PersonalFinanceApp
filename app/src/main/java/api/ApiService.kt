@@ -30,7 +30,7 @@ interface ApiService {
     @GET("users/")
     fun getUsers(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<UserRead>>
 
-    @GET("users/{user_id}")
+    @GET("/users/{user_id}")
     fun getUser(@Path("user_id") userId: Int): Call<UserRead>
 
     // Profile endpoints

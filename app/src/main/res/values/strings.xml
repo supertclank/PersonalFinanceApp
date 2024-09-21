@@ -17,4 +17,6 @@
     <string name="submit">Submit</string>
     <string name="invalid_details">Your Details Appear To Be Incorrect</string>
     <string name="try_again">Please Try again</string>
+    <string name="test">Test</string>
+    <string name="api_connected">API Connected</string>
 </resources>

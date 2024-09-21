@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 from models import Base
@@ -14,9 +15,22 @@ from crud import (
 )
 from database import engine, get_db
 
+import uvicorn
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 # User endpoints
 @app.post("/users/", response_model=UserRead)
