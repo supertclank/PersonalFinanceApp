@@ -19,8 +19,7 @@ class UserRead(UserBase):
 
 class ProfileBase(BaseModel):
     firstName: str
-    lastName: str
-    email: str
+    surName: str
     phoneNumber: str
 
 class ProfileCreate(ProfileBase):

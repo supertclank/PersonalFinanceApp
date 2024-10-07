@@ -28,11 +28,11 @@ class Profile(Base):
     userId = Column(Integer, ForeignKey('user.userId'))
     firstName = Column(String(100))
     lastName = Column(String(100))
-    email = Column(String(100))
     phoneNumber = Column(String(15))
     createdAt = Column(DateTime, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="profile")
+
 
 class BudgetCategory(Base):
     __tablename__ = 'budgetcategory'

@@ -36,55 +36,46 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/register"
+            android:text="@string/more_information"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp" />
 
-        <!-- Email field -->
+        <!-- First Name field -->
         <EditText
-            android:id="@+id/email"
+            android:id="@+id/first_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:hint="@string/email"
+            android:hint="@string/first_name"
             android:inputType="text"
             android:minHeight="48dp" />
 
-        <!-- Username field -->
+        <!-- lastname field -->
         <EditText
-            android:id="@+id/username"
+            android:id="@+id/last_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:hint="@string/username"
+            android:hint="@string/lastname"
             android:inputType="text"
             android:minHeight="48dp" />
 
-        <!-- Password field -->
+        <!-- Phone Number field -->
         <EditText
-            android:id="@+id/password"
+            android:id="@+id/phone_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:hint="@string/password"
-            android:inputType="textPassword"
+            android:hint="@string/phone_number"
+            android:inputType="phone"
             android:minHeight="48dp" />
 
-        <!-- Confirm Password field -->
-        <EditText
-            android:id="@+id/confirm_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:hint="@string/password_conformation"
-            android:inputType="textPassword"
-            android:minHeight="48dp" />
+
 
         <!-- Register Button -->
         <Button

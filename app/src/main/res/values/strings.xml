@@ -10,7 +10,7 @@
     <string name="register">Register</string>
     <string name="password_conformation">Re-Enter Password</string>
     <string name="first_name">First Name</string>
-    <string name="surname">Surname</string>
+    <string name="lastname">Lastname</string>
     <string name="phone_number">Phone Number</string>
     <string name="email">Email</string>
     <string name="back">Back</string>
@@ -19,4 +19,5 @@
     <string name="try_again">Please Try again</string>
     <string name="test">Test</string>
     <string name="api_connected">API Connected</string>
+    <string name="more_information">More Information Is Required</string>
 </resources>

@@ -22,7 +22,12 @@ def get_profiles(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Profile).offset(skip).limit(limit).all()
 
 def create_profile(db: Session, profile: ProfileCreate):
-    db_profile = Profile(userId=profile.userId, firstName=profile.firstName, lastName=profile.lastName, email=profile.email, phoneNumber=profile.phoneNumber)
+    db_profile = Profile(
+        userId=profile.userId,
+        firstName=profile.firstName,
+        lastName=profile.surName, 
+        phoneNumber=profile.phoneNumber
+    )
     db.add(db_profile)
     db.commit()
     db.refresh(db_profile)

@@ -18,49 +18,56 @@ import retrofit2.Response
 class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.register_1)
+        setContentView(R.layout.register_1) // Set the layout for the activity
 
-        val backButton = findViewById<Button>(R.id.back)
-        val firstNameField = findViewById<EditText>(R.id.first_name)
-        val surnameField = findViewById<EditText>(R.id.surname)
-        val phoneNumberField = findViewById<EditText>(R.id.phone_number)
+        // Initialize UI components
         val usernameField = findViewById<EditText>(R.id.username)
         val emailField = findViewById<EditText>(R.id.email)
         val passwordField = findViewById<EditText>(R.id.password)
         val confirmPasswordField = findViewById<EditText>(R.id.confirm_password)
         val registerButton = findViewById<Button>(R.id.register)
+        val backButton = findViewById<Button>(R.id.back)
 
+        // Set a click listener for the back button to finish the current activity
         backButton.setOnClickListener {
             finish()
         }
 
+        // Set a click listener for the register button
         registerButton.setOnClickListener {
-            val firstName = firstNameField.text.toString()
-            val surname = surnameField.text.toString()
-            val phoneNumber = phoneNumberField.text.toString()
+            // Retrieve input values
             val username = usernameField.text.toString()
             val email = emailField.text.toString()
             val password = passwordField.text.toString()
             val confirmPassword = confirmPasswordField.text.toString()
 
-            // Perform validation
-            if (validateInputs(firstName, surname, phoneNumber, username, email, password, confirmPassword)) {
+            // Validate the inputs before making the API call
+            if (validateInputs(username, email, password, confirmPassword)) {
+                // Create a UserCreate object with the input values
                 val userCreate = UserCreate(username, email, password)
+                // Make an API call to create the user
                 RetrofitClient.instance.createUser(userCreate).enqueue(object : Callback<UserRead> {
                     override fun onResponse(call: Call<UserRead>, response: Response<UserRead>) {
                         if (response.isSuccessful) {
-                            // Navigate to LoginActivity if registration is successful
-                            val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
-                            startActivity(intent)
-                            finish() // Close the RegisterActivity
+                            // Retrieve user ID from the response
+                            val userId = response.body()?.userId?.toString()
+
+                            if (userId != null) {
+                                // Start RegisterActivity2 and pass the USER_ID
+                                val intent = Intent(this@RegisterActivity, RegisterActivity2::class.java)
+                                intent.putExtra("USER_ID", userId)
+                                startActivity(intent)
+                                finish() // Finish this activity
+                            } else {
+                                Toast.makeText(this@RegisterActivity, "User ID is null", Toast.LENGTH_SHORT).show()
+                            }
                         } else {
-                            // Show an error message
                             Toast.makeText(this@RegisterActivity, "Registration failed. Please try again.", Toast.LENGTH_LONG).show()
                         }
                     }
 
                     override fun onFailure(call: Call<UserRead>, t: Throwable) {
-                        // Handle network failure (e.g., show an error message)
+                        // Handle failure of the API call
                         Toast.makeText(this@RegisterActivity, "Network error. Please try again.", Toast.LENGTH_LONG).show()
                     }
                 })
@@ -68,26 +75,8 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    // Function to validate inputs
-    private fun validateInputs(firstName: String, surname: String, phoneNumber: String, username: String, email: String, password: String, confirmPassword: String): Boolean {
-        // Check if first name is empty or contains non-alphabet characters
-        if (firstName.isEmpty() || !firstName.matches(Regex("^[A-Za-z]+$"))) {
-            Toast.makeText(this, "First name is required and must contain only alphabetic characters", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        // Check if surname is empty or contains non-alphabet characters
-        if (surname.isEmpty() || !surname.matches(Regex("^[A-Za-z]+$"))) {
-            Toast.makeText(this, "Surname is required and must contain only alphabetic characters", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
-        // Check if phone number is empty or contains non-digit characters
-        if (phoneNumber.isEmpty() || !phoneNumber.matches(Regex("^[0-9]{10,15}$"))) {
-            Toast.makeText(this, "Valid phone number is required (10 to 15 digits)", Toast.LENGTH_SHORT).show()
-            return false
-        }
-
+    // Function to validate user inputs
+    private fun validateInputs(username: String, email: String, password: String, confirmPassword: String): Boolean {
         // Check if username is empty
         if (username.isEmpty()) {
             Toast.makeText(this, "Username is required", Toast.LENGTH_SHORT).show()
@@ -118,10 +107,10 @@ class RegisterActivity : AppCompatActivity() {
 
     // Function to check if the password meets the requirements
     private fun isValidPassword(password: String): Boolean {
-        // Regular expression to check at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character
+        // Regular expression to check for at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character
         val passwordPattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@\$!%*?&#])[A-Za-z\\d@\$!%*?&#]{6,}$"
         val passwordMatcher = Regex(passwordPattern)
 
-        return passwordMatcher.matches(password)
+        return passwordMatcher.matches(password) // Check if password matches the pattern
     }
 }
