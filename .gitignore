@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/backend/alembic
+backend/alembic.ini
