@@ -20,4 +20,6 @@
     <string name="test">Test</string>
     <string name="api_connected">API Connected</string>
     <string name="more_information">More Information Is Required</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="menu">Menu</string>
 </resources>

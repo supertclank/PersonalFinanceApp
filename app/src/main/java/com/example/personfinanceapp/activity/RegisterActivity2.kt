@@ -54,28 +54,44 @@ class RegisterActivity2 : AppCompatActivity() {
                     phoneNumber = phoneNumber
                 )
                 // Make an API call to create the profile
-                RetrofitClient.instance.createProfile(profileCreate).enqueue(object : Callback<ProfileRead> {
-                    override fun onResponse(call: Call<ProfileRead>, response: Response<ProfileRead>) {
-                        if (response.isSuccessful) {
-                            // Handle successful response and start LoginActivity
-                            val intent = Intent(this@RegisterActivity2, LoginActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            // Log the error message if the response is not successful
-                            Log.e("API Error", response.errorBody()?.string() ?: "Unknown error")
-                            Toast.makeText(this@RegisterActivity2, "Profile creation failed. Please try again.", Toast.LENGTH_LONG).show()
+                RetrofitClient.instance.createProfile(profileCreate)
+                    .enqueue(object : Callback<ProfileRead> {
+                        override fun onResponse(
+                            call: Call<ProfileRead>,
+                            response: Response<ProfileRead>
+                        ) {
+                            if (response.isSuccessful) {
+                                // Handle successful response and start LoginActivity
+                                val intent =
+                                    Intent(this@RegisterActivity2, LoginActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                // Log the error message if the response is not successful
+                                Log.e(
+                                    "API Error",
+                                    response.errorBody()?.string() ?: "Unknown error"
+                                )
+                                Toast.makeText(
+                                    this@RegisterActivity2,
+                                    "Profile creation failed. Please try again.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                registerButton.isEnabled = true // Re-enable the button
+                            }
+                        }
+
+                        override fun onFailure(call: Call<ProfileRead>, t: Throwable) {
+                            // Log the error if the API call fails
+                            Log.e("API Failure", t.message ?: "Unknown failure")
+                            Toast.makeText(
+                                this@RegisterActivity2,
+                                "Network error. Please try again.",
+                                Toast.LENGTH_LONG
+                            ).show()
                             registerButton.isEnabled = true // Re-enable the button
                         }
-                    }
-
-                    override fun onFailure(call: Call<ProfileRead>, t: Throwable) {
-                        // Log the error if the API call fails
-                        Log.e("API Failure", t.message ?: "Unknown failure")
-                        Toast.makeText(this@RegisterActivity2, "Network error. Please try again.", Toast.LENGTH_LONG).show()
-                        registerButton.isEnabled = true // Re-enable the button
-                    }
-                })
+                    })
             }
         }
     }
@@ -84,19 +100,31 @@ class RegisterActivity2 : AppCompatActivity() {
     private fun validateInputs(firstName: String, lastName: String, phoneNumber: String): Boolean {
         // Check if first name is empty or contains non-alphabetic characters
         if (firstName.isEmpty() || !firstName.matches(Regex("^[A-Za-z]+$"))) {
-            Toast.makeText(this, "First name is required and must contain only alphabetic characters", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "First name is required and must contain only alphabetic characters",
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
 
         // Check if surname is empty or contains non-alphabetic characters
         if (lastName.isEmpty() || !lastName.matches(Regex("^[A-Za-z]+$"))) {
-            Toast.makeText(this, "Surname is required and must contain only alphabetic characters", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Surname is required and must contain only alphabetic characters",
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
 
         // Check if phone number is empty or does not match the specified format
         if (phoneNumber.isEmpty() || !phoneNumber.matches(Regex("^[0-9]{10,15}$"))) {
-            Toast.makeText(this, "Valid phone number is required (10 to 15 digits)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Valid phone number is required (10 to 15 digits)",
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
 

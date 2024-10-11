@@ -54,21 +54,34 @@ class RegisterActivity : AppCompatActivity() {
 
                             if (userId != null) {
                                 // Start RegisterActivity2 and pass the USER_ID
-                                val intent = Intent(this@RegisterActivity, RegisterActivity2::class.java)
+                                val intent =
+                                    Intent(this@RegisterActivity, RegisterActivity2::class.java)
                                 intent.putExtra("USER_ID", userId)
                                 startActivity(intent)
                                 finish() // Finish this activity
                             } else {
-                                Toast.makeText(this@RegisterActivity, "User ID is null", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this@RegisterActivity,
+                                    "User ID is null",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } else {
-                            Toast.makeText(this@RegisterActivity, "Registration failed. Please try again.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this@RegisterActivity,
+                                "Registration failed. Please try again.",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
 
                     override fun onFailure(call: Call<UserRead>, t: Throwable) {
                         // Handle failure of the API call
-                        Toast.makeText(this@RegisterActivity, "Network error. Please try again.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@RegisterActivity,
+                            "Network error. Please try again.",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 })
             }
@@ -76,7 +89,12 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     // Function to validate user inputs
-    private fun validateInputs(username: String, email: String, password: String, confirmPassword: String): Boolean {
+    private fun validateInputs(
+        username: String,
+        email: String,
+        password: String,
+        confirmPassword: String
+    ): Boolean {
         // Check if username is empty
         if (username.isEmpty()) {
             Toast.makeText(this, "Username is required", Toast.LENGTH_SHORT).show()
@@ -91,7 +109,11 @@ class RegisterActivity : AppCompatActivity() {
 
         // Validate password strength
         if (!isValidPassword(password)) {
-            Toast.makeText(this, "Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                "Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character",
+                Toast.LENGTH_LONG
+            ).show()
             return false
         }
 
@@ -108,7 +130,8 @@ class RegisterActivity : AppCompatActivity() {
     // Function to check if the password meets the requirements
     private fun isValidPassword(password: String): Boolean {
         // Regular expression to check for at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character
-        val passwordPattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@\$!%*?&#])[A-Za-z\\d@\$!%*?&#]{6,}$"
+        val passwordPattern =
+            "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@\$!%*?&#])[A-Za-z\\d@\$!%*?&#]{6,}$"
         val passwordMatcher = Regex(passwordPattern)
 
         return passwordMatcher.matches(password) // Check if password matches the pattern

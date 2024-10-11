@@ -15,46 +15,50 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+// Activity for handling user login, API connection check, and navigation to other activities.
 class LoginActivity : AppCompatActivity() {
+    // UI components
     private lateinit var connectedCheckBox: CheckBox
     private lateinit var usernameEditText: EditText
     private lateinit var passwordEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.login)
+        setContentView(R.layout.login) // Set the login layout.
 
         // Initialize UI elements
         usernameEditText = findViewById(R.id.username)
         passwordEditText = findViewById(R.id.password)
         connectedCheckBox = findViewById(R.id.api_connected)
 
-        val registerButton = findViewById<Button>(R.id.register)
-        val forgotButton = findViewById<Button>(R.id.forgot)
-        val loginButton = findViewById<Button>(R.id.login)
-        val testButton = findViewById<Button>(R.id.test)
-
-        // Set button click listeners
-        registerButton.setOnClickListener {
-            startActivity(Intent(this@LoginActivity, RegisterActivity::class.java))
+        // Buttons and their actions
+        findViewById<Button>(R.id.register).setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java)) // Go to RegisterActivity
         }
 
-        forgotButton.setOnClickListener {
-            startActivity(Intent(this@LoginActivity, ForgotDetailsActivity::class.java))
+        findViewById<Button>(R.id.forgot).setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    ForgotDetailsActivity::class.java
+                )
+            ) // Go to ForgotDetailsActivity
         }
 
-        loginButton.setOnClickListener {
-            loginVerify()
+        findViewById<Button>(R.id.login).setOnClickListener {
+            loginVerify() // Verify login details.
         }
 
-        testButton.setOnClickListener {
-            testApiConnection()
+        findViewById<Button>(R.id.test).setOnClickListener {
+            testApiConnection() // Check API connectivity.
         }
     }
 
-    // Function to test API connection
+    // Function to test if API connection is active.
     private fun testApiConnection() {
         val call = RetrofitClient.instance.getUsers(0, 1)
+
+        // Asynchronous API request to verify connection.
         call.enqueue(object : Callback<List<UserRead>> {
             override fun onResponse(
                 call: Call<List<UserRead>>,
@@ -66,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
                         "API connection successful!",
                         Toast.LENGTH_SHORT
                     ).show()
-                    connectedCheckBox.isChecked = true
+                    connectedCheckBox.isChecked = true // Indicate connection is established.
                 } else {
                     Toast.makeText(
                         this@LoginActivity,
@@ -88,31 +92,34 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
-    // Function to verify login
+    // Function to verify user login.
     private fun loginVerify() {
         val username = usernameEditText.text.toString()
         val password = passwordEditText.text.toString()
 
+        // Validate input fields are not empty.
         if (username.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please enter your username and password.", Toast.LENGTH_SHORT)
                 .show()
             return
         }
 
-        // Create a login request object
+        // Create login request object and make API call.
         val loginRequest = LoginRequest(username, password)
-
-        // Call the login endpoint
         val call = RetrofitClient.instance.login(loginRequest)
 
         call.enqueue(object : Callback<UserRead> {
             override fun onResponse(call: Call<UserRead>, response: Response<UserRead>) {
                 if (response.isSuccessful) {
-                    // Handle successful login
+                    // Login successful, navigate to DashboardActivity.
                     Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT)
                         .show()
-                    // Navigate to another activity if necessary
+                    val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
+                    intent.putExtra("username", username) // Pass username to next activity.
+                    startActivity(intent)
+                    finish() // Close LoginActivity.
                 } else {
+                    // Handle different response codes.
                     when (response.code()) {
                         401 -> Toast.makeText(
                             this@LoginActivity,
@@ -130,6 +137,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<UserRead>, t: Throwable) {
+                // Handle network or server failure.
                 Toast.makeText(this@LoginActivity, "Login failed: ${t.message}", Toast.LENGTH_SHORT)
                     .show()
             }

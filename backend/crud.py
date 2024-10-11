@@ -15,6 +15,11 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
+def get_user_by_username(db: Session, username: str):
+    # Retrieve a user by their username
+    return db.query(User).filter(User.username == username).first()
+
+
 def get_profile(db: Session, profile_id: int):
     return db.query(Profile).filter(Profile.profileId == profile_id).first()
 
@@ -25,7 +30,7 @@ def create_profile(db: Session, profile: ProfileCreate):
     db_profile = Profile(
         userId=profile.userId,
         firstName=profile.firstName,
-        lastName=profile.surName, 
+        lastName=profile.lastName, 
         phoneNumber=profile.phoneNumber
     )
     db.add(db_profile)
