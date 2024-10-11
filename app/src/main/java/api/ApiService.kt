@@ -82,7 +82,10 @@ interface ApiService {
     fun createTransaction(@Body transaction: TransactionCreate): Call<TransactionRead>
 
     @GET("transactions/")
-    fun getTransactions(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<TransactionRead>>
+    fun getTransactions(
+        @Query("skip") skip: Int,
+        @Query("limit") limit: Int
+    ): Call<List<TransactionRead>>
 
     @GET("transaction/{transaction_id}")
     fun getTransaction(@Path("transaction_id") transactionId: Int): Call<TransactionRead>
@@ -92,7 +95,10 @@ interface ApiService {
     fun createNotification(@Body notification: NotificationCreate): Call<NotificationRead>
 
     @GET("notifications/")
-    fun getNotifications(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<NotificationRead>>
+    fun getNotifications(
+        @Query("skip") skip: Int,
+        @Query("limit") limit: Int
+    ): Call<List<NotificationRead>>
 
     @GET("notification/{notification_id}")
     fun getNotification(@Path("notification_id") notificationId: Int): Call<NotificationRead>

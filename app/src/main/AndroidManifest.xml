@@ -29,23 +29,19 @@
 
         <activity
             android:name=".activity.LoginActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"></activity>
 
         <activity
             android:name=".activity.RegisterActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"></activity>
 
         <activity
             android:name=".activity.ForgotDetailsActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"></activity>
 
         <activity
             android:name=".activity.RegisterActivity2"
-            android:exported="true">
-        </activity>
+            android:exported="true"></activity>
 
         <activity
             android:name=".activity.DashboardActivity"

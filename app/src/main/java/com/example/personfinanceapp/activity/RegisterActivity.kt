@@ -38,11 +38,11 @@ class RegisterActivity : AppCompatActivity() {
             // Retrieve input values
             val username = usernameField.text.toString()
             val email = emailField.text.toString()
-            val password = passwordField.text.toString()
+            val hashed_password = passwordField.text.toString()
             val confirmPassword = confirmPasswordField.text.toString()
 
             // Validate the inputs before making the API call
-            if (validateInputs(username, email, password, confirmPassword)) {
+            if (validateInputs(username, email, hashed_password, confirmPassword)) {
                 // Create a UserCreate object with the input values
                 val userCreate = UserCreate(username, email, hashed_password)
                 // Make an API call to create the user

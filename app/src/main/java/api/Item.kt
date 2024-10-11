@@ -13,7 +13,7 @@ data class User(
 data class UserCreate(
     val username: String,
     val email: String,
-    val password: String
+    val hashed_password: String
 )
 
 data class UserRead(

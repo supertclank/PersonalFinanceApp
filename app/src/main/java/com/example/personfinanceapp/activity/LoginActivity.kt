@@ -95,17 +95,17 @@ class LoginActivity : AppCompatActivity() {
     // Function to verify user login.
     private fun loginVerify() {
         val username = usernameEditText.text.toString()
-        val password = passwordEditText.text.toString()
+        val hashed_password = passwordEditText.text.toString()
 
         // Validate input fields are not empty.
-        if (username.isEmpty() || password.isEmpty()) {
+        if (username.isEmpty() || hashed_password.isEmpty()) {
             Toast.makeText(this, "Please enter your username and password.", Toast.LENGTH_SHORT)
                 .show()
             return
         }
 
         // Create login request object and make API call.
-        val loginRequest = LoginRequest(username, password)
+        val loginRequest = LoginRequest(username, hashed_password)
         val call = RetrofitClient.instance.login(loginRequest)
 
         call.enqueue(object : Callback<UserRead> {

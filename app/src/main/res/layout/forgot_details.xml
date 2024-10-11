@@ -3,73 +3,80 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@color/colorBackground"
+    tools:context=".ForgotDetailsActivity">
 
-    <!-- Back Button at the top -->
-    <Button
-        android:id="@+id/back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/back"
-        android:layout_gravity="start" />
-
-    <!-- Spacer to push the second LinearLayout to the center -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <!-- Centered content -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
         <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
             android:text="@string/forgot_details"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="24dp" />
+            android:textColor="@color/pastelOrangeOnPrimary"
+            android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/enter_details"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="24dp" />
-
-        <!-- Input field -->
+        <!-- Username field -->
         <EditText
+            android:id="@+id/forgot_username"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/forgot_username"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:backgroundTint="@color/pastelOrangePrimary" />
+
+        <!-- Email field -->
+        <EditText
+            android:id="@+id/forgot_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/enter_email"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp"
+            android:backgroundTint="@color/pastelOrangePrimary" />
+
+        <!-- Send Verification Code button -->
+        <Button
+            android:id="@+id/send_verification_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/send_code"
+            android:textColor="@color/pastelOrangeOnPrimary"
+            android:backgroundTint="@color/pastelOrangePrimary" />
+
+        <!-- Back to Login button -->
+        <Button
+            android:id="@+id/back_to_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/back_to_login"
+            android:textColor="@color/pastelOrangeOnPrimary"
+            android:backgroundTint="@color/pastelOrangePrimaryVariant" />
+
+        <!-- Error Message Text -->
+        <TextView
+            android:id="@+id/forgot_error_message"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
-            android:hint="@string/email"
-            android:inputType="text"
-            android:minHeight="48dp" />
-
-        <!-- Submit Button -->
-        <Button
-            android:id="@+id/submit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/submit"
-            android:layout_marginTop="10dp" />
+            android:text="@string/error_message"
+            android:textColor="@color/colorError"
+            android:visibility="gone" />
 
     </LinearLayout>
-
-    <!-- Spacer to push the second LinearLayout to the center -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
 </LinearLayout>

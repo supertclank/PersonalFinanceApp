@@ -5,108 +5,110 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:padding="16dp">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_gravity="center"
-    tools:ignore="UselessParent">
 
-    <!-- Title -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/personalfinance"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginBottom="24dp" />
-
-    <CheckBox
-        android:id="@+id/api_connected"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/api_connected" />
-
-    <Button
-        android:id="@+id/test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/test" />
-
-    <TextView
-        android:id="@+id/invalid"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/invalid_details"
-        android:textSize="15sp"
-        android:textColor="@color/colorError"
-        android:textStyle="bold"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginBottom="24dp"
-        android:visibility="invisible"/>
-
-    <TextView
-        android:id="@+id/try_again"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/try_again"
-        android:textSize="15sp"
-        android:textColor="@color/colorError"
-        android:textStyle="bold"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginBottom="24dp"
-        android:visibility="invisible"/>
-
-
-    <!-- Username field -->
-    <EditText
-        android:id="@+id/username"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:autofillHints=""
-        android:hint="@string/username"
-        android:inputType=""
-        android:minHeight="48dp" />
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
-    <!-- Password field -->
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:autofillHints=""
-        android:hint="@string/password"
-        android:inputType="textPassword"
-        android:minHeight="48dp" />
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:text="@string/personalfinance"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/pastelOrangeOnPrimary"/>
 
-    <!-- Login button -->
-    <Button
-        android:id="@+id/login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/login"
-        android:layout_marginTop="10dp" />
+        <CheckBox
+            android:id="@+id/api_connected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/api_connected" />
 
-    <!-- Forgot Details Button -->
-    <Button
-        android:id="@+id/forgot"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/forgot_details"
-        android:layout_marginTop="10dp"/>
+        <Button
+            android:id="@+id/test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/test" />
 
-    <!-- Register Button -->
-    <Button
-        android:id="@+id/register"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/register"
-        android:layout_marginTop="10dp" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/invalid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:text="@string/invalid_details"
+            android:textColor="@color/colorError"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/try_again"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:text="@string/try_again"
+            android:textColor="@color/colorError"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:visibility="invisible" />
+
+
+        <!-- Username field -->
+        <EditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:autofillHints=""
+            android:hint="@string/username"
+            android:inputType=""
+            android:minHeight="48dp" />
+
+        <!-- Password field -->
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:autofillHints=""
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:minHeight="48dp" />
+
+        <!-- Login button -->
+        <Button
+            android:id="@+id/login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/login" />
+
+        <!-- Forgot Details Button -->
+        <Button
+            android:id="@+id/forgot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/forgot_details" />
+
+        <!-- Register Button -->
+        <Button
+            android:id="@+id/register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/register" />
+    </LinearLayout>
 </LinearLayout>

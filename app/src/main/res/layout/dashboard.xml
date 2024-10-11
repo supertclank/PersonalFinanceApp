@@ -17,10 +17,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="16dp"
             android:text="@string/dashboard"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:textStyle="bold" />
 
         <!-- Quick Actions Section using HorizontalScrollView -->
         <HorizontalScrollView
@@ -62,9 +62,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="24dp"
             android:text="Your financial overview will appear here."
-            android:textSize="16sp"
-            android:layout_marginBottom="24dp" />
+            android:textSize="16sp" />
     </LinearLayout>
 
     <!-- Floating Action Button for displaying the menu, positioned at bottom-right -->
@@ -76,7 +76,7 @@
         android:layout_margin="16dp"
         android:contentDescription="@string/menu"
         android:src="@android:drawable/ic_menu_more"
-        app:backgroundTint="?attr/colorPrimary"
-        android:tint="@android:color/white" />
+        android:tint="@android:color/white"
+        app:backgroundTint="?attr/colorPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
