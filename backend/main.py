@@ -5,6 +5,8 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
 # Database and ORM imports
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 from models import Base
 from database import engine, get_db
 
@@ -69,33 +71,30 @@ app.add_middleware(
 )
 
 # Utility Functions for Authentication
-# Verify a plaintext password against a hashed password.
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a plaintext password against a hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
 
-# Hash a plaintext password for secure storage.
 def hash_password(password: str) -> str:
+    """Hash a plaintext password for secure storage."""
     return pwd_context.hash(password)
 
-# Authenticate a user by username and password.
 def authenticate_user(db: Session, username: str, password: str):
+    """Authenticate a user by username and password."""
     user = get_user_by_username(db, username=username)
-    if not user or not verify_password(password, user.hashed_password):
+    if not user or not verify_password(password, user.password):
         return False
     return user
 
-# Create a JWT token for a given set of data.
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
+    """Create a JWT token for a given set of data."""
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# Retrieve the current user based on the provided JWT token.
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """Retrieve the current user based on the provided JWT token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -112,6 +111,22 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
     return user
+
+# Create an asynchronous engine
+DATABASE_URL = "mysql+aiomysql://root:your_password@localhost/personal_finance_db"
+engine = create_async_engine(DATABASE_URL, echo=True)
+
+# Create an asynchronous session factory
+async_session = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
+
+# Use session in an async context
+async def get_session():
+    async with async_session() as session:
+        yield session
 
 # User endpoints
 @app.post("/users/", response_model=UserRead)
@@ -132,7 +147,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 # Login Endpoint
-@app.post("/login")
+@app.post("/user/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, username=form_data.username, password=form_data.password)
     if not user:
@@ -252,7 +267,3 @@ def read_notification(notification_id: int, db: Session = Depends(get_db)):
     if db_notification is None:
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification
-
-# Run the FastAPI application using uvicorn
-if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
