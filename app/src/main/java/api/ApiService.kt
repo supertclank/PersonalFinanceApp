@@ -31,10 +31,10 @@ interface ApiService {
     @GET("users/")
     fun getUsers(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<UserRead>>
 
-    @GET("/user/{user_id}")
+    @GET("user/{user_id}")
     fun getUser(@Path("user_id") userId: Int): Call<UserRead>
 
-    @POST("user/login/") // Adjust the endpoint URL based on your backend
+    @POST("login")
     fun login(@Body request: LoginRequest): Call<UserRead>
 
     // Profile endpoints

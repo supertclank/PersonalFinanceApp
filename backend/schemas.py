@@ -17,6 +17,10 @@ class UserRead(UserBase):
     class Config:
         orm_mode = True
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
 class ProfileBase(BaseModel):
     firstName: str
     lastName: str

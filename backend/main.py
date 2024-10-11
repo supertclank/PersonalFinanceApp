@@ -24,7 +24,8 @@ from schemas import (
     GoalsCreate, GoalsRead,
     ReportCreate, ReportRead,
     TransactionCreate, TransactionRead,
-    NotificationCreate, NotificationRead
+    NotificationCreate, NotificationRead,
+    LoginRequest
 )
 
 # CRUD operations for each entity
@@ -130,6 +131,20 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+# Login Endpoint
+@app.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = authenticate_user(db, username=form_data.username, password=form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
+    return {"access_token": access_token, "token_type": "bearer"}
+
 # Profile endpoints
 @app.post("/profiles/", response_model=ProfileRead)
 def create_new_profile(profile: ProfileCreate, db: Session = Depends(get_db)):
@@ -220,7 +235,7 @@ def read_transaction(transaction_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Transaction not found")
     return db_transaction
 
-# Notifications endpoints
+# Notification endpoints
 @app.post("/notifications/", response_model=NotificationRead)
 def create_new_notification(notification: NotificationCreate, db: Session = Depends(get_db)):
     db_notification = create_notification(db=db, notification=notification)
@@ -237,3 +252,7 @@ def read_notification(notification_id: int, db: Session = Depends(get_db)):
     if db_notification is None:
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification
+
+# Run the FastAPI application using uvicorn
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
