@@ -20,12 +20,22 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
-
-
-
 def get_user_by_username(db: Session, username: str):
     # Retrieve a user by their username
     return db.query(User).filter(User.username == username).first()
+
+def get_user_by_email(db: Session, email: str):
+    """
+    Retrieve a user from the database by their email address.
+    
+    Args:
+        db (Session): The database session.
+        email (str): The email address of the user to retrieve.
+
+    Returns:
+        User: The user object if found, otherwise None.
+    """
+    return db.query(User).filter(User.email == email).first()
 
 
 def get_profile(db: Session, profile_id: int):

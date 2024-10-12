@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Boo
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
+from pydantic import BaseModel, EmailStr
 
 Base = declarative_base()
 
@@ -20,6 +21,9 @@ class User(Base):
     reports = relationship("Report", back_populates="user")
     transactions = relationship("Transaction", back_populates="user")
     notifications = relationship("Notification", back_populates="user")
+    
+class UsernameRecoveryRequest(BaseModel):
+    email: EmailStr
 
 class Profile(Base):
     __tablename__ = 'profile'

@@ -27,7 +27,8 @@ from schemas import (
     ReportCreate, ReportRead,
     TransactionCreate, TransactionRead,
     NotificationCreate, NotificationRead,
-    LoginRequest
+    LoginRequest,
+    UsernameRecoveryRequest  # New import for username recovery
 )
 
 # CRUD operations for each entity
@@ -38,7 +39,8 @@ from crud import (
     get_goal, create_goal, get_goals,
     get_report, create_report, get_reports,
     get_transaction, create_transaction, get_transactions,
-    get_notification, create_notification, get_notifications
+    get_notification, create_notification, get_notifications,
+    get_user_by_email,  # Added function for email-based retrieval
 )
 
 # Uvicorn server import (for running the application)
@@ -128,6 +130,41 @@ async def get_session():
     async with async_session() as session:
         yield session
 
+# Email sending function (placeholder)
+def send_email(to_email: str, subject: str, body: str):
+    import smtplib
+    from email.mime.text import MIMEText
+
+    from_email = "your_email@example.com"
+    password = "your_email_password"
+
+    # Create the email message
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = from_email
+    msg["To"] = to_email
+
+    # Send the email
+    with smtplib.SMTP("smtp.example.com", 587) as server:
+        server.starttls()
+        server.login(from_email, password)
+        server.sendmail(from_email, to_email, msg.as_string())
+
+# Username Recovery Endpoint
+@app.post("/recover-username/")
+async def recover_username(request: UsernameRecoveryRequest, db: Session = Depends(get_db)):
+    """Recover username by email."""
+    user = get_user_by_email(db, request.email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Email not found")
+
+    username = user.username  
+    email_subject = "Username Recovery"
+    email_body = f"Your username is: {username}"
+
+    send_email(request.email, email_subject, email_body)
+    return {"message": "An email with your username has been sent."}
+
 # User endpoints
 @app.post("/users/", response_model=UserRead)
 def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -214,7 +251,7 @@ def read_goal(goal_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Goal not found")
     return db_goal
 
-# Report endpoints
+# Reports endpoints
 @app.post("/reports/", response_model=ReportRead)
 def create_new_report(report: ReportCreate, db: Session = Depends(get_db)):
     db_report = create_report(db=db, report=report)
@@ -267,3 +304,19 @@ def read_notification(notification_id: int, db: Session = Depends(get_db)):
     if db_notification is None:
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification
+
+# Application startup event handler
+@app.on_event("startup")
+async def startup_event():
+    # Any startup tasks go here
+    pass
+
+# Application shutdown event handler
+@app.on_event("shutdown")
+async def shutdown_event():
+    # Any shutdown tasks go here
+    pass
+
+# Run the application with Uvicorn (if called directly)
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

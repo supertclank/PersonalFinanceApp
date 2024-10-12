@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
 from decimal import Decimal
@@ -22,6 +22,9 @@ class UserRead(UserBase):
 class LoginRequest(BaseModel):
     username: str
     password: str
+    
+class UsernameRecoveryRequest(BaseModel):
+    email: EmailStr
 
 class ProfileBase(BaseModel):
     firstName: str

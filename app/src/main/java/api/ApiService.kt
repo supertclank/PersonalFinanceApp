@@ -14,6 +14,7 @@ import api.data_class.TransactionCreate
 import api.data_class.TransactionRead
 import api.data_class.UserCreate
 import api.data_class.UserRead
+import api.data_class.UsernameRecoveryRequest
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Field
@@ -39,9 +40,8 @@ interface ApiService {
     @POST("login/")
     fun login(
         @Field("username") username: String,
-        @Field("password") password: String
+        @Field("hashed_password") hashed_password: String
     ): Call<UserRead>
-
 
     // Profile endpoints
     @POST("profiles/")
@@ -108,4 +108,8 @@ interface ApiService {
 
     @GET("notification/{notification_id}")
     fun getNotification(@Path("notification_id") notificationId: Int): Call<NotificationRead>
+
+    // Username recovery endpoint
+    @POST("username/recover/")
+    fun recoverUsername(@Body recoveryRequest: UsernameRecoveryRequest): Call<Void>
 }

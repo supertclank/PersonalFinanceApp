@@ -6,7 +6,7 @@ data class User(
     val userId: Int,
     val username: String,
     val email: String,
-    val password: String,
+    val hashed_password: String,
     val createdAt: Date
 )
 
@@ -20,7 +20,7 @@ data class UserRead(
     val userId: Int,
     val username: String,
     val email: String,
-    val password: String,
+    val hashed_password: String,
     val createdAt: Date
 )
 

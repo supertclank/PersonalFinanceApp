@@ -61,7 +61,7 @@ class RegisterActivity2 : AppCompatActivity() {
                             response: Response<ProfileRead>
                         ) {
                             if (response.isSuccessful) {
-                                // Handle successful response and start LoginActivity
+                                // Handle successful response and start com.example.personfinanceapp.activity.LoginActivity
                                 val intent =
                                     Intent(this@RegisterActivity2, LoginActivity::class.java)
                                 startActivity(intent)

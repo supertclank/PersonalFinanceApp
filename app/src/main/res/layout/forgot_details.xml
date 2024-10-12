@@ -24,17 +24,6 @@
             android:textColor="@color/pastelOrangeOnPrimary"
             android:textStyle="bold" />
 
-        <!-- Username field -->
-        <EditText
-            android:id="@+id/forgot_username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="@string/forgot_username"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:backgroundTint="@color/pastelOrangePrimary" />
-
         <!-- Email field -->
         <EditText
             android:id="@+id/forgot_email"
@@ -52,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/send_code"
+            android:text="@string/send_request"
             android:textColor="@color/pastelOrangeOnPrimary"
             android:backgroundTint="@color/pastelOrangePrimary" />
 
