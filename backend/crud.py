@@ -3,6 +3,8 @@ from models import User, Profile, Budget, Goals, Report, Transaction, Notificati
 from schemas import UserCreate, ProfileCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate
 from passlib.context import CryptContext
 import datetime
+from utils import hash_password
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

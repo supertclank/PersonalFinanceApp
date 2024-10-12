@@ -40,19 +40,19 @@ from crud import (
     get_report, create_report, get_reports,
     get_transaction, create_transaction, get_transactions,
     get_notification, create_notification, get_notifications,
-    get_user_by_email,  # Added function for email-based retrieval
+    get_user_by_email,
 )
 
 # Uvicorn server import (for running the application)
 import uvicorn
 
+#Import for utils
+from utils import hash_password, pwd_context
+
 # JWT Token settings and password hashing context
 SECRET_KEY = "your_secret_key"  
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-# Password hashing context using bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # OAuth2 token scheme definition
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -76,10 +76,6 @@ app.add_middleware(
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plaintext password against a hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
-
-def hash_password(password: str) -> str:
-    """Hash a plaintext password for secure storage."""
-    return pwd_context.hash(password)
 
 def authenticate_user(db: Session, username: str, password: str):
     """Authenticate a user by username and password."""
@@ -168,6 +164,7 @@ async def recover_username(request: UsernameRecoveryRequest, db: Session = Depen
 # User endpoints
 @app.post("/users/", response_model=UserRead)
 def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
+    user.hashed_password = hash_password(user.password)  # Hash the password
     db_user = create_user(db=db, user=user)
     return db_user
 
@@ -183,7 +180,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-# login endpoint
+# Login endpoint
 @app.post("/login/")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, username=form_data.username, password=form_data.password)  # Plain password
@@ -251,7 +248,7 @@ def read_goal(goal_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Goal not found")
     return db_goal
 
-# Reports endpoints
+# Report endpoints
 @app.post("/reports/", response_model=ReportRead)
 def create_new_report(report: ReportCreate, db: Session = Depends(get_db)):
     db_report = create_report(db=db, report=report)
@@ -305,18 +302,6 @@ def read_notification(notification_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification
 
-# Application startup event handler
-@app.on_event("startup")
-async def startup_event():
-    # Any startup tasks go here
-    pass
-
-# Application shutdown event handler
-@app.on_event("shutdown")
-async def shutdown_event():
-    # Any shutdown tasks go here
-    pass
-
-# Run the application with Uvicorn (if called directly)
+# Run the FastAPI app
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

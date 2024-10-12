@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from models import User
 from schemas import UsernameRecoveryRequest
 from database import get_db
+from email_utils import send_email  # Import the send_email function
 
 router = APIRouter()
 
@@ -15,7 +16,6 @@ def recover_username(request: UsernameRecoveryRequest, db: Session = Depends(get
         raise HTTPException(status_code=404, detail="User not found")
 
     # Send an email to the user with their username
-    # (assuming a function send_email exists)
     send_email(
         recipient=user.email, 
         subject="Username Recovery",
