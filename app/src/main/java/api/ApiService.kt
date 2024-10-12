@@ -4,7 +4,6 @@ import api.data_class.BudgetCreate
 import api.data_class.BudgetRead
 import api.data_class.GoalsCreate
 import api.data_class.GoalsRead
-import api.data_class.LoginRequest
 import api.data_class.NotificationCreate
 import api.data_class.NotificationRead
 import api.data_class.ProfileCreate
@@ -17,6 +16,8 @@ import api.data_class.UserCreate
 import api.data_class.UserRead
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -34,8 +35,13 @@ interface ApiService {
     @GET("user/{user_id}")
     fun getUser(@Path("user_id") userId: Int): Call<UserRead>
 
-    @POST("login")
-    fun login(@Body request: LoginRequest): Call<UserRead>
+    @FormUrlEncoded
+    @POST("login/")
+    fun login(
+        @Field("username") username: String,
+        @Field("password") password: String
+    ): Call<UserRead>
+
 
     // Profile endpoints
     @POST("profiles/")

@@ -1,6 +1,10 @@
 from sqlalchemy.orm import Session
 from models import User, Profile, Budget, Goals, Report, Transaction, Notification
 from schemas import UserCreate, ProfileCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate
+from passlib.context import CryptContext
+import datetime
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_user(db: Session, user_id: int):
     return db.query(User).filter(User.userId == user_id).first()
@@ -9,11 +13,15 @@ def get_users(db: Session, skip: int = 0, limit: int = 10):
     return db.query(User).offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: UserCreate):
-    db_user = User(username=user.username, email=user.email, hash_password=user.hash_password)
+    hashed_password = hash_password(user.password)
+    db_user = User(username=user.username, email=user.email, hashed_password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
+
+
 
 def get_user_by_username(db: Session, username: str):
     # Retrieve a user by their username

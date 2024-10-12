@@ -45,7 +45,7 @@ from crud import (
 import uvicorn
 
 # JWT Token settings and password hashing context
-SECRET_KEY = "your_secret_key"  # Replace with your actual secret key
+SECRET_KEY = "your_secret_key"  
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -82,7 +82,7 @@ def hash_password(password: str) -> str:
 def authenticate_user(db: Session, username: str, password: str):
     """Authenticate a user by username and password."""
     user = get_user_by_username(db, username=username)
-    if not user or not verify_password(password, user.password):
+    if not user or not verify_password(password, user.hashed_password):
         return False
     return user
 
@@ -146,10 +146,10 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-# Login Endpoint
-@app.post("/user/login")
+# login endpoint
+@app.post("/login/")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, username=form_data.username, password=form_data.password)
+    user = authenticate_user(db, username=form_data.username, password=form_data.password)  # Plain password
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

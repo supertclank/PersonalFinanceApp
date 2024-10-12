@@ -8,7 +8,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import api.RetrofitClient
-import api.data_class.LoginRequest
 import api.data_class.UserRead
 import com.example.personfinanceapp.R
 import retrofit2.Call
@@ -95,25 +94,22 @@ class LoginActivity : AppCompatActivity() {
     // Function to verify user login.
     private fun loginVerify() {
         val username = usernameEditText.text.toString()
-        val hashed_password = passwordEditText.text.toString()
+        val password = passwordEditText.text.toString()
 
         // Validate input fields are not empty.
-        if (username.isEmpty() || hashed_password.isEmpty()) {
-            Toast.makeText(this, "Please enter your username and password.", Toast.LENGTH_SHORT)
-                .show()
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please enter your username and password.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Create login request object and make API call.
-        val loginRequest = LoginRequest(username, hashed_password)
-        val call = RetrofitClient.instance.login(loginRequest)
+        // Make API call with username and password as separate fields.
+        val call = RetrofitClient.instance.login(username, password)
 
         call.enqueue(object : Callback<UserRead> {
             override fun onResponse(call: Call<UserRead>, response: Response<UserRead>) {
                 if (response.isSuccessful) {
                     // Login successful, navigate to DashboardActivity.
-                    Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
                     intent.putExtra("username", username) // Pass username to next activity.
                     startActivity(intent)

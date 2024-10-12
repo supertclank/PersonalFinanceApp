@@ -5,8 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:padding="16dp"
-    android:background="@color/colorBackground"
-    tools:context=".ForgotDetailsActivity">
+    android:background="@color/colorBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
