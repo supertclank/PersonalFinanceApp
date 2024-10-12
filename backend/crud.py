@@ -15,12 +15,12 @@ def get_users(db: Session, skip: int = 0, limit: int = 10):
     return db.query(User).offset(skip).limit(limit).all()
 
 def create_user(db: Session, user: UserCreate):
-    hashed_password = hash_password(user.password)
-    db_user = User(username=user.username, email=user.email, hashed_password=hashed_password)
+    db_user = User(**user.dict(exclude={"password"}), hashed_password=user.hashed_password)  # Use the correct field name
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 def get_user_by_username(db: Session, username: str):
     # Retrieve a user by their username

@@ -14,6 +14,7 @@ import com.example.personfinanceapp.R
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.security.MessageDigest
 
 class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,13 +39,17 @@ class RegisterActivity : AppCompatActivity() {
             // Retrieve input values
             val username = usernameField.text.toString()
             val email = emailField.text.toString()
-            val hashed_password = passwordField.text.toString()
+            val password = passwordField.text.toString()
             val confirmPassword = confirmPasswordField.text.toString()
 
             // Validate the inputs before making the API call
-            if (validateInputs(username, email, hashed_password, confirmPassword)) {
+            if (validateInputs(username, email, password, confirmPassword)) {
+                // Hash the password
+                val hashedPassword = hashPassword(password) // Hash the password before sending
+
                 // Create a UserCreate object with the input values
-                val userCreate = UserCreate(username, email, hashed_password)
+                val userCreate = UserCreate(username, email, hashedPassword) // Change made here
+
                 // Make an API call to create the user
                 RetrofitClient.instance.createUser(userCreate).enqueue(object : Callback<UserRead> {
                     override fun onResponse(call: Call<UserRead>, response: Response<UserRead>) {
@@ -135,5 +140,12 @@ class RegisterActivity : AppCompatActivity() {
         val passwordMatcher = Regex(passwordPattern)
 
         return passwordMatcher.matches(password) // Check if password matches the pattern
+    }
+
+    // Function to hash the password
+    private fun hashPassword(password: String): String {
+        // Replace this with your actual password hashing logic
+        val bytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())
+        return bytes.joinToString("") { "%02x".format(it) } // Convert bytes to hex string
     }
 }

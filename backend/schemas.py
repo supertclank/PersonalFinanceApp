@@ -9,19 +9,22 @@ class UserBase(BaseModel):
 
 class UserCreate(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str 
-
-class UserRead(UserBase):
-    userId: int
-    createdAt: datetime
 
     class Config:
         orm_mode = True
 
+class UserRead(UserBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
 class LoginRequest(BaseModel):
     username: str
-    password: str
+    hashed_password: str
     
 class UsernameRecoveryRequest(BaseModel):
     email: EmailStr

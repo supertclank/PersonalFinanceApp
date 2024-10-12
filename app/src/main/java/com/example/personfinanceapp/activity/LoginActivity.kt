@@ -102,8 +102,8 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // Make API call with username and password as separate fields.
-        val call = RetrofitClient.instance.login(username, password)
+        // Make API call with the username and password as separate fields.
+        val call = RetrofitClient.instance.login(username = username, password = password)
 
         call.enqueue(object : Callback<UserRead> {
             override fun onResponse(call: Call<UserRead>, response: Response<UserRead>) {
@@ -139,4 +139,5 @@ class LoginActivity : AppCompatActivity() {
             }
         })
     }
+
 }

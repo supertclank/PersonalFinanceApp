@@ -46,7 +46,7 @@ from crud import (
 # Uvicorn server import (for running the application)
 import uvicorn
 
-#Import for utils
+# Import for utils
 from utils import hash_password, pwd_context
 
 # JWT Token settings and password hashing context
@@ -164,9 +164,13 @@ async def recover_username(request: UsernameRecoveryRequest, db: Session = Depen
 # User endpoints
 @app.post("/users/", response_model=UserRead)
 def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
-    user.hashed_password = hash_password(user.password)  # Hash the password
-    db_user = create_user(db=db, user=user)
-    return db_user
+    # Hash the password
+    hashed_password = hash_password(user.password)
+    # Create a new user with the hashed password
+    db_user = create_user(db=db, user=user.copy(update={"hashed_password": hashed_password}))
+    
+    # Return UserRead model instead of the entire user object
+    return UserRead(id=db_user.id, username=db_user.username, email=db_user.email)
 
 @app.get("/users/", response_model=List[UserRead])
 def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
@@ -178,7 +182,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+    return UserRead(id=db_user.id, username=db_user.username, email=db_user.email)
 
 # Login endpoint
 @app.post("/login/")
@@ -248,7 +252,7 @@ def read_goal(goal_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Goal not found")
     return db_goal
 
-# Report endpoints
+# Reports endpoints
 @app.post("/reports/", response_model=ReportRead)
 def create_new_report(report: ReportCreate, db: Session = Depends(get_db)):
     db_report = create_report(db=db, report=report)
@@ -266,7 +270,7 @@ def read_report(report_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Report not found")
     return db_report
 
-# Transaction endpoints
+# Transactions endpoints
 @app.post("/transactions/", response_model=TransactionRead)
 def create_new_transaction(transaction: TransactionCreate, db: Session = Depends(get_db)):
     db_transaction = create_transaction(db=db, transaction=transaction)
@@ -284,7 +288,7 @@ def read_transaction(transaction_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Transaction not found")
     return db_transaction
 
-# Notification endpoints
+# Notifications endpoints
 @app.post("/notifications/", response_model=NotificationRead)
 def create_new_notification(notification: NotificationCreate, db: Session = Depends(get_db)):
     db_notification = create_notification(db=db, notification=notification)
@@ -302,6 +306,6 @@ def read_notification(notification_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification
 
-# Run the FastAPI app
+# Run the application
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
