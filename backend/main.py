@@ -80,7 +80,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def authenticate_user(db: Session, username: str, password: str):
     """Authenticate a user by username and password."""
     user = get_user_by_username(db, username=username)
-    if not user or not verify_password(password, user.hashed_password):
+    if not user or not verify_password(password, user.password):
         return False
     return user
 
