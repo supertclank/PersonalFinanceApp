@@ -45,10 +45,10 @@ class RegisterActivity : AppCompatActivity() {
             // Validate the inputs before making the API call
             if (validateInputs(username, email, password, confirmPassword)) {
                 // Hash the password
-                val hashedPassword = hashPassword(password) // Hash the password before sending
+                val password = hashPassword(password) // Hash the password before sending
 
                 // Create a UserCreate object with the input values
-                val userCreate = UserCreate(username, email, hashedPassword) // Change made here
+                val userCreate = UserCreate(username, email, password) // Change made here
 
                 // Make an API call to create the user
                 RetrofitClient.instance.createUser(userCreate).enqueue(object : Callback<UserRead> {

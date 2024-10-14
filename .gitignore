@@ -16,3 +16,4 @@ local.properties
 /backend/alembic
 backend/alembic.ini
 /backend/__pycache__
+/backend/__pycache__
