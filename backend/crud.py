@@ -1,45 +1,48 @@
 from sqlalchemy.orm import Session
 from models import User, Profile, Budget, Goals, Report, Transaction, Notification
-from schemas import UserCreate, ProfileCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate
+from schemas import UserCreate, ProfileCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse
 from passlib.context import CryptContext
+from sqlalchemy.exc import IntegrityError
 import datetime
 from utils import hash_password
+from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Retrieve a user by their user ID
-def get_user(db: Session, user_id: int):
-    return db.query(User).filter(User.userId == user_id).first()
+async def get_user(db: AsyncSession, username: str):
+    return await db.execute(select(User).filter(User.username == username)).scalar_one_or_none()
 
-# Retrieve multiple users with pagination
-def get_users(db: Session, skip: int = 0, limit: int = 10):
+
+def get_users(db: Session, skip: int = 0, limit: int = 255):
     return db.query(User).offset(skip).limit(limit).all()
 
-# Create a new user
-def create_user(db: Session, user: UserCreate):
-    db_user = User(username=user.username, email=user.email, password=user.password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+async def create_user(db: AsyncSession, user: UserCreate) -> UserResponse:
+    try:
+        hashed_password = hash_password(user.password)
+        db_user = User(username=user.username, email=user.email, password=hashed_password)
+        db.add(db_user)
+        await db.commit()
+        await db.refresh(db_user)
+        return UserResponse(id=db_user.userId, username=db_user.username, email=db_user.email)
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username or email already exists")
 
-# Retrieve a user by their username
+
 def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
-# Retrieve a user by their email
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
-# Retrieve a profile by its profile ID
 def get_profile(db: Session, profile_id: int):
     return db.query(Profile).filter(Profile.profileId == profile_id).first()
 
-# Retrieve multiple profiles with pagination
 def get_profiles(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Profile).offset(skip).limit(limit).all()
 
-# Create a new profile
 def create_profile(db: Session, profile: ProfileCreate):
     db_profile = Profile(
         userId=profile.userId,
@@ -52,15 +55,12 @@ def create_profile(db: Session, profile: ProfileCreate):
     db.refresh(db_profile)
     return db_profile
 
-# Retrieve a budget by its budget ID
 def get_budget(db: Session, budget_id: int):
     return db.query(Budget).filter(Budget.budgetId == budget_id).first()
 
-# Retrieve multiple budgets with pagination
 def get_budgets(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Budget).offset(skip).limit(limit).all()
 
-# Create a new budget
 def create_budget(db: Session, budget: BudgetCreate):
     db_budget = Budget(
         userId=budget.userId,
@@ -74,15 +74,12 @@ def create_budget(db: Session, budget: BudgetCreate):
     db.refresh(db_budget)
     return db_budget
 
-# Retrieve a goal by its goal ID
 def get_goal(db: Session, goal_id: int):
     return db.query(Goals).filter(Goals.goalId == goal_id).first()
 
-# Retrieve multiple goals with pagination
 def get_goals(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Goals).offset(skip).limit(limit).all()
 
-# Create a new goal
 def create_goal(db: Session, goal: GoalsCreate):
     db_goal = Goals(
         userId=goal.userId,
@@ -97,15 +94,12 @@ def create_goal(db: Session, goal: GoalsCreate):
     db.refresh(db_goal)
     return db_goal
 
-# Retrieve a report by its report ID
 def get_report(db: Session, report_id: int):
     return db.query(Report).filter(Report.reportId == report_id).first()
 
-# Retrieve multiple reports with pagination
 def get_reports(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Report).offset(skip).limit(limit).all()
 
-# Create a new report
 def create_report(db: Session, report: ReportCreate):
     db_report = Report(
         userId=report.userId,
@@ -117,43 +111,36 @@ def create_report(db: Session, report: ReportCreate):
     db.refresh(db_report)
     return db_report
 
-# Retrieve a transaction by its transaction ID
 def get_transaction(db: Session, transaction_id: int):
     return db.query(Transaction).filter(Transaction.transactionId == transaction_id).first()
 
-# Retrieve multiple transactions with pagination
 def get_transactions(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Transaction).offset(skip).limit(limit).all()
 
-# Create a new transaction
 def create_transaction(db: Session, transaction: TransactionCreate):
     db_transaction = Transaction(
         userId=transaction.userId,
         amount=transaction.amount,
-        transactionCategoryId=transaction.transactionCategoryId,
-        date=transaction.date,
-        description=transaction.description
+        transactionDate=transaction.transactionDate,
+        description=transaction.description,
+        categoryId=transaction.categoryId
     )
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
     return db_transaction
 
-# Retrieve a notification by its notification ID
 def get_notification(db: Session, notification_id: int):
     return db.query(Notification).filter(Notification.notificationId == notification_id).first()
 
-# Retrieve multiple notifications with pagination
 def get_notifications(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Notification).offset(skip).limit(limit).all()
 
-# Create a new notification
 def create_notification(db: Session, notification: NotificationCreate):
     db_notification = Notification(
         userId=notification.userId,
         message=notification.message,
-        notificationTypeId=notification.notificationTypeId,
-        isRead=notification.isRead
+        date=notification.date or datetime.datetime.now()
     )
     db.add(db_notification)
     db.commit()

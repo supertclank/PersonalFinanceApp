@@ -5,6 +5,7 @@ from schemas import UserCreate
 from crud import create_user
 from utils import hash_password
 
+
 # Function to create a new user
 async def create_new_user(db: Session, user: UserCreate):
     # Check if the email is already registered

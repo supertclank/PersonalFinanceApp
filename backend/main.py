@@ -27,7 +27,7 @@ from schemas import (
     ReportCreate, ReportRead,
     TransactionCreate, TransactionRead,
     NotificationCreate, NotificationRead,
-    LoginRequest,
+    LoginRequest, TokenResponse,
     UsernameRecoveryRequest
 )
 
@@ -75,18 +75,13 @@ app.add_middleware(
 # Utility Functions for Authentication
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user_by_username(db, username=username)
-    if user is None:
+    if user is None or not verify_password(password, user.password):
         return None
-
-    if not verify_password(password, user.password):
-        return None 
-
     return user 
-
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -164,7 +159,7 @@ def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
     return UserRead(id=db_user.userId, username=db_user.username, email=db_user.email)
 
 @app.get("/users/", response_model=List[UserRead])
-def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+def read_users(skip: int = 0, limit: int = 250, db: Session = Depends(get_db)):
     return get_users(db, skip=skip, limit=limit)
 
 @app.get("/user/{user_id}", response_model=UserRead)
@@ -172,21 +167,35 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return UserRead(id=db_user.id, username=db_user.username, email=db_user.email)
+    return UserRead(id=db_user.userId, username=db_user.username, email=db_user.email)
 
 # Login endpoint
-@app.post("/login/")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, username=form_data.username, password=form_data.password)
+@app.post("/login/", response_model=TokenResponse)
+async def login(
+    login_request: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    user = authenticate_user(db, login_request.username, login_request.password)
+    
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password",
+            detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    
+    return TokenResponse(
+        access_token=access_token,
+        token_type="bearer",
+        user_id=user.userId,
+        username=user.username,
+        email=user.email
+    )
 
 # Profile endpoints
 @app.post("/profiles/", response_model=ProfileRead)
@@ -252,7 +261,7 @@ def read_report(report_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Report not found")
     return db_report
 
-# Transaction endpoints
+# Transactions endpoints
 @app.post("/transactions/", response_model=TransactionRead)
 def create_new_transaction(transaction: TransactionCreate, db: Session = Depends(get_db)):
     return create_transaction(db=db, transaction=transaction)
@@ -284,6 +293,6 @@ def read_notification(notification_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification
 
-# Main entry point for Uvicorn server
+# Run the app
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

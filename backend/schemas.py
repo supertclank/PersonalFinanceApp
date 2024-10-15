@@ -5,8 +5,17 @@ from decimal import Decimal
 
 # Base model for user data
 class UserBase(BaseModel):
+    id: int
     username: str
     email: str
+    
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+
+    class Config:
+        orm_mode = True
 
 # Model for creating a new user
 class UserCreate(BaseModel):
@@ -20,6 +29,8 @@ class UserCreate(BaseModel):
 # Model for reading user data
 class UserRead(UserBase):
     id: int
+    username: str
+    email: EmailStr
 
     class Config:
         orm_mode = True
@@ -27,7 +38,17 @@ class UserRead(UserBase):
 # Model for login requests
 class LoginRequest(BaseModel):
     username: str
-    hashed_password: str
+    password: str
+    
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user_id: int
+    username: str
+    email: str
+
+    class Config:
+        orm_mode = True
     
 # Model for username recovery requests
 class UsernameRecoveryRequest(BaseModel):
