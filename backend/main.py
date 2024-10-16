@@ -1,11 +1,14 @@
 # FastAPI imports
-from fastapi import FastAPI, Depends, HTTPException, status, Body
+from fastapi import FastAPI, Depends, HTTPException, status, Body, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+
+router = APIRouter()
 
 import logging
 
 # Database and ORM imports
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -20,6 +23,8 @@ from jose import JWTError, jwt
 # Standard libraries
 from datetime import datetime, timedelta
 from typing import List
+from sqlalchemy.exc import IntegrityError
+
 
 # Schema imports
 from schemas import (
@@ -190,22 +195,25 @@ def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
     # Hash the user's password before creating the user in the database
     hashed_password = hash_password(user.password)
 
-    # Create a new User instance with the hashed password
-    db_user = User(username=user.username, email=user.email, hashed_password=user.password)
-
     # Check if the username or email already exists
     existing_user = db.query(User).filter((User.username == user.username) | (User.email == user.email)).first()
     if existing_user:
-        print(f"Existing user found: {existing_user.username}, {existing_user.email}")  # Debugging line
         raise HTTPException(status_code=400, detail="Username or email already registered")
+
+    # Create a new User instance with the hashed password
+    db_user = User(username=user.username, email=user.email, password=hashed_password)
 
     # Add the new user to the database
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
 
+    # Generate access token (implement this in your security module)
+    access_token = create_access_token(data={"sub": db_user.username})
+    token_type = "bearer"  # Typically, you'd use 'bearer' for token-based authentication
+
     # Return the created user information as a TokenResponse
-    return TokenResponse(id=db_user.id, username=db_user.username, email=db_user.email)
+    return TokenResponse(access_token=access_token, token_type=token_type, id=db_user.id, username=db_user.username, email=db_user.email)
 
 @app.get("/users/", response_model=List[UserRead])
 async def read_users(skip: int = 0, limit: int = 250, db: AsyncSession = Depends(get_db)):
@@ -249,18 +257,19 @@ async def login(
         email=user.email
     )
     
-# Profile endpoints
-@app.post("/profiles/", response_model=ProfileRead)
-async def create_new_profile(profile: ProfileCreate, db: AsyncSession = Depends(get_db)):
+@app.post("/create-profile/")
+async def create_profile_route(profile: ProfileCreate, db: AsyncSession = Depends(get_db)):
     return await create_profile(db=db, profile=profile)
 
 @app.get("/profiles/", response_model=List[ProfileRead])
 async def read_profiles(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
-    return await get_profiles(db, skip=skip, limit=limit)
+    # Await the get_profiles function if it is async
+    return await get_profiles(db, skip=skip, limit=limit)  # Use await
 
 @app.get("/profile/{profile_id}", response_model=ProfileRead)
 async def read_profile(profile_id: int, db: AsyncSession = Depends(get_db)):
-    db_profile = await get_profile(db, profile_id=profile_id)
+    # Await the get_profile function if it is async
+    db_profile = await get_profile(db, profile_id=profile_id)  # Use await
     if db_profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
     return db_profile

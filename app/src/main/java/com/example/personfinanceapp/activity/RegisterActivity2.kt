@@ -23,7 +23,7 @@ class RegisterActivity2 : AppCompatActivity() {
         // Initialize UI components
         val backButton = findViewById<Button>(R.id.back)
         val firstNameField = findViewById<EditText>(R.id.first_name)
-        val lastnameField = findViewById<EditText>(R.id.last_name)
+        val lastNameField = findViewById<EditText>(R.id.last_name)
         val phoneNumberField = findViewById<EditText>(R.id.phone_number)
         val registerButton = findViewById<Button>(R.id.register)
 
@@ -36,11 +36,11 @@ class RegisterActivity2 : AppCompatActivity() {
         registerButton.setOnClickListener {
             // Retrieve input values
             val firstName = firstNameField.text.toString()
-            val lastName = lastnameField.text.toString()
+            val lastName = lastNameField.text.toString()
             val phoneNumber = phoneNumberField.text.toString()
 
             // Get USER_ID from the intent
-            val userId = intent.getStringExtra("USER_ID")
+            val userId = intent.getStringExtra("USER_ID")?.toInt() // Convert to Int
 
             // Check if USER_ID is not null and validate inputs
             if (userId != null && validateInputs(firstName, lastName, phoneNumber)) {
@@ -48,10 +48,10 @@ class RegisterActivity2 : AppCompatActivity() {
                 registerButton.isEnabled = false
                 // Create a ProfileCreate object with the input values
                 val profileCreate = ProfileCreate(
-                    userId = userId,
-                    firstName = firstName,
-                    lastName = lastName,
-                    phoneNumber = phoneNumber
+                    user_id = userId,
+                    first_name = firstName,
+                    last_name = lastName,
+                    phone_number = phoneNumber
                 )
                 // Make an API call to create the profile
                 RetrofitClient.instance.createProfile(profileCreate)

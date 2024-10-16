@@ -42,11 +42,18 @@ class UsernameRecoveryRequest(BaseModel):
     email: str
 
 # Profile schemas
+class ProfileResponse(BaseModel):
+    profileId: int
+    firstName: str
+    lastName: str
+    phoneNumber: str
+    createdAt: datetime
+    
 class ProfileCreate(BaseModel):
-    userId: int
-    first_Name: str
-    last_Name: str
-    phone_Number: str
+    user_id: int
+    first_name: str
+    last_name: str
+    phone_number: str
 
 class ProfileRead(BaseModel):
     profileId: int
@@ -54,6 +61,9 @@ class ProfileRead(BaseModel):
     lastName: str
     phoneNumber: str
     createdAt: datetime
+
+    class Config:
+        orm_mode = True
 
 # Budget schemas
 class BudgetCreate(BaseModel):

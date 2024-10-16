@@ -1,10 +1,10 @@
 package api.data_class
 
 data class ProfileRead(
-    val profileId: Int,
-    val userId: Int,
-    val firstName: String,
-    val lastName: String,
-    val phoneNumber: String,
-    val createdAt: String
+    val id: Int,
+    val user_id: Int,
+    val first_name: String,
+    val last_name: String,
+    val phone_number: String,
+    val created_at: String // Adjust type as necessary
 )

@@ -48,8 +48,6 @@ interface ApiService {
         @Field("client_secret") clientSecret: String? = null
     ): Call<TokenResponse>
 
-
-
     // Profile endpoints
     @POST("profiles/")
     fun createProfile(@Body profile: ProfileCreate): Call<ProfileRead>

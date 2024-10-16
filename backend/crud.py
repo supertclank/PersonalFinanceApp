@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
 from models import User, Profile, Budget, Goal, Report, Transaction, Notification
-from schemas import UserCreate, ProfileCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse
+from schemas import ProfileRead, UserCreate, ProfileCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 import datetime
 from utils import hash_password
-from fastapi import HTTPException
+from fastapi import HTTPException, logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -24,26 +24,36 @@ async def get_users(db: AsyncSession, skip: int = 0, limit: int = 255):
 
 def create_user(db: Session, user: UserCreate) -> UserResponse:
     try:
+        logger.info(f"Creating user with username: {user.username} and email: {user.email}")
+
         # Hash the password before storing it in the database
         hashed_password = hash_password(user.password)
-        
+        logger.info(f"Hashed password for user: {user.username}")
+
         # Create a new User instance with the hashed password
         db_user = User(username=user.username, email=user.email, password=hashed_password)
         
         # Add the new user to the session and commit the transaction
         db.add(db_user)
         db.commit()
-        
+        logger.info("User created successfully, committing to database.")
+
         # Refresh the instance to get the newly assigned ID and other defaults
         db.refresh(db_user)
         
         # Return the created user information as a UserResponse
         return UserResponse(id=db_user.id, username=db_user.username, email=db_user.email)
     
-    except IntegrityError:
+    except IntegrityError as e:
         # Rollback the session in case of an error (e.g., unique constraint violation)
         db.rollback()
+        logger.error(f"IntegrityError: {str(e)}")  # Log the error message
         raise HTTPException(status_code=400, detail="Username or email already exists")
+    except Exception as e:
+        # Handle unexpected exceptions
+        db.rollback()
+        logger.error(f"An unexpected error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
 async def get_user_by_email(db: AsyncSession, email: str):
     result = await db.execute(select(User).filter(User.email == email))
@@ -57,12 +67,12 @@ async def get_profiles(db: AsyncSession, skip: int = 0, limit: int = 10):
     result = await db.execute(select(Profile).offset(skip).limit(limit))
     return result.scalars().all()
 
-async def create_profile(db: AsyncSession, profile: ProfileCreate):
+async def create_profile(db: AsyncSession, profile: ProfileCreate) -> Profile:
     db_profile = Profile(
-        user_id=profile.userId,
-        first_name=profile.firstName,
-        last_name=profile.lastName,
-        phone_number=profile.phoneNumber
+        user_id=profile.user_id,
+        first_name=profile.first_name,
+        last_name=profile.last_name,
+        phone_number=profile.phone_number        
     )
     db.add(db_profile)
     await db.commit()
