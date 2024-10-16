@@ -1,148 +1,172 @@
 from sqlalchemy.orm import Session
-from models import User, Profile, Budget, Goals, Report, Transaction, Notification
+from models import User, Profile, Budget, Goal, Report, Transaction, Notification
 from schemas import UserCreate, ProfileCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 import datetime
 from utils import hash_password
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 async def get_user(db: AsyncSession, username: str):
-    return await db.execute(select(User).filter(User.username == username)).scalar_one_or_none()
-
-
-def get_users(db: Session, skip: int = 0, limit: int = 255):
-    return db.query(User).offset(skip).limit(limit).all()
-
-async def create_user(db: AsyncSession, user: UserCreate) -> UserResponse:
-    try:
-        hashed_password = hash_password(user.password)
-        db_user = User(username=user.username, email=user.email, password=hashed_password)
-        db.add(db_user)
-        await db.commit()
-        await db.refresh(db_user)
-        return UserResponse(id=db_user.userId, username=db_user.username, email=db_user.email)
-    except IntegrityError:
-        await db.rollback()
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username or email already exists")
-
+    result = await db.execute(select(User).filter(User.username == username))
+    return result.scalar_one_or_none()
 
 def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
+async def get_users(db: AsyncSession, skip: int = 0, limit: int = 255):
+    result = await db.execute(select(User).offset(skip).limit(limit))
+    return result.scalars().all()
 
-def get_profile(db: Session, profile_id: int):
-    return db.query(Profile).filter(Profile.profileId == profile_id).first()
+def create_user(db: Session, user: UserCreate) -> UserResponse:
+    try:
+        # Hash the password before storing it in the database
+        hashed_password = hash_password(user.password)
+        
+        # Create a new User instance with the hashed password
+        db_user = User(username=user.username, email=user.email, password=hashed_password)
+        
+        # Add the new user to the session and commit the transaction
+        db.add(db_user)
+        db.commit()
+        
+        # Refresh the instance to get the newly assigned ID and other defaults
+        db.refresh(db_user)
+        
+        # Return the created user information as a UserResponse
+        return UserResponse(id=db_user.id, username=db_user.username, email=db_user.email)
+    
+    except IntegrityError:
+        # Rollback the session in case of an error (e.g., unique constraint violation)
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Username or email already exists")
 
-def get_profiles(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Profile).offset(skip).limit(limit).all()
+async def get_user_by_email(db: AsyncSession, email: str):
+    result = await db.execute(select(User).filter(User.email == email))
+    return result.scalar_one_or_none()
 
-def create_profile(db: Session, profile: ProfileCreate):
+async def get_profile(db: AsyncSession, profile_id: int):
+    result = await db.execute(select(Profile).filter(Profile.id == profile_id))
+    return result.scalar_one_or_none()
+
+async def get_profiles(db: AsyncSession, skip: int = 0, limit: int = 10):
+    result = await db.execute(select(Profile).offset(skip).limit(limit))
+    return result.scalars().all()
+
+async def create_profile(db: AsyncSession, profile: ProfileCreate):
     db_profile = Profile(
-        userId=profile.userId,
-        firstName=profile.firstName,
-        lastName=profile.lastName, 
-        phoneNumber=profile.phoneNumber
+        user_id=profile.userId,
+        first_name=profile.firstName,
+        last_name=profile.lastName,
+        phone_number=profile.phoneNumber
     )
     db.add(db_profile)
-    db.commit()
-    db.refresh(db_profile)
+    await db.commit()
+    await db.refresh(db_profile)
     return db_profile
 
-def get_budget(db: Session, budget_id: int):
-    return db.query(Budget).filter(Budget.budgetId == budget_id).first()
+async def get_budget(db: AsyncSession, budget_id: int):
+    result = await db.execute(select(Budget).filter(Budget.id == budget_id))
+    return result.scalar_one_or_none()
 
-def get_budgets(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Budget).offset(skip).limit(limit).all()
+async def get_budgets(db: AsyncSession, skip: int = 0, limit: int = 10):
+    result = await db.execute(select(Budget).offset(skip).limit(limit))
+    return result.scalars().all()
 
-def create_budget(db: Session, budget: BudgetCreate):
+async def create_budget(db: AsyncSession, budget: BudgetCreate):
     db_budget = Budget(
-        userId=budget.userId,
-        budgetCategoryId=budget.budgetCategoryId,
+        user_id=budget.userId,
+        budget_category_id=budget.budgetCategoryId,
         amount=budget.amount,
-        startDate=budget.startDate,
-        endDate=budget.endDate
+        start_date=budget.startDate,
+        end_date=budget.endDate
     )
     db.add(db_budget)
-    db.commit()
-    db.refresh(db_budget)
+    await db.commit()
+    await db.refresh(db_budget)
     return db_budget
 
-def get_goal(db: Session, goal_id: int):
-    return db.query(Goals).filter(Goals.goalId == goal_id).first()
+async def get_goal(db: AsyncSession, goal_id: int):
+    result = await db.execute(select(Goal).filter(Goal.id == goal_id))
+    return result.scalar_one_or_none()
 
-def get_goals(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Goals).offset(skip).limit(limit).all()
+async def get_goals(db: AsyncSession, skip: int = 0, limit: int = 10):
+    result = await db.execute(select(Goal).offset(skip).limit(limit))
+    return result.scalars().all()
 
-def create_goal(db: Session, goal: GoalsCreate):
-    db_goal = Goals(
-        userId=goal.userId,
+async def create_goal(db: AsyncSession, goal: GoalsCreate):
+    db_goal = Goal(
+        user_id=goal.userId,
         name=goal.name,
-        targetAmount=goal.targetAmount,
-        currentAmount=goal.currentAmount,
+        target_amount=goal.targetAmount,
+        current_amount=goal.currentAmount,
         deadline=goal.deadline,
         description=goal.description
     )
     db.add(db_goal)
-    db.commit()
-    db.refresh(db_goal)
+    await db.commit()
+    await db.refresh(db_goal)
     return db_goal
 
-def get_report(db: Session, report_id: int):
-    return db.query(Report).filter(Report.reportId == report_id).first()
+async def get_report(db: AsyncSession, report_id: int):
+    result = await db.execute(select(Report).filter(Report.id == report_id))
+    return result.scalar_one_or_none()
 
-def get_reports(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Report).offset(skip).limit(limit).all()
+async def get_reports(db: AsyncSession, skip: int = 0, limit: int = 10):
+    result = await db.execute(select(Report).offset(skip).limit(limit))
+    return result.scalars().all()
 
-def create_report(db: Session, report: ReportCreate):
+async def create_report(db: AsyncSession, report: ReportCreate):
     db_report = Report(
-        userId=report.userId,
-        reportTypeId=report.reportTypeId,
+        user_id=report.userId,
+        report_type_id=report.reportTypeId,
         data=report.data
     )
     db.add(db_report)
-    db.commit()
-    db.refresh(db_report)
+    await db.commit()
+    await db.refresh(db_report)
     return db_report
 
-def get_transaction(db: Session, transaction_id: int):
-    return db.query(Transaction).filter(Transaction.transactionId == transaction_id).first()
+async def get_transaction(db: AsyncSession, transaction_id: int):
+    result = await db.execute(select(Transaction).filter(Transaction.id == transaction_id))
+    return result.scalar_one_or_none()
 
-def get_transactions(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Transaction).offset(skip).limit(limit).all()
+async def get_transactions(db: AsyncSession, skip: int = 0, limit: int = 10):
+    result = await db.execute(select(Transaction).offset(skip).limit(limit))
+    return result.scalars().all()
 
-def create_transaction(db: Session, transaction: TransactionCreate):
+async def create_transaction(db: AsyncSession, transaction: TransactionCreate):
     db_transaction = Transaction(
-        userId=transaction.userId,
+        user_id=transaction.userId,
         amount=transaction.amount,
-        transactionDate=transaction.transactionDate,
-        description=transaction.description,
-        categoryId=transaction.categoryId
+        transaction_category_id=transaction.categoryId,
+        date=transaction.transactionDate,
+        description=transaction.description
     )
     db.add(db_transaction)
-    db.commit()
-    db.refresh(db_transaction)
+    await db.commit()
+    await db.refresh(db_transaction)
     return db_transaction
 
-def get_notification(db: Session, notification_id: int):
-    return db.query(Notification).filter(Notification.notificationId == notification_id).first()
+async def get_notification(db: AsyncSession, notification_id: int):
+    result = await db.execute(select(Notification).filter(Notification.id == notification_id))
+    return result.scalar_one_or_none()
 
-def get_notifications(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Notification).offset(skip).limit(limit).all()
+async def get_notifications(db: AsyncSession, skip: int = 0, limit: int = 10):
+    result = await db.execute(select(Notification).offset(skip).limit(limit))
+    return result.scalars().all()
 
-def create_notification(db: Session, notification: NotificationCreate):
+async def create_notification(db: AsyncSession, notification: NotificationCreate):
     db_notification = Notification(
-        userId=notification.userId,
+        user_id=notification.userId,
         message=notification.message,
-        date=notification.date or datetime.datetime.now()
+        created_at=notification.date or datetime.datetime.utcnow()
     )
     db.add(db_notification)
-    db.commit()
-    db.refresh(db_notification)
+    await db.commit()
+    await db.refresh(db_notification)
     return db_notification

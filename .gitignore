@@ -21,3 +21,7 @@ backend/__pycache__/main.cpython-312.pyc
 backend/__pycache__/models.cpython-312.pyc
 backend/__pycache__/schemas.cpython-312.pyc
 backend/__pycache__/utils.cpython-312.pyc
+/backend/__pycache__
+*.pyc
+backend/test_password.py
+backend/test_password_verification.py

@@ -4,7 +4,6 @@ import api.data_class.BudgetCreate
 import api.data_class.BudgetRead
 import api.data_class.GoalsCreate
 import api.data_class.GoalsRead
-import api.data_class.LoginRequest
 import api.data_class.NotificationCreate
 import api.data_class.NotificationRead
 import api.data_class.ProfileCreate
@@ -17,7 +16,6 @@ import api.data_class.TransactionRead
 import api.data_class.UserCreate
 import api.data_class.UserRead
 import api.data_class.UsernameRecoveryRequest
-import okhttp3.Response
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Field
@@ -42,13 +40,14 @@ interface ApiService {
     @FormUrlEncoded
     @POST("login/")
     fun login(
-            @Field("grant_type") grantType: String = "password",
-            @Field("username") username: String,
-            @Field("password") password: String,
-            @Field("scope") scope: String? = null,
-            @Field("client_id") clientId: String? = null,
-            @Field("client_secret") clientSecret: String? = null
-        ): Response<TokenResponse>
+        @Field("grant_type") grantType: String = "password",
+        @Field("username") username: String,
+        @Field("password") password: String,
+        @Field("scope") scope: String? = null,
+        @Field("client_id") clientId: String? = null,
+        @Field("client_secret") clientSecret: String? = null
+    ): Call<TokenResponse>
+
 
 
     // Profile endpoints

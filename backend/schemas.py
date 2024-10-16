@@ -1,163 +1,126 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
-from decimal import Decimal
+from typing import Optional
 
-# Base model for user data
-class UserBase(BaseModel):
-    id: int
+# User schemas
+class UserCreate(BaseModel):
     username: str
-    email: str
-    
+    email: EmailStr
+    password: str
+
 class UserResponse(BaseModel):
     id: int
     username: str
     email: str
-
+    
     class Config:
         orm_mode = True
 
-# Model for creating a new user
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str 
-
-    class Config:
-        orm_mode = True
-
-# Model for reading user data
-class UserRead(UserBase):
+class UserRead(BaseModel):
     id: int
     username: str
-    email: EmailStr
+    email: str
+    created_at: datetime
 
     class Config:
         orm_mode = True
 
-# Model for login requests
+# Login schemas
 class LoginRequest(BaseModel):
     username: str
     password: str
-    
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
-    user_id: int
+    id: int
     username: str
     email: str
 
-    class Config:
-        orm_mode = True
-    
-# Model for username recovery requests
+# Username recovery schemas
 class UsernameRecoveryRequest(BaseModel):
-    email: EmailStr
+    email: str
 
-# Base model for profile data
-class ProfileBase(BaseModel):
+# Profile schemas
+class ProfileCreate(BaseModel):
+    userId: int
+    first_Name: str
+    last_Name: str
+    phone_Number: str
+
+class ProfileRead(BaseModel):
+    profileId: int
     firstName: str
     lastName: str
     phoneNumber: str
-
-# Model for creating a new profile
-class ProfileCreate(ProfileBase):
-    userId: int
-
-# Model for reading profile data
-class ProfileRead(ProfileBase):
-    profileId: int
     createdAt: datetime
 
-    class Config:
-        orm_mode = True
-
-# Base model for budget data
-class BudgetBase(BaseModel):
-    amount: Decimal
+# Budget schemas
+class BudgetCreate(BaseModel):
+    userId: int
+    budgetCategoryId: int
+    amount: float
     startDate: datetime
     endDate: datetime
 
-# Model for creating a new budget
-class BudgetCreate(BudgetBase):
-    userId: int
-    budgetCategoryId: int
-
-# Model for reading budget data
-class BudgetRead(BudgetBase):
+class BudgetRead(BaseModel):
     budgetId: int
+    amount: float
+    startDate: datetime
+    endDate: datetime
 
-    class Config:
-        orm_mode = True
-
-# Base model for goal data
-class GoalsBase(BaseModel):
+# Goals schemas
+class GoalsCreate(BaseModel):
+    userId: int
     name: str
-    targetAmount: Decimal
-    currentAmount: Decimal
+    targetAmount: float
+    currentAmount: float
     deadline: datetime
     description: str
 
-# Model for creating a new goal
-class GoalsCreate(GoalsBase):
-    userId: int
-
-# Model for reading goal data
-class GoalsRead(GoalsBase):
+class GoalsRead(BaseModel):
     goalId: int
+    name: str
+    targetAmount: float
+    currentAmount: float
+    deadline: datetime
+    description: str
 
-    class Config:
-        orm_mode = True
-
-# Base model for report data
-class ReportBase(BaseModel):
+# Report schemas
+class ReportCreate(BaseModel):
+    userId: int
     reportTypeId: int
     data: dict
 
-# Model for creating a new report
-class ReportCreate(ReportBase):
-    userId: int
-
-# Model for reading report data
-class ReportRead(ReportBase):
+class ReportRead(BaseModel):
     reportId: int
+    reportTypeId: int
+    data: dict
     generatedAt: datetime
 
-    class Config:
-        orm_mode = True
+# Transaction schemas
+class TransactionCreate(BaseModel):
+    userId: int
+    amount: float
+    date: datetime
+    description: str
+    transactionCategoryId: int
 
-# Base model for transaction data
-class TransactionBase(BaseModel):
-    amount: Decimal
+class TransactionRead(BaseModel):
+    transactionId: int
+    amount: float
     date: datetime
     description: str
 
-# Model for creating a new transaction
-class TransactionCreate(TransactionBase):
+# Notification schemas
+class NotificationCreate(BaseModel):
     userId: int
-    transactionCategoryId: int
+    message: str
+    isRead: Optional[bool] = False
+    date: Optional[datetime] = None
 
-# Model for reading transaction data
-class TransactionRead(TransactionBase):
-    transactionId: int
-
-    class Config:
-        orm_mode = True
-
-# Base model for notification data
-class NotificationBase(BaseModel):
+class NotificationRead(BaseModel):
+    notificationId: int
     message: str
     isRead: bool
-
-# Model for creating a new notification
-class NotificationCreate(NotificationBase):
-    userId: int
-    notificationTypeId: int
-
-# Model for reading notification data
-class NotificationRead(NotificationBase):
-    notificationId: int
     createdAt: datetime
-
-    class Config:
-        orm_mode = True

@@ -7,13 +7,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import api.RetrofitClient
-import api.data_class.LoginRequest
-import api.data_class.TokenResponse
 import com.example.personfinanceapp.R
-import kotlinx.coroutines.launch
-import retrofit2.Response
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okio.IOException
 
 // Activity for handling user login, API connection check, and navigation to other activities.
 class LoginActivity : AppCompatActivity() {
@@ -45,56 +44,91 @@ class LoginActivity : AppCompatActivity() {
 
     // Function to verify user login.
     private fun loginVerify() {
-        val username = usernameEditText.text.toString()
-        val password = passwordEditText.text.toString()
+        val username = usernameEditText.text.toString().trim()
+        val password = passwordEditText.text.toString().trim()
 
         if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter your username and password.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.enter_credentials), Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Create a LoginRequest object
-        val loginRequest = LoginRequest(username = username, password = password)
+        sendLoginRequest(username, password) // Call the function to send login request
+    }
 
-        // Call the login method inside a coroutine
-        lifecycleScope.launch {
-            try {
-                val response: Response<TokenResponse> = RetrofitClient.instance.login(loginRequest)
+    // Function to send the login request using OkHttp
+    private fun sendLoginRequest(username: String, password: String) {
+        val client = OkHttpClient()
 
-                if (response.isSuccessful) {
-                    val tokenResponse = response.body()
-                    if (tokenResponse != null) {
-                        // Store the token and proceed
-                        val accessToken: String = tokenResponse.access_token // or handle as needed
-                        Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+        // Create the JSON body
+        val json = """{"username":"$username", "password":"$password"}"""
+        val requestBody = json.toRequestBody("application/json".toMediaType())
 
-                        // Proceed to the next activity, passing the token if necessary
+        val request = Request.Builder()
+            .url("http://10.0.2.2:8000/login/")
+            .post(requestBody)
+            .build()
+
+        // Execute the request asynchronously
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                Log.e("LoginActivity", "Login failed: ${e.message}", e)
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                try {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body?.string()
+                        // Handle successful response
+                        Log.d("LoginActivity", "Login successful: $responseBody")
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                        }
+
+                        // Navigate to DashboardActivity or handle the token
                         val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
-                        intent.putExtra("access_token", accessToken) // Pass token to the next activity
                         startActivity(intent)
                         finish()
                     } else {
-                        Toast.makeText(this@LoginActivity, "Login successful but received an invalid response.", Toast.LENGTH_SHORT).show()
+                        Log.e("LoginActivity", "Login failed with status code: ${response.code}. Response body: ${response.body?.string()}")
+                        runOnUiThread {
+                            when (response.code) {
+                                401 -> Toast.makeText(
+                                    this@LoginActivity,
+                                    "Invalid username or password",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                else -> Toast.makeText(
+                                    this@LoginActivity,
+                                    "Login failed. Please try again.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     }
-                } else {
-                    Log.e("LoginActivity", "Login failed with status code: ${response.code()}. Response body: ${response.errorBody()?.string()}")
-                    when (response.code()) {
-                        401 -> Toast.makeText(
-                            this@LoginActivity,
-                            "Invalid username or password",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        else -> Toast.makeText(
-                            this@LoginActivity,
-                            "Login failed. Please try again.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                } catch (e: Exception) {
+                    Log.e("LoginActivity", "Login failed: ${e.message}", e)
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
-            } catch (e: Exception) {
-                Log.e("LoginActivity", "Login failed: ${e.message}", e)
-                Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+        })
+    }
+
+    // Function to handle error responses
+    private fun handleErrorResponse(response: okhttp3.Response) {
+        val errorMessage = when (response.code) {
+            401 -> getString(R.string.incorrect_username_or_password)
+            404 -> getString(R.string.user_not_found)
+            else -> getString(R.string.login_failed_general)
         }
+
+        runOnUiThread {
+            Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT).show()
+        }
+        Log.e("LoginActivity", "Login failed with status code: ${response.code}.")
     }
 }

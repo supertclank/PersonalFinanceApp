@@ -47,6 +47,17 @@
     <string name="password_too_weak">Password is too weak</string>
     <string name="password_reset_failed">Failed to reset password</string>
 
+    <!-- User Not Found -->
+    <string name="user_not_found">The username you entered does not exist.</string>
+
     <!-- Success messages -->
     <string name="verification_code_sent">Verification code sent to your email/phone</string>
+
+    <!-- Login Messages -->
+    <string name="incorrect_username_or_password">The username or password you entered is incorrect.</string>
+    <string name="login_failed_general">Login failed. Please try again.</string>
+    <string name="login_successful">Login successful!</string>
+
+    <!-- New Strings -->
+    <string name="enter_credentials">Please enter your username and password.</string>
 </resources>

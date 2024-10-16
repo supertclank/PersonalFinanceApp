@@ -1,18 +1,21 @@
 # FastAPI imports
-from fastapi import FastAPI, Depends, HTTPException, Security, status
+from fastapi import FastAPI, Depends, HTTPException, status, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+
+import logging
 
 # Database and ORM imports
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from models import Base
+from models import Base, User
 from database import engine, get_db
+
+from passlib.context import CryptContext
 
 # JWT and Password Security imports
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 # Standard libraries
 from datetime import datetime, timedelta
@@ -27,9 +30,11 @@ from schemas import (
     ReportCreate, ReportRead,
     TransactionCreate, TransactionRead,
     NotificationCreate, NotificationRead,
-    LoginRequest, TokenResponse,
+    TokenResponse, LoginRequest,
     UsernameRecoveryRequest
 )
+
+import secrets
 
 # CRUD operations for each entity
 from crud import (
@@ -47,10 +52,10 @@ from crud import (
 import uvicorn
 
 # Import for utils
-from utils import hash_password, verify_password
+from utils import verify_password
 
 # JWT Token settings and password hashing context
-SECRET_KEY = "your_secret_key"
+SECRET_KEY = secrets.token_urlsafe(32)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -71,13 +76,41 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"]   # Allow all headers
 )
+# Custom HTTP Exception Handler
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    logger.error(f"HTTP Exception occurred: {exc.detail}")  # Log the error details
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+    
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def hash_password(plain_password: str) -> str:
+    return pwd_context.hash(plain_password)
 
 # Utility Functions for Authentication
 def authenticate_user(db: Session, username: str, password: str):
-    user = get_user_by_username(db, username=username)
-    if user is None or not verify_password(password, user.password):
-        return None
-    return user 
+    user = db.query(User).filter(User.username == username).first()
+    logger.info(f"Retrieved user: {user}")  # Log the retrieved user object
+
+    if user:
+        is_valid_password = verify_password(password, user.password)
+        logger.info(f"Password verification result: {is_valid_password}")  # Log the password verification result
+        
+        if is_valid_password:
+            return user
+            
+    return None
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()
@@ -152,32 +185,49 @@ async def recover_username(request: UsernameRecoveryRequest, db: Session = Depen
     return {"message": "An email with your username has been sent."}
 
 # User endpoints
-@app.post("/users/", response_model=UserRead)
+@app.post("/users/", response_model=TokenResponse)
 def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
+    # Hash the user's password before creating the user in the database
     hashed_password = hash_password(user.password)
-    db_user = create_user(db=db, user=user.copy(update={"password": hashed_password}))
-    return UserRead(id=db_user.userId, username=db_user.username, email=db_user.email)
+
+    # Create a new User instance with the hashed password
+    db_user = User(username=user.username, email=user.email, hashed_password=user.password)
+
+    # Check if the username or email already exists
+    existing_user = db.query(User).filter((User.username == user.username) | (User.email == user.email)).first()
+    if existing_user:
+        print(f"Existing user found: {existing_user.username}, {existing_user.email}")  # Debugging line
+        raise HTTPException(status_code=400, detail="Username or email already registered")
+
+    # Add the new user to the database
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
+    # Return the created user information as a TokenResponse
+    return TokenResponse(id=db_user.id, username=db_user.username, email=db_user.email)
 
 @app.get("/users/", response_model=List[UserRead])
-def read_users(skip: int = 0, limit: int = 250, db: Session = Depends(get_db)):
-    return get_users(db, skip=skip, limit=limit)
+async def read_users(skip: int = 0, limit: int = 250, db: AsyncSession = Depends(get_db)):
+    return await get_users(db, skip=skip, limit=limit)
 
 @app.get("/user/{user_id}", response_model=UserRead)
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user(db, user_id=user_id)
+async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
+    db_user = await get_user(db, user_id=user_id)  # Await this call
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return UserRead(id=db_user.userId, username=db_user.username, email=db_user.email)
+    return UserRead(id=db_user.id, username=db_user.username, email=db_user.email)
 
 # Login endpoint
 @app.post("/login/", response_model=TokenResponse)
 async def login(
-    login_request: OAuth2PasswordRequestForm = Depends(),
+    login_request: LoginRequest = Body(...),
     db: Session = Depends(get_db)
 ):
     user = authenticate_user(db, login_request.username, login_request.password)
     
     if not user:
+        logger.info(f"Failed login attempt for username: {login_request.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -189,110 +239,112 @@ async def login(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     
+    logger.info(f"User {user.username} logged in successfully.")
+    
     return TokenResponse(
         access_token=access_token,
         token_type="bearer",
-        user_id=user.userId,
+        user_id=user.id,
         username=user.username,
         email=user.email
     )
-
+    
 # Profile endpoints
 @app.post("/profiles/", response_model=ProfileRead)
-def create_new_profile(profile: ProfileCreate, db: Session = Depends(get_db)):
-    return create_profile(db=db, profile=profile)
+async def create_new_profile(profile: ProfileCreate, db: AsyncSession = Depends(get_db)):
+    return await create_profile(db=db, profile=profile)
 
 @app.get("/profiles/", response_model=List[ProfileRead])
-def read_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_profiles(db, skip=skip, limit=limit)
+async def read_profiles(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return await get_profiles(db, skip=skip, limit=limit)
 
 @app.get("/profile/{profile_id}", response_model=ProfileRead)
-def read_profile(profile_id: int, db: Session = Depends(get_db)):
-    db_profile = get_profile(db, profile_id=profile_id)
+async def read_profile(profile_id: int, db: AsyncSession = Depends(get_db)):
+    db_profile = await get_profile(db, profile_id=profile_id)
     if db_profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
     return db_profile
 
 # Budget endpoints
 @app.post("/budgets/", response_model=BudgetRead)
-def create_new_budget(budget: BudgetCreate, db: Session = Depends(get_db)):
-    return create_budget(db=db, budget=budget)
+async def create_new_budget(budget: BudgetCreate, db: AsyncSession = Depends(get_db)):
+    return await create_budget(db=db, budget=budget)
 
 @app.get("/budgets/", response_model=List[BudgetRead])
-def read_budgets(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_budgets(db, skip=skip, limit=limit)
+async def read_budgets(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return await get_budgets(db, skip=skip, limit=limit)
 
 @app.get("/budget/{budget_id}", response_model=BudgetRead)
-def read_budget(budget_id: int, db: Session = Depends(get_db)):
-    db_budget = get_budget(db, budget_id=budget_id)
+async def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
+    db_budget = await get_budget(db, budget_id=budget_id)
     if db_budget is None:
         raise HTTPException(status_code=404, detail="Budget not found")
     return db_budget
 
 # Goals endpoints
 @app.post("/goals/", response_model=GoalsRead)
-def create_new_goal(goal: GoalsCreate, db: Session = Depends(get_db)):
-    return create_goal(db=db, goal=goal)
+async def create_new_goal(goal: GoalsCreate, db: AsyncSession = Depends(get_db)):
+    return await create_goal(db=db, goal=goal)
 
 @app.get("/goals/", response_model=List[GoalsRead])
-def read_goals(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_goals(db, skip=skip, limit=limit)
+async def read_goals(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return await get_goals(db, skip=skip, limit=limit)
 
 @app.get("/goal/{goal_id}", response_model=GoalsRead)
-def read_goal(goal_id: int, db: Session = Depends(get_db)):
-    db_goal = get_goal(db, goal_id=goal_id)
+async def read_goal(goal_id: int, db: AsyncSession = Depends(get_db)):
+    db_goal = await get_goal(db, goal_id=goal_id)
     if db_goal is None:
         raise HTTPException(status_code=404, detail="Goal not found")
     return db_goal
 
-# Reports endpoints
+# Report endpoints
 @app.post("/reports/", response_model=ReportRead)
-def create_new_report(report: ReportCreate, db: Session = Depends(get_db)):
-    return create_report(db=db, report=report)
+async def create_new_report(report: ReportCreate, db: AsyncSession = Depends(get_db)):
+    return await create_report(db=db, report=report)
 
 @app.get("/reports/", response_model=List[ReportRead])
-def read_reports(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_reports(db, skip=skip, limit=limit)
+async def read_reports(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return await get_reports(db, skip=skip, limit=limit)
 
 @app.get("/report/{report_id}", response_model=ReportRead)
-def read_report(report_id: int, db: Session = Depends(get_db)):
-    db_report = get_report(db, report_id=report_id)
+async def read_report(report_id: int, db: AsyncSession = Depends(get_db)):
+    db_report = await get_report(db, report_id=report_id)
     if db_report is None:
         raise HTTPException(status_code=404, detail="Report not found")
     return db_report
 
-# Transactions endpoints
+# Transaction endpoints
 @app.post("/transactions/", response_model=TransactionRead)
-def create_new_transaction(transaction: TransactionCreate, db: Session = Depends(get_db)):
-    return create_transaction(db=db, transaction=transaction)
+async def create_new_transaction(transaction: TransactionCreate, db: AsyncSession = Depends(get_db)):
+    return await create_transaction(db=db, transaction=transaction)
 
 @app.get("/transactions/", response_model=List[TransactionRead])
-def read_transactions(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_transactions(db, skip=skip, limit=limit)
+async def read_transactions(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return await get_transactions(db, skip=skip, limit=limit)
 
 @app.get("/transaction/{transaction_id}", response_model=TransactionRead)
-def read_transaction(transaction_id: int, db: Session = Depends(get_db)):
-    db_transaction = get_transaction(db, transaction_id=transaction_id)
+async def read_transaction(transaction_id: int, db: AsyncSession = Depends(get_db)):
+    db_transaction = await get_transaction(db, transaction_id=transaction_id)
     if db_transaction is None:
         raise HTTPException(status_code=404, detail="Transaction not found")
     return db_transaction
 
-# Notifications endpoints
+# Notification endpoints
 @app.post("/notifications/", response_model=NotificationRead)
-def create_new_notification(notification: NotificationCreate, db: Session = Depends(get_db)):
-    return create_notification(db=db, notification=notification)
+async def create_new_notification(notification: NotificationCreate, db: AsyncSession = Depends(get_db)):
+    return await create_notification(db=db, notification=notification)
 
 @app.get("/notifications/", response_model=List[NotificationRead])
-def read_notifications(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_notifications(db, skip=skip, limit=limit)
+async def read_notifications(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return await get_notifications(db, skip=skip, limit=limit)
 
 @app.get("/notification/{notification_id}", response_model=NotificationRead)
-def read_notification(notification_id: int, db: Session = Depends(get_db)):
-    db_notification = get_notification(db, notification_id=notification_id)
+async def read_notification(notification_id: int, db: AsyncSession = Depends(get_db)):
+    db_notification = await get_notification(db, notification_id=notification_id)
     if db_notification is None:
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification
 
-# Run the app
+# Entry point to run the server
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

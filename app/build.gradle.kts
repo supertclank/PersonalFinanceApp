@@ -1,5 +1,3 @@
-
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -75,6 +73,9 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
+
+    // Add Mindrot library for bcrypt
+    implementation(libs.jbcrypt)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

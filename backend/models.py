@@ -1,107 +1,102 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Boolean, JSON, Enum, DECIMAL
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Boolean, JSON, DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
-from pydantic import BaseModel, EmailStr
 
 Base = declarative_base()
 
 # User table
 class User(Base):
-    __tablename__ = 'user'
-    userId = Column(Integer, primary_key=True, index=True)
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, nullable=False)
     email = Column(String(100), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
-    createdAt = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
     profile = relationship("Profile", back_populates="user")
     budgets = relationship("Budget", back_populates="user")
-    goals = relationship("Goals", back_populates="user")
+    goals = relationship("Goal", back_populates="user")
     reports = relationship("Report", back_populates="user")
     transactions = relationship("Transaction", back_populates="user")
     notifications = relationship("Notification", back_populates="user")
 
-# Pydantic model for username recovery
-class UsernameRecoveryRequest(BaseModel):
-    email: EmailStr
-
 # Profile table
 class Profile(Base):
-    __tablename__ = 'profile'
-    profileId = Column(Integer, primary_key=True, index=True)
-    userId = Column(Integer, ForeignKey('user.userId'))
-    firstName = Column(String(100))
-    lastName = Column(String(100))
-    phoneNumber = Column(String(15))
-    createdAt = Column(DateTime, default=datetime.datetime.utcnow)
+    __tablename__ = 'profiles'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    first_name = Column(String(100))
+    last_name = Column(String(100))
+    phone_number = Column(String(15))
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
     user = relationship("User", back_populates="profile")
 
 # BudgetCategory table
 class BudgetCategory(Base):
-    __tablename__ = 'budgetcategory'
-    categoryId = Column(Integer, primary_key=True, index=True)
-    categoryName = Column(String(255))
-    categoryDescription = Column(String(255))
+    __tablename__ = 'budget_categories'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255))
+    description = Column(String(255))
     budgets = relationship("Budget", back_populates="category")
 
 # Budget table
 class Budget(Base):
-    __tablename__ = 'budget'
-    budgetId = Column(Integer, primary_key=True, index=True)
-    userId = Column(Integer, ForeignKey('user.userId'))
-    budgetCategoryId = Column(Integer, ForeignKey('budgetcategory.categoryId'))
+    __tablename__ = 'budgets'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    budget_category_id = Column(Integer, ForeignKey('budget_categories.id'))
     amount = Column(DECIMAL(10, 2))
-    startDate = Column(DateTime)
-    endDate = Column(DateTime)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
     user = relationship("User", back_populates="budgets")
     category = relationship("BudgetCategory", back_populates="budgets")
 
-# Goals table
-class Goals(Base):
+# Goal table
+class Goal(Base):
     __tablename__ = 'goals'
-    goalId = Column(Integer, primary_key=True, index=True)
-    userId = Column(Integer, ForeignKey('user.userId'))
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
     name = Column(String(100))
-    targetAmount = Column(DECIMAL(10, 2))
-    currentAmount = Column(DECIMAL(10, 2))
+    target_amount = Column(DECIMAL(10, 2))
+    current_amount = Column(DECIMAL(10, 2))
     deadline = Column(DateTime)
     description = Column(String(255))
     user = relationship("User", back_populates="goals")
 
 # ReportType table
 class ReportType(Base):
-    __tablename__ = 'reporttype'
-    reportTypeId = Column(Integer, primary_key=True, index=True)
-    reportTypeName = Column(String(255))
-    reportTypeDescription = Column(String(255))
-    reports = relationship("Report", back_populates="reportType")
+    __tablename__ = 'report_types'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255))
+    description = Column(String(255))
+    reports = relationship("Report", back_populates="report_type")
 
 # Report table
 class Report(Base):
-    __tablename__ = 'report'
-    reportId = Column(Integer, primary_key=True, index=True)
-    userId = Column(Integer, ForeignKey('user.userId'))
-    reportTypeId = Column(Integer, ForeignKey('reporttype.reportTypeId'))
-    generatedAt = Column(DateTime, default=datetime.datetime.utcnow)
+    __tablename__ = 'reports'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    report_type_id = Column(Integer, ForeignKey('report_types.id'))
+    generated_at = Column(DateTime, default=datetime.datetime.utcnow)
     data = Column(JSON)
     user = relationship("User", back_populates="reports")
-    reportType = relationship("ReportType", back_populates="reports")
+    report_type = relationship("ReportType", back_populates="reports")
 
 # TransactionCategory table
 class TransactionCategory(Base):
-    __tablename__ = 'transactioncategory'
-    categoryId = Column(Integer, primary_key=True, index=True)
-    categoryName = Column(String(255))
-    categoryDescription = Column(String(255))
+    __tablename__ = 'transaction_categories'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255))
+    description = Column(String(255))
     transactions = relationship("Transaction", back_populates="category")
 
 # Transaction table
 class Transaction(Base):
-    __tablename__ = 'transaction'
-    transactionId = Column(Integer, primary_key=True, index=True)
-    userId = Column(Integer, ForeignKey('user.userId'))
+    __tablename__ = 'transactions'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
     amount = Column(DECIMAL(10, 2))
-    transactionCategoryId = Column(Integer, ForeignKey('transactioncategory.categoryId'))
+    transaction_category_id = Column(Integer, ForeignKey('transaction_categories.id'))
     date = Column(DateTime)
     description = Column(String(255))
     user = relationship("User", back_populates="transactions")
@@ -109,20 +104,20 @@ class Transaction(Base):
 
 # NotificationType table
 class NotificationType(Base):
-    __tablename__ = 'notificationtype'
-    notificationTypeId = Column(Integer, primary_key=True, index=True)
-    notificationName = Column(String(255))
-    notificationTypeDescription = Column(String(255))
-    notifications = relationship("Notification", back_populates="notificationType")
+    __tablename__ = 'notification_types'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255))
+    description = Column(String(255))
+    notifications = relationship("Notification", back_populates="notification_type")
 
 # Notification table
 class Notification(Base):
-    __tablename__ = 'notification'
-    notificationId = Column(Integer, primary_key=True, index=True)
-    userId = Column(Integer, ForeignKey('user.userId'))
+    __tablename__ = 'notifications'
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
     message = Column(String(255))
-    notificationTypeId = Column(Integer, ForeignKey('notificationtype.notificationTypeId'))
-    isRead = Column(Boolean, default=False)
-    createdAt = Column(DateTime, default=datetime.datetime.utcnow)
+    notification_type_id = Column(Integer, ForeignKey('notification_types.id'))
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
     user = relationship("User", back_populates="notifications")
-    notificationType = relationship("NotificationType", back_populates="notifications")
+    notification_type = relationship("NotificationType", back_populates="notifications")

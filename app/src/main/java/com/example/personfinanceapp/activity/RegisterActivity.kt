@@ -11,10 +11,10 @@ import api.RetrofitClient
 import api.data_class.UserCreate
 import api.data_class.UserRead
 import com.example.personfinanceapp.R
+import org.mindrot.jbcrypt.BCrypt
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.security.MessageDigest
 
 class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +55,7 @@ class RegisterActivity : AppCompatActivity() {
                     override fun onResponse(call: Call<UserRead>, response: Response<UserRead>) {
                         if (response.isSuccessful) {
                             // Retrieve user ID from the response
-                            val userId = response.body()?.userId?.toString()
+                            val userId = response.body()?.id?.toString()
 
                             if (userId != null) {
                                 // Start RegisterActivity2 and pass the USER_ID
@@ -143,9 +143,8 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     // Function to hash the password
+// Function to hash the password using bcrypt
     private fun hashPassword(password: String): String {
-        // Replace this with your actual password hashing logic
-        val bytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())
-        return bytes.joinToString("") { "%02x".format(it) } // Convert bytes to hex string
+        return BCrypt.hashpw(password, BCrypt.gensalt())
     }
 }
