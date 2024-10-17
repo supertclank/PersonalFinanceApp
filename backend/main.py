@@ -200,11 +200,12 @@ async def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
+    else:
     # Proceed with user creation
-    new_user = User(
+     new_user = User(
         username=user.username,
         email=user.email,
-        hashed_password=user.password,
+        password=user.password,
         first_name=user.first_name,
         last_name=user.last_name,
         phone_number=user.phone_number
@@ -253,7 +254,7 @@ async def login(
     return TokenResponse(
         access_token=access_token,
         token_type="bearer",
-        user_id=user.id,
+        id=user.id,
         username=user.username,
         email=user.email
     )
