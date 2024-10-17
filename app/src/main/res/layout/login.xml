@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
             android:layout_marginBottom="24dp"
-            android:text="@string/personalfinance"
+            android:text="@string/personal_finance"
             android:textColor="@color/pastelOrangeOnPrimary"
             android:textSize="24sp"
             android:textStyle="bold" />

@@ -2,6 +2,7 @@
     package="com.example.personfinanceapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -41,7 +42,33 @@
 
         <activity
             android:name=".activity.DashboardActivity"
-            android:exported="true"/>
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.AppSettingsActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.AccountSettingsActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.TransactionsActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.ReportsActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".activity.BudgetsActivity"
+            android:exported="true" />
+
+
     </application>
 
 </manifest>
