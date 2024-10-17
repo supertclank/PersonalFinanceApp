@@ -100,7 +100,7 @@ class LoginActivity : AppCompatActivity() {
                             ).show()
                         }
 
-                        // Navigate to DashboardActivity or handle the token
+                        // Navigate to com.example.personfinanceapp.activity.DashboardActivity or handle the token
                         val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
                         startActivity(intent)
                         finish()

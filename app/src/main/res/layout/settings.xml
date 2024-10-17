@@ -6,35 +6,60 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main content layout -->
+    <!-- Main content layout with Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <!-- Title for Settings Activity -->
-        <TextView
-            android:id="@+id/settings_title"
-            android:layout_width="wrap_content"
+        <!-- Toolbar at the top -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+        <!-- Content layout for Settings -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:text="@string/settings"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <!-- Placeholder for settings content -->
-        <TextView
-            android:id="@+id/settings_content"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginBottom="24dp"
-            android:text="@string/your_settings_will_appear_here"
-            android:textSize="16sp" />
+            <!-- Title for Settings Activity -->
+            <TextView
+                android:id="@+id/settings_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                android:text="@string/settings"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-        <!-- Settings content (e.g., Switches, Buttons) can be added here -->
+            <!-- Example Switch for Dark Mode -->
+            <Switch
+                android:id="@+id/dark_mode_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/dark_mode"
+                android:checked="false" />
+
+            <!-- Placeholder for settings content -->
+            <TextView
+                android:id="@+id/settings_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="24dp"
+                android:text="@string/settings_content"
+                android:textSize="16sp" />
+
+            <!-- Add other settings components here (e.g., more Switches, CheckBoxes, etc.) -->
+        </LinearLayout>
 
     </LinearLayout>
 

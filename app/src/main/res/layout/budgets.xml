@@ -6,35 +6,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main content layout -->
+    <!-- Main content layout with Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
-        <!-- Title for Budgets Activity -->
+        <!-- Toolbar at the top -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+
+        <!-- Your activity content -->
         <TextView
-            android:id="@+id/budgets_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:text="@string/budgets"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:text="@string/budgets_content" />
 
-        <!-- Placeholder for budgets content -->
-        <TextView
-            android:id="@+id/budgets_content"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginBottom="24dp"
-            android:text="@string/your_budgets_will_appear_here"
-            android:textSize="16sp" />
-
-        <!-- Budgets content (e.g., RecyclerView or ListView) can be added here -->
+        <!-- Additional activity-specific views -->
 
     </LinearLayout>
 
@@ -45,5 +39,4 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu" />
-
 </androidx.drawerlayout.widget.DrawerLayout>
