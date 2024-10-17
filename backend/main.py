@@ -29,7 +29,6 @@ from sqlalchemy.exc import IntegrityError
 # Schema imports
 from schemas import (
     UserCreate, UserRead,
-    ProfileCreate, ProfileRead,
     BudgetCreate, BudgetRead,
     GoalsCreate, GoalsRead,
     ReportCreate, ReportRead,
@@ -44,7 +43,6 @@ import secrets
 # CRUD operations for each entity
 from crud import (
     get_user, create_user, get_user_by_username, get_users,
-    get_profile, create_profile, get_profiles,
     get_budget, create_budget, get_budgets,
     get_goal, create_goal, get_goals,
     get_report, create_report, get_reports,
@@ -189,42 +187,45 @@ async def recover_username(request: UsernameRecoveryRequest, db: Session = Depen
     send_email(request.email, email_subject, email_body)
     return {"message": "An email with your username has been sent."}
 
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+
+app = FastAPI()
+
 # User endpoints
-@app.post("/users/", response_model=TokenResponse)
-def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
-    # Hash the user's password before creating the user in the database
-    hashed_password = hash_password(user.password)
-
-    # Check if the username or email already exists
-    existing_user = db.query(User).filter((User.username == user.username) | (User.email == user.email)).first()
+@app.post("/users/")
+async def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
+    existing_user = get_user_by_email(db, user.email)
     if existing_user:
-        raise HTTPException(status_code=400, detail="Username or email already registered")
-
-    # Create a new User instance with the hashed password
-    db_user = User(username=user.username, email=user.email, password=hashed_password)
-
-    # Add the new user to the database
-    db.add(db_user)
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Proceed with user creation
+    new_user = User(
+        username=user.username,
+        email=user.email,
+        hashed_password=user.password,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        phone_number=user.phone_number
+    )
+    db.add(new_user)
     db.commit()
-    db.refresh(db_user)
+    return new_user
 
-    # Generate access token (implement this in your security module)
-    access_token = create_access_token(data={"sub": db_user.username})
-    token_type = "bearer"  # Typically, you'd use 'bearer' for token-based authentication
-
-    # Return the created user information as a TokenResponse
-    return TokenResponse(access_token=access_token, token_type=token_type, id=db_user.id, username=db_user.username, email=db_user.email)
 
 @app.get("/users/", response_model=List[UserRead])
-async def read_users(skip: int = 0, limit: int = 250, db: AsyncSession = Depends(get_db)):
-    return await get_users(db, skip=skip, limit=limit)
+async def read_users(skip: int = 0, limit: int = 250, db: Session = Depends(get_db)):
+    users = await get_users(db, skip=skip, limit=limit)
+    return users
+
 
 @app.get("/user/{user_id}", response_model=UserRead)
-async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
+async def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = await get_user(db, user_id=user_id)  # Await this call
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return UserRead(id=db_user.id, username=db_user.username, email=db_user.email)
+    return db_user  # Return the user information if found
 
 # Login endpoint
 @app.post("/login/", response_model=TokenResponse)
@@ -257,23 +258,6 @@ async def login(
         email=user.email
     )
     
-@app.post("/create-profile/")
-async def create_profile_route(profile: ProfileCreate, db: AsyncSession = Depends(get_db)):
-    return await create_profile(db=db, profile=profile)
-
-@app.get("/profiles/", response_model=List[ProfileRead])
-async def read_profiles(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
-    # Await the get_profiles function if it is async
-    return await get_profiles(db, skip=skip, limit=limit)  # Use await
-
-@app.get("/profile/{profile_id}", response_model=ProfileRead)
-async def read_profile(profile_id: int, db: AsyncSession = Depends(get_db)):
-    # Await the get_profile function if it is async
-    db_profile = await get_profile(db, profile_id=profile_id)  # Use await
-    if db_profile is None:
-        raise HTTPException(status_code=404, detail="Profile not found")
-    return db_profile
-
 # Budget endpoints
 @app.post("/budgets/", response_model=BudgetRead)
 async def create_new_budget(budget: BudgetCreate, db: AsyncSession = Depends(get_db)):
@@ -353,6 +337,12 @@ async def read_notification(notification_id: int, db: AsyncSession = Depends(get
     if db_notification is None:
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification
+
+@app.get("/users/email/{email}", response_model=bool)
+def check_user_exists_by_email(email: str, db: Session = Depends(get_db)):
+    # Query the database to check if the email already exists
+    user = db.query(User).filter(User.email == email).first()
+    return user is not None
 
 # Entry point to run the server
 if __name__ == "__main__":

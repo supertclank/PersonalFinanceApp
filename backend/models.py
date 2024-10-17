@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Boolean, JSON, DECIMAL
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, DECIMAL, Boolean, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
@@ -8,28 +8,21 @@ Base = declarative_base()
 # User table
 class User(Base):
     __tablename__ = 'users'
+
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, nullable=False)
-    email = Column(String(100), unique=True, nullable=False)
-    password = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    profile = relationship("Profile", back_populates="user")
+    username = Column(String(50), unique=True, index=True)
+    email = Column(String(100), unique=True)
+    password = Column(String(255))
+    first_name = Column(String(50))
+    last_name = Column(String(50))
+    phone_number = Column(String(15))
+
+    # Relationships with other tables
     budgets = relationship("Budget", back_populates="user")
     goals = relationship("Goal", back_populates="user")
     reports = relationship("Report", back_populates="user")
     transactions = relationship("Transaction", back_populates="user")
     notifications = relationship("Notification", back_populates="user")
-
-# Profile table
-class Profile(Base):
-    __tablename__ = 'profiles'
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    first_name = Column(String(100))
-    last_name = Column(String(100))
-    phone_number = Column(String(15))
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    user = relationship("User", back_populates="profile")
 
 # BudgetCategory table
 class BudgetCategory(Base):
@@ -48,6 +41,7 @@ class Budget(Base):
     amount = Column(DECIMAL(10, 2))
     start_date = Column(DateTime)
     end_date = Column(DateTime)
+    
     user = relationship("User", back_populates="budgets")
     category = relationship("BudgetCategory", back_populates="budgets")
 
@@ -61,6 +55,7 @@ class Goal(Base):
     current_amount = Column(DECIMAL(10, 2))
     deadline = Column(DateTime)
     description = Column(String(255))
+    
     user = relationship("User", back_populates="goals")
 
 # ReportType table
@@ -79,6 +74,7 @@ class Report(Base):
     report_type_id = Column(Integer, ForeignKey('report_types.id'))
     generated_at = Column(DateTime, default=datetime.datetime.utcnow)
     data = Column(JSON)
+
     user = relationship("User", back_populates="reports")
     report_type = relationship("ReportType", back_populates="reports")
 
@@ -99,6 +95,7 @@ class Transaction(Base):
     transaction_category_id = Column(Integer, ForeignKey('transaction_categories.id'))
     date = Column(DateTime)
     description = Column(String(255))
+
     user = relationship("User", back_populates="transactions")
     category = relationship("TransactionCategory", back_populates="transactions")
 
@@ -119,5 +116,6 @@ class Notification(Base):
     notification_type_id = Column(Integer, ForeignKey('notification_types.id'))
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
     user = relationship("User", back_populates="notifications")
     notification_type = relationship("NotificationType", back_populates="notifications")

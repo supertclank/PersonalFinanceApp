@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 
 # Load the database URL from environment variable or use a default
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://root@localhost:3306/personal_finance_db")
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root@localhost:3306/personal_finance_db"
 
 # Create the SQLAlchemy engine
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -20,6 +20,8 @@ def get_db():
         yield db
     except SQLAlchemyError as e:
         db.rollback()
+        # Log the actual SQLAlchemy error for better debugging
+        print(f"Database error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail="Database error occurred")
     finally:
         db.close()

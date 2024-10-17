@@ -34,7 +34,12 @@ class LoginActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.forgot).setOnClickListener {
-            startActivity(Intent(this, ForgotDetailsActivity::class.java)) // Go to ForgotDetailsActivity
+            startActivity(
+                Intent(
+                    this,
+                    ForgotDetailsActivity::class.java
+                )
+            ) // Go to ForgotDetailsActivity
         }
 
         findViewById<Button>(R.id.login).setOnClickListener {
@@ -73,7 +78,11 @@ class LoginActivity : AppCompatActivity() {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
                 Log.e("LoginActivity", "Login failed: ${e.message}", e)
                 runOnUiThread {
-                    Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@LoginActivity,
+                        "Login failed: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -84,7 +93,11 @@ class LoginActivity : AppCompatActivity() {
                         // Handle successful response
                         Log.d("LoginActivity", "Login successful: $responseBody")
                         runOnUiThread {
-                            Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@LoginActivity,
+                                "Login successful!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                         // Navigate to DashboardActivity or handle the token
@@ -92,7 +105,10 @@ class LoginActivity : AppCompatActivity() {
                         startActivity(intent)
                         finish()
                     } else {
-                        Log.e("LoginActivity", "Login failed with status code: ${response.code}. Response body: ${response.body?.string()}")
+                        Log.e(
+                            "LoginActivity",
+                            "Login failed with status code: ${response.code}. Response body: ${response.body?.string()}"
+                        )
                         runOnUiThread {
                             when (response.code) {
                                 401 -> Toast.makeText(
@@ -100,6 +116,7 @@ class LoginActivity : AppCompatActivity() {
                                     "Invalid username or password",
                                     Toast.LENGTH_SHORT
                                 ).show()
+
                                 else -> Toast.makeText(
                                     this@LoginActivity,
                                     "Login failed. Please try again.",
@@ -111,7 +128,11 @@ class LoginActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     Log.e("LoginActivity", "Login failed: ${e.message}", e)
                     runOnUiThread {
-                        Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Login failed: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }

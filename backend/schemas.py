@@ -3,11 +3,6 @@ from datetime import datetime
 from typing import Optional
 
 # User schemas
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-
 class UserResponse(BaseModel):
     id: int
     username: str
@@ -15,11 +10,22 @@ class UserResponse(BaseModel):
     
     class Config:
         orm_mode = True
+        
+class UserCreate(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    phone_number: str
 
 class UserRead(BaseModel):
     id: int
     username: str
     email: str
+    first_name: str
+    last_name: str
+    phone_number: str
     created_at: datetime
 
     class Config:
@@ -40,30 +46,6 @@ class TokenResponse(BaseModel):
 # Username recovery schemas
 class UsernameRecoveryRequest(BaseModel):
     email: str
-
-# Profile schemas
-class ProfileResponse(BaseModel):
-    profileId: int
-    firstName: str
-    lastName: str
-    phoneNumber: str
-    createdAt: datetime
-    
-class ProfileCreate(BaseModel):
-    user_id: int
-    first_name: str
-    last_name: str
-    phone_number: str
-
-class ProfileRead(BaseModel):
-    profileId: int
-    firstName: str
-    lastName: str
-    phoneNumber: str
-    createdAt: datetime
-
-    class Config:
-        orm_mode = True
 
 # Budget schemas
 class BudgetCreate(BaseModel):

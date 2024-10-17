@@ -6,8 +6,6 @@ import api.data_class.GoalsCreate
 import api.data_class.GoalsRead
 import api.data_class.NotificationCreate
 import api.data_class.NotificationRead
-import api.data_class.ProfileCreate
-import api.data_class.ProfileRead
 import api.data_class.ReportCreate
 import api.data_class.ReportRead
 import api.data_class.TokenResponse
@@ -26,6 +24,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
+
+    @GET("users/email/{email}")
+    fun checkUserExistsByEmail(@Path("email") email: String): Call<Boolean>
 
     // User endpoints
     @POST("users/")
@@ -47,16 +48,6 @@ interface ApiService {
         @Field("client_id") clientId: String? = null,
         @Field("client_secret") clientSecret: String? = null
     ): Call<TokenResponse>
-
-    // Profile endpoints
-    @POST("profiles/")
-    fun createProfile(@Body profile: ProfileCreate): Call<ProfileRead>
-
-    @GET("profiles/")
-    fun getProfiles(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<ProfileRead>>
-
-    @GET("profile/{profile_id}")
-    fun getProfile(@Path("profile_id") profileId: Int): Call<ProfileRead>
 
     // Budget endpoints
     @POST("budgets/")
@@ -93,7 +84,10 @@ interface ApiService {
     fun createTransaction(@Body transaction: TransactionCreate): Call<TransactionRead>
 
     @GET("transactions/")
-    fun getTransactions(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<TransactionRead>>
+    fun getTransactions(
+        @Query("skip") skip: Int,
+        @Query("limit") limit: Int
+    ): Call<List<TransactionRead>>
 
     @GET("transaction/{transaction_id}")
     fun getTransaction(@Path("transaction_id") transactionId: Int): Call<TransactionRead>
@@ -103,7 +97,10 @@ interface ApiService {
     fun createNotification(@Body notification: NotificationCreate): Call<NotificationRead>
 
     @GET("notifications/")
-    fun getNotifications(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<NotificationRead>>
+    fun getNotifications(
+        @Query("skip") skip: Int,
+        @Query("limit") limit: Int
+    ): Call<List<NotificationRead>>
 
     @GET("notification/{notification_id}")
     fun getNotification(@Path("notification_id") notificationId: Int): Call<NotificationRead>

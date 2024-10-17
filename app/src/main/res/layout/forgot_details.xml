@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     android:orientation="horizontal"
-    android:padding="16dp"
-    android:background="@color/colorBackground">
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,8 +19,8 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp"
             android:text="@string/forgot_details"
-            android:textSize="24sp"
             android:textColor="@color/pastelOrangeOnPrimary"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <!-- Email field -->
@@ -30,10 +29,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:backgroundTint="@color/pastelOrangePrimary"
             android:hint="@string/enter_email"
             android:inputType="textEmailAddress"
-            android:minHeight="48dp"
-            android:backgroundTint="@color/pastelOrangePrimary" />
+            android:minHeight="48dp" />
 
         <!-- Send Verification Code button -->
         <Button
@@ -41,9 +40,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:backgroundTint="@color/pastelOrangePrimary"
             android:text="@string/send_request"
-            android:textColor="@color/pastelOrangeOnPrimary"
-            android:backgroundTint="@color/pastelOrangePrimary" />
+            android:textColor="@color/pastelOrangeOnPrimary" />
 
         <!-- Back to Login button -->
         <Button
@@ -51,9 +50,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:backgroundTint="@color/pastelOrangePrimaryVariant"
             android:text="@string/back_to_login"
-            android:textColor="@color/pastelOrangeOnPrimary"
-            android:backgroundTint="@color/pastelOrangePrimaryVariant" />
+            android:textColor="@color/pastelOrangeOnPrimary" />
 
         <!-- Error Message Text -->
         <TextView

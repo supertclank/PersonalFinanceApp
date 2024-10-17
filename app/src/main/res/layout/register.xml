@@ -22,7 +22,7 @@
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
-        <!-- Title -->
+        <!-- Title TextView -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,48 +32,84 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
+        <!-- Register Section Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp"
-            android:text="@string/more_information"
+            android:text="@string/register"
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <!-- First Name field -->
+        <!-- Email Input Field -->
+        <EditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:hint="@string/email"
+            android:inputType="text"
+            android:minHeight="48dp" />
+
+        <!-- Username Input Field -->
+        <EditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:hint="@string/username"
+            android:inputType="text"
+            android:minHeight="48dp" />
+
+        <!-- First Name Input Field -->
         <EditText
             android:id="@+id/first_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:hint="@string/first_name"
-            android:inputType="text"
-            android:minHeight="48dp" />
+            android:hint="First Name" />
 
-        <!-- lastname field -->
+        <!-- Last Name Input Field -->
         <EditText
             android:id="@+id/last_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:hint="@string/lastname"
-            android:inputType="text"
-            android:minHeight="48dp" />
+            android:hint="Last Name" />
 
-        <!-- Phone Number field -->
+        <!-- Phone Number Input Field -->
         <EditText
             android:id="@+id/phone_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Phone Number"
+            android:inputType="phone" />
+
+        <!-- Password Input Field -->
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:hint="@string/phone_number"
-            android:inputType="phone"
+            android:hint="@string/password"
+            android:inputType="textPassword"
             android:minHeight="48dp" />
 
+        <!-- Confirm Password Input Field -->
+        <EditText
+            android:id="@+id/confirm_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:hint="@string/password_conformation"
+            android:inputType="textPassword"
+            android:minHeight="48dp" />
 
         <!-- Register Button -->
         <Button
