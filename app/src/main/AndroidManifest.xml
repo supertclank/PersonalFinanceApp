@@ -67,6 +67,9 @@
         <activity
             android:name=".activity.BudgetsActivity"
             android:exported="true" />
+        <activity
+            android:name=".activity.GoalsActivity"
+            android:exported="true" />
 
 
     </application>

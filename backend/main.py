@@ -265,8 +265,13 @@ async def create_new_budget(budget: BudgetCreate, db: AsyncSession = Depends(get
     return await create_budget(db=db, budget=budget)
 
 @app.get("/budgets/", response_model=List[BudgetRead])
-async def read_budgets(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
-    return await get_budgets(db, skip=skip, limit=limit)
+async def read_budgets(
+    skip: int = 0, 
+    limit: int = 10, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return await get_budgets(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @app.get("/budget/{budget_id}", response_model=BudgetRead)
 async def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
@@ -313,8 +318,13 @@ async def create_new_transaction(transaction: TransactionCreate, db: AsyncSessio
     return await create_transaction(db=db, transaction=transaction)
 
 @app.get("/transactions/", response_model=List[TransactionRead])
-async def read_transactions(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
-    return await get_transactions(db, skip=skip, limit=limit)
+async def read_transactions(
+    skip: int = 0, 
+    limit: int = 10, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return await get_transactions(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @app.get("/transaction/{transaction_id}", response_model=TransactionRead)
 async def read_transaction(transaction_id: int, db: AsyncSession = Depends(get_db)):

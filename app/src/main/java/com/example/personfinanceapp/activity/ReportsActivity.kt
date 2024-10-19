@@ -42,10 +42,13 @@ class ReportsActivity : AppCompatActivity() {
                 R.id.nav_budgets -> {
                     startActivity(Intent(this, BudgetsActivity::class.java))
                 }
-
-                R.id.nav_settings -> {
-                    // No need to navigate to SettingsActivity again, just close the drawer
+                R.id.nav_goals -> {
+                    startActivity(Intent(this, GoalsActivity::class.java))
                 }
+                R.id.nav_settings -> {
+
+                }
+
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true

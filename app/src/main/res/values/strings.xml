@@ -76,5 +76,8 @@
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
     <string name="dark_mode">Dark Mode</string>
+    <string name="goals_content">Goals Content</string>
+    <string name="goals">Goals</string>
+    <string name="add_goal">Add Goal</string>
 
 </resources>

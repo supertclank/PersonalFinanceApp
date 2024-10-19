@@ -1,0 +1,46 @@
+<!-- goal_item.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/goal_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Goal Title"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/goal_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Goal Description"
+        android:textSize="14sp"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/goal_current_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Amount: £0.00"
+        android:textSize="14sp"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/goal_target_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Target Amount: £0.00"
+        android:textSize="14sp"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/goal_deadline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deadline: N/A"
+        android:textSize="14sp"
+        android:paddingTop="4dp" />
+</LinearLayout>

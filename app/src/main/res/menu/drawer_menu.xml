@@ -12,6 +12,9 @@
         android:id="@+id/nav_budgets"
         android:title="@string/budgets" />
     <item
+        android:id="@+id/nav_goals"
+        android:title="@string/goals" />
+    <item
         android:id="@+id/nav_settings"
         android:title="@string/settings" />
 </menu>
