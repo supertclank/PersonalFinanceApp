@@ -47,7 +47,7 @@ class BudgetsActivity : AppCompatActivity() {
                     startActivity(Intent(this, GoalsActivity::class.java))
                 }
                 R.id.nav_settings -> {
-
+                    startActivity(Intent(this, SettingsActivity::class.java))
                 }
 
             }
@@ -56,6 +56,7 @@ class BudgetsActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         // Close the navigation drawer if it's open, otherwise handle the back press as usual
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {

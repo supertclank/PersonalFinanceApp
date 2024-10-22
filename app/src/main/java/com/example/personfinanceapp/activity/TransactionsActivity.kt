@@ -47,7 +47,7 @@ class TransactionsActivity : AppCompatActivity() {
                     startActivity(Intent(this, GoalsActivity::class.java))
                 }
                 R.id.nav_settings -> {
-
+                    startActivity(Intent(this, SettingsActivity::class.java))
                 }
 
             }

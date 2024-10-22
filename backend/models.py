@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, DECIMAL, Boolean, JSON
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, DECIMAL, Boolean, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import datetime
@@ -39,8 +39,8 @@ class Budget(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     budget_category_id = Column(Integer, ForeignKey('budget_categories.id'))
     amount = Column(DECIMAL(10, 2))
-    start_date = Column(DateTime)
-    end_date = Column(DateTime)
+    start_date = Column(Date)
+    end_date = Column(Date)
     
     user = relationship("User", back_populates="budgets")
     category = relationship("BudgetCategory", back_populates="budgets")
@@ -53,7 +53,7 @@ class Goal(Base):
     name = Column(String(100))
     target_amount = Column(DECIMAL(10, 2))
     current_amount = Column(DECIMAL(10, 2))
-    deadline = Column(DateTime)
+    deadline = Column(Date)
     description = Column(String(255))
     
     user = relationship("User", back_populates="goals")
@@ -72,7 +72,7 @@ class Report(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     report_type_id = Column(Integer, ForeignKey('report_types.id'))
-    generated_at = Column(DateTime, default=datetime.datetime.utcnow)
+    generated_at = Column(Date, default=datetime.datetime.utcnow)
     data = Column(JSON)
 
     user = relationship("User", back_populates="reports")
@@ -93,7 +93,7 @@ class Transaction(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     amount = Column(DECIMAL(10, 2))
     transaction_category_id = Column(Integer, ForeignKey('transaction_categories.id'))
-    date = Column(DateTime)
+    date = Column(Date)
     description = Column(String(255))
 
     user = relationship("User", back_populates="transactions")
@@ -115,7 +115,7 @@ class Notification(Base):
     message = Column(String(255))
     notification_type_id = Column(Integer, ForeignKey('notification_types.id'))
     is_read = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(Date, default=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="notifications")
     notification_type = relationship("NotificationType", back_populates="notifications")

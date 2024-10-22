@@ -1,23 +1,24 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from models import User, Budget, Goal, Report, Transaction, Notification
 from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 import datetime
 from utils import hash_password
-from fastapi import HTTPException, logger
+from fastapi import HTTPException
 import logging
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 logger = logging.getLogger("uvicorn.error")
 
-def get_user(db: Session, username: str):
+def get_user(db: AsyncSession, username: str):
     return db.query(User).filter(User.username == username).first()
 
-def get_users(db: Session, skip: int = 0, limit: int = 255):
+def get_users(db: AsyncSession, skip: int = 0, limit: int = 255):
     return db.query(User).offset(skip).limit(limit).all()
 
-def create_user(db: Session, user: UserCreate) -> UserResponse:
+def create_user(db: AsyncSession, user: UserCreate) -> UserResponse:
     try:
         logger.info(f"Creating user with username: {user.username} and email: {user.email}")
         hashed_password = hash_password(user.password)
@@ -47,16 +48,19 @@ def create_user(db: Session, user: UserCreate) -> UserResponse:
         db.rollback()
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-def get_user_by_email(db: Session, email: str):
+def get_user_by_email(db: AsyncSession, email: str):
     return db.query(User).filter(User.email == email).first()
 
-def get_budget(db: Session, budget_id: int):
+def get_user_by_username(db: AsyncSession, username:str):
+    return db.query(User).filter(User.username == username).first()
+
+def get_budget(db: AsyncSession, budget_id: int):
     return db.query(Budget).filter(Budget.id == budget_id).first()
 
-def get_budgets(db: Session, user_id: int, skip: int = 0, limit: int = 10):
+def get_budgets(db: AsyncSession, user_id: int, skip: int = 0, limit: int = 10):
     return db.query(Budget).filter(Budget.user_id == user_id).offset(skip).limit(limit).all()
 
-def create_budget(db: Session, budget: BudgetCreate):
+def create_budget(db: AsyncSession, budget: BudgetCreate):
     db_budget = Budget(
         user_id=budget.userId,
         budget_category_id=budget.budgetCategoryId,
@@ -69,33 +73,34 @@ def create_budget(db: Session, budget: BudgetCreate):
     db.refresh(db_budget)
     return db_budget
 
-def get_goal(db: Session, goal_id: int):
+def get_goal(db: AsyncSession, goal_id: int):
     return db.query(Goal).filter(Goal.id == goal_id).first()
 
-def get_goals(db: Session, skip: int = 0, limit: int = 10):
+def get_goals(db: AsyncSession, skip: int = 0, limit: int = 10):
     return db.query(Goal).offset(skip).limit(limit).all()
 
-def create_goal(db: Session, goal: GoalsCreate):
+async def create_goal(db: AsyncSession, goal: GoalsCreate, user_id: int):
     db_goal = Goal(
-        user_id=goal.userId,
+        user_id=user_id,
         name=goal.name,
-        target_amount=goal.targetAmount,
-        current_amount=goal.currentAmount,
+        target_amount=goal.target_amount,
+        current_amount=goal.current_amount,
         deadline=goal.deadline,
         description=goal.description
     )
     db.add(db_goal)
-    db.commit()
-    db.refresh(db_goal)
+    await db.commit()  # Use await for async commit
+    await db.refresh(db_goal)  # Use await for async refresh
     return db_goal
 
-def get_report(db: Session, report_id: int):
+
+def get_report(db: AsyncSession, report_id: int):
     return db.query(Report).filter(Report.id == report_id).first()
 
-def get_reports(db: Session, skip: int = 0, limit: int = 10):
+def get_reports(db: AsyncSession, skip: int = 0, limit: int = 10):
     return db.query(Report).offset(skip).limit(limit).all()
 
-def create_report(db: Session, report: ReportCreate):
+def create_report(db: AsyncSession, report: ReportCreate):
     db_report = Report(
         user_id=report.userId,
         report_type_id=report.reportTypeId,
@@ -106,13 +111,13 @@ def create_report(db: Session, report: ReportCreate):
     db.refresh(db_report)
     return db_report
 
-def get_transaction(db: Session, transaction_id: int):
+def get_transaction(db: AsyncSession, transaction_id: int):
     return db.query(Transaction).filter(Transaction.id == transaction_id).first()
 
-def get_transactions(db: Session, user_id: int, skip: int = 0, limit: int = 10):
+def get_transactions(db: AsyncSession, user_id: int, skip: int = 0, limit: int = 10):
     return db.query(Transaction).filter(Transaction.user_id == user_id).offset(skip).limit(limit).all()
 
-def create_transaction(db: Session, transaction: TransactionCreate):
+def create_transaction(db: AsyncSession, transaction: TransactionCreate):
     db_transaction = Transaction(
         user_id=transaction.userId,
         amount=transaction.amount,
@@ -125,13 +130,13 @@ def create_transaction(db: Session, transaction: TransactionCreate):
     db.refresh(db_transaction)
     return db_transaction
 
-def get_notification(db: Session, notification_id: int):
+def get_notification(db: AsyncSession, notification_id: int):
     return db.query(Notification).filter(Notification.id == notification_id).first()
 
-def get_notifications(db: Session, skip: int = 0, limit: int = 10):
+def get_notifications(db: AsyncSession, skip: int = 0, limit: int = 10):
     return db.query(Notification).offset(skip).limit(limit).all()
 
-def create_notification(db: Session, notification: NotificationCreate):
+def create_notification(db: AsyncSession, notification: NotificationCreate):
     db_notification = Notification(
         user_id=notification.userId,
         message=notification.message,

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 # User schemas
@@ -10,7 +10,7 @@ class UserResponse(BaseModel):
     
     class Config:
         orm_mode = True
-        
+
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
@@ -52,30 +52,30 @@ class BudgetCreate(BaseModel):
     userId: int
     budgetCategoryId: int
     amount: float
-    startDate: datetime
-    endDate: datetime
+    startDate: date  # Use date here if no time component is needed
+    endDate: date
 
 class BudgetRead(BaseModel):
     budgetId: int
     amount: float
-    startDate: datetime
-    endDate: datetime
+    startDate: date
+    endDate: date
 
 # Goals schemas
 class GoalsCreate(BaseModel):
-    userId: int
+    user_id: int
     name: str
-    targetAmount: float
-    currentAmount: float
-    deadline: datetime
-    description: str
+    target_amount: float
+    current_amount: float
+    deadline: date  # Use date for deadline as it's date-specific
+    description: Optional[str] = None
 
 class GoalsRead(BaseModel):
     goalId: int
     name: str
     targetAmount: float
     currentAmount: float
-    deadline: datetime
+    deadline: date  # Ensure consistency with the model
     description: str
 
 # Report schemas
@@ -88,13 +88,13 @@ class ReportRead(BaseModel):
     reportId: int
     reportTypeId: int
     data: dict
-    generatedAt: datetime
+    generatedAt: datetime  # Typically includes both date and time
 
 # Transaction schemas
 class TransactionCreate(BaseModel):
     userId: int
     amount: float
-    date: datetime
+    date: datetime  # This should include both date and time
     description: str
     transactionCategoryId: int
 
@@ -109,10 +109,10 @@ class NotificationCreate(BaseModel):
     userId: int
     message: str
     isRead: Optional[bool] = False
-    date: Optional[datetime] = None
+    date: Optional[datetime] = None  # If timestamp is optional
 
 class NotificationRead(BaseModel):
     notificationId: int
     message: str
     isRead: bool
-    createdAt: datetime
+    createdAt: datetime  # Date and time when the notification was created

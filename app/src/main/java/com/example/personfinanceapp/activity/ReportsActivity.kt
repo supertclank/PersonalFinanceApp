@@ -46,7 +46,7 @@ class ReportsActivity : AppCompatActivity() {
                     startActivity(Intent(this, GoalsActivity::class.java))
                 }
                 R.id.nav_settings -> {
-
+                    startActivity(Intent(this, SettingsActivity::class.java))
                 }
 
             }

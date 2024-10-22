@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from models import Base, User
+from models import Base, User, Goal
 from database import engine, get_db
 
 from passlib.context import CryptContext
@@ -24,7 +24,6 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from typing import List
 from sqlalchemy.exc import IntegrityError
-
 
 # Schema imports
 from schemas import (
@@ -129,11 +128,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
+        username: str = payload.get("sub") 
         if username is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
+
     user = get_user_by_username(db, username=username)
     if user is None:
         raise credentials_exception
@@ -228,14 +228,13 @@ async def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user  # Return the user information if found
 
-# Login endpoint
 @app.post("/login/", response_model=TokenResponse)
 async def login(
     login_request: LoginRequest = Body(...),
     db: Session = Depends(get_db)
 ):
     user = authenticate_user(db, login_request.username, login_request.password)
-    
+
     if not user:
         logger.info(f"Failed login attempt for username: {login_request.username}")
         raise HTTPException(
@@ -243,12 +242,13 @@ async def login(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.username},
+        expires_delta=access_token_expires
     )
-    
+
     logger.info(f"User {user.username} logged in successfully.")
     
     return TokenResponse(
@@ -282,8 +282,9 @@ async def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
 
 # Goals endpoints
 @app.post("/goals/", response_model=GoalsRead)
-async def create_new_goal(goal: GoalsCreate, db: AsyncSession = Depends(get_db)):
-    return await create_goal(db=db, goal=goal)
+async def create_new_goal(goal: GoalsCreate, db: AsyncSession = Depends(get_db), user_id: int = Depends(get_current_user)):
+    logger.info(f"Creating goal for user_id: {user_id}")
+    return await create_goal(db=db, goal=goal, user_id=user_id)
 
 @app.get("/goals/", response_model=List[GoalsRead])
 async def read_goals(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):

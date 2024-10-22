@@ -53,7 +53,6 @@ android {
         }
     }
 }
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -76,6 +75,12 @@ dependencies {
 
     // Add Mindrot library for bcrypt
     implementation(libs.jbcrypt)
+    implementation(libs.androidx.core.i18n)
+    implementation(libs.places)
+
+    // Add Auth0 Android SDK for JWT and authentication
+    implementation("com.auth0.android:jwtdecode:2.0.1")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

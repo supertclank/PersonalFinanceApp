@@ -33,39 +33,14 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!-- Quick Actions Section using HorizontalScrollView -->
-        <HorizontalScrollView
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/greeting_text_view"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/action_1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:text="Action 1" />
-
-                <Button
-                    android:id="@+id/action_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:text="Action 2" />
-
-                <Button
-                    android:id="@+id/action_3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:text="Action 3" />
-            </LinearLayout>
-        </HorizontalScrollView>
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:text=""
+            android:textSize="16sp" />
 
         <!-- Placeholder for dashboard content like a list of items or cards -->
         <TextView
