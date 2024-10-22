@@ -40,4 +40,12 @@ object TokenUtils {
         }
         return map
     }
+
+    fun saveTokenToStorage(context: Context, token: String) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString(TOKEN_KEY, token)
+        editor.apply()
+    }
+
 }

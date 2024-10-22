@@ -2,6 +2,7 @@ package com.example.personfinanceapp.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -32,7 +33,7 @@ class DashboardActivity : AppCompatActivity() {
 
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.nav_view)
-        greetingTextView = findViewById(R.id.greeting_text_view) // Initialize greeting TextView
+        greetingTextView = findViewById(R.id.greeting_text_view)
 
         // Set up toggle for the navigation drawer
         val toggle = ActionBarDrawerToggle(
@@ -46,7 +47,12 @@ class DashboardActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> startActivity(Intent(this, DashboardActivity::class.java))
-                R.id.nav_transactions -> startActivity(Intent(this, TransactionsActivity::class.java))
+                R.id.nav_transactions -> startActivity(
+                    Intent(
+                        this,
+                        TransactionsActivity::class.java
+                    )
+                )
                 R.id.nav_reports -> startActivity(Intent(this, ReportsActivity::class.java))
                 R.id.nav_budgets -> startActivity(Intent(this, BudgetsActivity::class.java))
                 R.id.nav_goals -> startActivity(Intent(this, GoalsActivity::class.java))
@@ -55,7 +61,6 @@ class DashboardActivity : AppCompatActivity() {
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
-
         // Call function to display greeting
         displayGreeting()
     }
@@ -63,36 +68,47 @@ class DashboardActivity : AppCompatActivity() {
     // Display a greeting based on the user's first name
     private fun displayGreeting() {
         val token = TokenUtils.getTokenFromStorage(this)
+        Log.d("AppLog", "Token: $token") // Log token to see if it's null or valid
+
         if (token != null) {
-            val username = TokenUtils.decodeToken(token)?.get("username") as? String
-            if (username != null) {
-                fetchUserFirstName(username) // Adjusted to fetch by username
+            val userId = TokenUtils.decodeToken(token) // Get the userId directly
+            Log.d("AppLog", "User ID: $userId") // Log the user ID
+
+            if (userId != null) {
+                Log.d("AppLog", "Fetching user data for userId: $userId")
+                fetchUserFirstName(userId) // Pass userId directly
             } else {
+                Log.e("AppLog", "User ID is null")
                 greetingTextView.text = "Hi, Guest!"
             }
         } else {
+            Log.e("AppLog", "Token is null")
             greetingTextView.text = "Hi, Guest!"
         }
     }
 
-    private fun fetchUserFirstName(username: String) {
+    private fun fetchUserFirstName(userId: Int) {
         val apiService = RetrofitClient.instance
-        apiService.getUserByUsername(username).enqueue(object : Callback<UserRead> {
+        Log.d("AppLog", "API call to fetch user with ID: $userId") // Log userId
+
+        apiService.getUser(userId = userId).enqueue(object : Callback<UserRead> {
             override fun onResponse(call: Call<UserRead>, response: Response<UserRead>) {
+                Log.d("AppLog", "API Response: ${response.body()}")
                 if (response.isSuccessful) {
                     val firstName = response.body()?.first_name ?: "User"
                     greetingTextView.text = "Hi, $firstName!"
                 } else {
+                    Log.e("AppLog", "Failed to fetch user data. Response code: ${response.code()}")
                     greetingTextView.text = "Hi, Guest!"
                 }
             }
 
             override fun onFailure(call: Call<UserRead>, t: Throwable) {
+                Log.e("AppLog", "API call failed: ${t.message}")
                 greetingTextView.text = "Hi, Guest!"
             }
         })
     }
-
 
     // Override onBackPressed to handle drawer state
     override fun onBackPressed() {

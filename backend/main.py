@@ -118,6 +118,10 @@ def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
+    
+    if 'id' in data:
+        to_encode.update({"id": data['id']})
+
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -223,10 +227,10 @@ async def read_users(skip: int = 0, limit: int = 250, db: Session = Depends(get_
 
 @app.get("/user/{user_id}", response_model=UserRead)
 async def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = await get_user(db, user_id=user_id)  # Await this call
+    db_user = await get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return db_user  # Return the user information if found
+    return db_user
 
 @app.post("/login/", response_model=TokenResponse)
 async def login(
@@ -245,7 +249,7 @@ async def login(
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username},
+        data={"sub": user.username, "id": user.id},
         expires_delta=access_token_expires
     )
 
@@ -356,6 +360,11 @@ def check_user_exists_by_email(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
     return user is not None
 
+@app.get("user/username/{username}", response_model=bool)
+def get_user_by_username(username=str, db:Session = Depends(get_db)):
+    user = db.query(User).filter(user.username==username).first()
+    return user is not None
+    
 # Entry point to run the server
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

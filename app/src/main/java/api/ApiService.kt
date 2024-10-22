@@ -38,6 +38,9 @@ interface ApiService {
     @GET("user/{user_id}")
     fun getUser(@Path("user_id") userId: Int): Call<UserRead>
 
+    @GET("user/username/{username}")
+    fun getUserByUsername(@Path("username") username: String): Call<UserRead>
+
     @FormUrlEncoded
     @POST("login/")
     fun login(

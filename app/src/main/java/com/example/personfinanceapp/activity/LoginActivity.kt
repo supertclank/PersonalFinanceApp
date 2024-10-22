@@ -7,12 +7,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.auth0.android.jwt.JWT
 import com.example.personfinanceapp.R
+import com.example.personfinanceapp.utils.TokenUtils
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
+import org.json.JSONObject
 
 // Activity for handling user login, API connection check, and navigation to other activities.
 class LoginActivity : AppCompatActivity() {
@@ -90,20 +93,32 @@ class LoginActivity : AppCompatActivity() {
                 try {
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
-                        // Handle successful response
-                        Log.d("LoginActivity", "Login successful: $responseBody")
-                        runOnUiThread {
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Login successful!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        val jsonResponse = JSONObject(responseBody)
+                        val token = jsonResponse.getString("access_token")
+
+                        // Decode the token and extract the user ID
+                        val Id = decodeToken(token) ?: run {
+                            Log.e("LoginActivity", "Failed to decode token, user ID is null")
+                            runOnUiThread {
+                                Toast.makeText(this@LoginActivity, "Failed to retrieve user ID.", Toast.LENGTH_SHORT).show()
+                            }
+                            return // Exit the method if user ID cannot be retrieved
                         }
 
-                        // Navigate to com.example.personfinanceapp.activity.DashboardActivity or handle the token
+                        TokenUtils.saveTokenToStorage(this@LoginActivity, token)
+
+                        Log.d("LoginActivity", "Login successful: $responseBody")
+                        Log.d("LoginActivity", "User ID: $Id")
+
+                        runOnUiThread {
+                            Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                        }
+
                         val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
+                        intent.putExtra("USER_ID", Id)
                         startActivity(intent)
                         finish()
+
                     } else {
                         Log.e(
                             "LoginActivity",
@@ -111,45 +126,43 @@ class LoginActivity : AppCompatActivity() {
                         )
                         runOnUiThread {
                             when (response.code) {
-                                401 -> Toast.makeText(
-                                    this@LoginActivity,
-                                    "Invalid username or password",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
-                                else -> Toast.makeText(
-                                    this@LoginActivity,
-                                    "Login failed. Please try again.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                401 -> Toast.makeText(this@LoginActivity, "Invalid username or password", Toast.LENGTH_SHORT).show()
+                                else -> Toast.makeText(this@LoginActivity, "Login failed. Please try again.", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("LoginActivity", "Login failed: ${e.message}", e)
                     runOnUiThread {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Login failed: ${e.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
+
+            // Function to decode the token and extract the user ID
+            private fun decodeToken(token: String): Int? {
+                return try {
+                    val decodedToken = JWT(token) // Use the JWT constructor to decode
+                    decodedToken.getClaim("id").asInt() // Extract the user ID
+                } catch (e: Exception) {
+                    Log.e("LoginActivity", "Failed to decode token: ${e.message}", e)
+                    null
+                }
+            }
+
+            // Function to handle error responses
+            private fun handleErrorResponse(response: okhttp3.Response) {
+                val errorMessage = when (response.code) {
+                    401 -> getString(R.string.incorrect_username_or_password)
+                    404 -> getString(R.string.user_not_found)
+                    else -> getString(R.string.login_failed_general)
+                }
+
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                }
+                Log.e("LoginActivity", "Login failed with status code: ${response.code}.")
+            }
         })
-    }
-
-    // Function to handle error responses
-    private fun handleErrorResponse(response: okhttp3.Response) {
-        val errorMessage = when (response.code) {
-            401 -> getString(R.string.incorrect_username_or_password)
-            404 -> getString(R.string.user_not_found)
-            else -> getString(R.string.login_failed_general)
-        }
-
-        runOnUiThread {
-            Toast.makeText(this@LoginActivity, errorMessage, Toast.LENGTH_SHORT).show()
-        }
-        Log.e("LoginActivity", "Login failed with status code: ${response.code}.")
     }
 }
