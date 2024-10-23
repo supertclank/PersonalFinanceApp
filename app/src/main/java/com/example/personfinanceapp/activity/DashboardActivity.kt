@@ -71,7 +71,7 @@ class DashboardActivity : AppCompatActivity() {
         Log.d("AppLog", "Token: $token") // Log token to see if it's null or valid
 
         if (token != null) {
-            val userId = TokenUtils.decodeToken(token) // Get the userId directly
+            val userId = TokenUtils.decodeTokenManually(token)
             Log.d("AppLog", "User ID: $userId") // Log the user ID
 
             if (userId != null) {

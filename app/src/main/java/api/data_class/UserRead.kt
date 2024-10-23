@@ -7,5 +7,4 @@ data class UserRead(
     val last_name: String,
     val phone_number: String,
     val email: String,
-    val createdAt: String
 )

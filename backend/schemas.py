@@ -26,7 +26,6 @@ class UserRead(BaseModel):
     first_name: str
     last_name: str
     phone_number: str
-    created_at: datetime
 
     class Config:
         orm_mode = True

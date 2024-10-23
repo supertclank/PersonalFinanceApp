@@ -3,6 +3,7 @@ package com.example.personfinanceapp.utils
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
+import android.util.Log
 import org.json.JSONObject
 
 object TokenUtils {
@@ -17,18 +18,32 @@ object TokenUtils {
     }
 
     // Decode the JWT token to extract claims
-    fun decodeToken(token: String): Map<String, Any>? {
-        val parts = token.split(".")
-        if (parts.size != 3) return null
+    internal fun decodeTokenManually(token: String): Int? {
+        return try {
+            // JWT is in the format: header.payload.signature
+            val parts = token.split(".")
+            if (parts.size != 3) {
+                Log.e("AppLog", "Invalid token format")
+                return null
+            }
 
-        // Decode the payload (the second part)
-        val payload = parts[1]
-        val decodedBytes = Base64.decode(payload, Base64.URL_SAFE or Base64.NO_WRAP)
-        val jsonString = String(decodedBytes)
+            // The payload is the second part (index 1) and is Base64 encoded
+            val payload = String(Base64.decode(parts[1], Base64.URL_SAFE))
+            Log.d("AppLog", "Decoded JWT Payload: $payload")
 
-        // Convert to Map
-        return JSONObject(jsonString).toMap()
+            // Convert the payload into a JSONObject
+            val jsonPayload = JSONObject(payload)
+
+            // Extract the "id" field from the payload
+            val userId = jsonPayload.getInt("id")
+            Log.d("AppLog", "Extracted User ID: $userId")
+            userId
+        } catch (e: Exception) {
+            Log.e("AppLog", "Failed to decode token: ${e.message}", e)
+            null
+        }
     }
+
 
     // Helper function to convert JSONObject to Map
     private fun JSONObject.toMap(): Map<String, Any> {

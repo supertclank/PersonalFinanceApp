@@ -220,14 +220,13 @@ async def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @app.get("/users/", response_model=List[UserRead])
-async def read_users(skip: int = 0, limit: int = 250, db: Session = Depends(get_db)):
-    users = await get_users(db, skip=skip, limit=limit)
+def read_users(skip: int = 0, limit: int = 250, db: Session = Depends(get_db)):
+    users = get_users(db, skip=skip, limit=limit)
     return users
 
-
 @app.get("/user/{user_id}", response_model=UserRead)
-async def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = await get_user(db, user_id=user_id)
+def read_user(user_id: int, db: Session = Depends(get_db)):
+    db_user = get_user(db, user_id=user_id)  # No need for 'await'
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
@@ -278,78 +277,78 @@ async def read_budgets(
     return await get_budgets(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @app.get("/budget/{budget_id}", response_model=BudgetRead)
-async def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
-    db_budget = await get_budget(db, budget_id=budget_id)
+def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
+    db_budget = get_budget(db, budget_id=budget_id)
     if db_budget is None:
         raise HTTPException(status_code=404, detail="Budget not found")
     return db_budget
 
 # Goals endpoints
 @app.post("/goals/", response_model=GoalsRead)
-async def create_new_goal(goal: GoalsCreate, db: AsyncSession = Depends(get_db), user_id: int = Depends(get_current_user)):
+def create_new_goal(goal: GoalsCreate, db: AsyncSession = Depends(get_db), user_id: int = Depends(get_current_user)):
     logger.info(f"Creating goal for user_id: {user_id}")
-    return await create_goal(db=db, goal=goal, user_id=user_id)
+    return create_goal(db=db, goal=goal, user_id=user_id)
 
 @app.get("/goals/", response_model=List[GoalsRead])
-async def read_goals(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
-    return await get_goals(db, skip=skip, limit=limit)
+def read_goals(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return get_goals(db, skip=skip, limit=limit)
 
 @app.get("/goal/{goal_id}", response_model=GoalsRead)
-async def read_goal(goal_id: int, db: AsyncSession = Depends(get_db)):
-    db_goal = await get_goal(db, goal_id=goal_id)
+def read_goal(goal_id: int, db: AsyncSession = Depends(get_db)):
+    db_goal = get_goal(db, goal_id=goal_id)
     if db_goal is None:
         raise HTTPException(status_code=404, detail="Goal not found")
     return db_goal
 
 # Report endpoints
 @app.post("/reports/", response_model=ReportRead)
-async def create_new_report(report: ReportCreate, db: AsyncSession = Depends(get_db)):
-    return await create_report(db=db, report=report)
+def create_new_report(report: ReportCreate, db: AsyncSession = Depends(get_db)):
+    return create_report(db=db, report=report)
 
 @app.get("/reports/", response_model=List[ReportRead])
-async def read_reports(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
-    return await get_reports(db, skip=skip, limit=limit)
+def read_reports(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return get_reports(db, skip=skip, limit=limit)
 
 @app.get("/report/{report_id}", response_model=ReportRead)
-async def read_report(report_id: int, db: AsyncSession = Depends(get_db)):
-    db_report = await get_report(db, report_id=report_id)
+def read_report(report_id: int, db: AsyncSession = Depends(get_db)):
+    db_report = get_report(db, report_id=report_id)
     if db_report is None:
         raise HTTPException(status_code=404, detail="Report not found")
     return db_report
 
 # Transaction endpoints
 @app.post("/transactions/", response_model=TransactionRead)
-async def create_new_transaction(transaction: TransactionCreate, db: AsyncSession = Depends(get_db)):
-    return await create_transaction(db=db, transaction=transaction)
+def create_new_transaction(transaction: TransactionCreate, db: AsyncSession = Depends(get_db)):
+    return create_transaction(db=db, transaction=transaction)
 
 @app.get("/transactions/", response_model=List[TransactionRead])
-async def read_transactions(
+def read_transactions(
     skip: int = 0, 
     limit: int = 10, 
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return await get_transactions(db=db, user_id=current_user.id, skip=skip, limit=limit)
+    return get_transactions(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @app.get("/transaction/{transaction_id}", response_model=TransactionRead)
-async def read_transaction(transaction_id: int, db: AsyncSession = Depends(get_db)):
-    db_transaction = await get_transaction(db, transaction_id=transaction_id)
+def read_transaction(transaction_id: int, db: AsyncSession = Depends(get_db)):
+    db_transaction = get_transaction(db, transaction_id=transaction_id)
     if db_transaction is None:
         raise HTTPException(status_code=404, detail="Transaction not found")
     return db_transaction
 
 # Notification endpoints
 @app.post("/notifications/", response_model=NotificationRead)
-async def create_new_notification(notification: NotificationCreate, db: AsyncSession = Depends(get_db)):
-    return await create_notification(db=db, notification=notification)
+def create_new_notification(notification: NotificationCreate, db: AsyncSession = Depends(get_db)):
+    return create_notification(db=db, notification=notification)
 
 @app.get("/notifications/", response_model=List[NotificationRead])
-async def read_notifications(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
-    return await get_notifications(db, skip=skip, limit=limit)
+def read_notifications(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return get_notifications(db, skip=skip, limit=limit)
 
 @app.get("/notification/{notification_id}", response_model=NotificationRead)
-async def read_notification(notification_id: int, db: AsyncSession = Depends(get_db)):
-    db_notification = await get_notification(db, notification_id=notification_id)
+def read_notification(notification_id: int, db: AsyncSession = Depends(get_db)):
+    db_notification = get_notification(db, notification_id=notification_id)
     if db_notification is None:
         raise HTTPException(status_code=404, detail="Notification not found")
     return db_notification

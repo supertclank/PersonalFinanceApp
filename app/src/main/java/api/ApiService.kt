@@ -19,6 +19,7 @@ import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -63,11 +64,18 @@ interface ApiService {
     fun getBudget(@Path("budget_id") budgetId: Int): Call<BudgetRead>
 
     // Goal endpoints
-    @POST("goals/")
-    fun createGoal(@Body goal: GoalsCreate): Call<GoalsRead>
+    @GET("goals")
+    fun getGoals(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Header("Authorization") token: String
+    ): Call<List<GoalsRead>>
 
-    @GET("goals/")
-    fun getGoals(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<GoalsRead>>
+    @POST("goals")
+    fun createGoal(
+        @Body newGoal: GoalsCreate,
+        @Header("Authorization") token: String
+    ): Call<GoalsRead>
 
     @GET("goal/{goal_id}")
     fun getGoal(@Path("goal_id") goalId: Int): Call<GoalsRead>

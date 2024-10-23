@@ -80,6 +80,10 @@ dependencies {
 
     // Add Auth0 Android SDK for JWT and authentication
     implementation("com.auth0.android:jwtdecode:2.0.1")
+    implementation ("com.auth0:java-jwt:4.0.0")
+    implementation ("com.auth0:java-jwt:4.2.1") // or the latest version
+
+
 
 
     testImplementation(libs.junit)
