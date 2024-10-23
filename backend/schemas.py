@@ -51,7 +51,7 @@ class BudgetCreate(BaseModel):
     userId: int
     budgetCategoryId: int
     amount: float
-    startDate: date  # Use date here if no time component is needed
+    startDate: date
     endDate: date
 
 class BudgetRead(BaseModel):
@@ -66,7 +66,7 @@ class GoalsCreate(BaseModel):
     name: str
     target_amount: float
     current_amount: float
-    deadline: date  # Use date for deadline as it's date-specific
+    deadline: date
     description: Optional[str] = None
 
 class GoalsRead(BaseModel):
@@ -74,7 +74,7 @@ class GoalsRead(BaseModel):
     name: str
     targetAmount: float
     currentAmount: float
-    deadline: date  # Ensure consistency with the model
+    deadline: date
     description: str
 
 # Report schemas
@@ -87,13 +87,13 @@ class ReportRead(BaseModel):
     reportId: int
     reportTypeId: int
     data: dict
-    generatedAt: datetime  # Typically includes both date and time
+    generatedAt: datetime
 
 # Transaction schemas
 class TransactionCreate(BaseModel):
     userId: int
     amount: float
-    date: datetime  # This should include both date and time
+    date: datetime
     description: str
     transactionCategoryId: int
 
@@ -108,10 +108,10 @@ class NotificationCreate(BaseModel):
     userId: int
     message: str
     isRead: Optional[bool] = False
-    date: Optional[datetime] = None  # If timestamp is optional
+    date: Optional[datetime] = None
 
 class NotificationRead(BaseModel):
     notificationId: int
     message: str
     isRead: bool
-    createdAt: datetime  # Date and time when the notification was created
+    createdAt: datetime

@@ -64,14 +64,14 @@ interface ApiService {
     fun getBudget(@Path("budget_id") budgetId: Int): Call<BudgetRead>
 
     // Goal endpoints
-    @GET("goals")
+    @GET("goals/")
     fun getGoals(
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Header("Authorization") token: String
     ): Call<List<GoalsRead>>
 
-    @POST("goals")
+    @POST("goals/")
     fun createGoal(
         @Body newGoal: GoalsCreate,
         @Header("Authorization") token: String
