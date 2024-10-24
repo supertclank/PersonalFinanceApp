@@ -1,3 +1,7 @@
+package com.example.personfinanceapp.RecyclerView
+
+import android.content.ContentValues.TAG
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -5,31 +9,39 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import api.data_class.GoalsRead // Assuming this is the correct import for Goal data class
 import com.example.personfinanceapp.R
 
-class GoalsAdapter(
-    private val goals: List<Goal>,
-    private val listener: GoalsListener
-) : RecyclerView.Adapter<GoalsAdapter.GoalViewHolder>() {
+class GoalsAdapter(private val listener: GoalsListener) :
+    RecyclerView.Adapter<GoalsAdapter.GoalViewHolder>() {
+    private var goals: List<GoalsRead> = emptyList()
 
     interface GoalsListener {
-        fun onEditGoal(goal: Goal)
-        fun onDeleteGoal(goal: Goal)
-        fun onGoalClick(goal: Goal)
+        fun onEditGoal(goal: GoalsRead)
+        fun onDeleteGoal(goal: GoalsRead)
+        fun onGoalClick(goal: GoalsRead)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GoalViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.goal_item, parent, false) // Make sure to replace with your layout file
+            .inflate(R.layout.goal_item, parent, false)
         return GoalViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: GoalViewHolder, position: Int) {
-        val goal = goals[position]
+        val goal = goals[position]  // Use 'goals' instead of 'goalsList'
+        Log.d(TAG, "onBindViewHolder: Binding goal at position $position: $goal")
+
+        // Bind the data to your views here
         holder.bind(goal)
     }
 
     override fun getItemCount(): Int = goals.size
+
+    fun updateGoals(newGoals: List<GoalsRead>) {
+        this.goals = newGoals
+        notifyDataSetChanged()
+    }
 
     inner class GoalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val goalTitle: TextView = itemView.findViewById(R.id.goal_title)
@@ -40,30 +52,26 @@ class GoalsAdapter(
         private val deleteButton: Button = itemView.findViewById(R.id.delete_goal_button)
 
         init {
-            // Toggle visibility of goal details on item click
             itemView.setOnClickListener {
-                goalDetails.visibility = if (goalDetails.visibility == View.GONE) {
-                    View.VISIBLE // Show details
-                } else {
-                    View.GONE // Hide details
-                }
-                listener.onGoalClick(goals[adapterPosition]) // Notify listener of goal click
+                val isVisible = goalDetails.visibility == View.VISIBLE
+                goalDetails.visibility = if (isVisible) View.GONE else View.VISIBLE
+                listener.onGoalClick(goals[adapterPosition])
             }
 
             editButton.setOnClickListener {
-                listener.onEditGoal(goals[adapterPosition]) // Notify listener to edit goal
+                listener.onEditGoal(goals[adapterPosition])
             }
 
             deleteButton.setOnClickListener {
-                listener.onDeleteGoal(goals[adapterPosition]) // Notify listener to delete goal
+                listener.onDeleteGoal(goals[adapterPosition])
             }
         }
 
-        fun bind(goal: Goal) {
+        fun bind(goal: GoalsRead) {
             goalTitle.text = goal.name
-            goalSummary.text = "Target: ${goal.targetAmount}, Current: ${goal.currentAmount}"
+            goalSummary.text = "Target: ${goal.target_amount}, Current: ${goal.current_amount}"
             goalDescription.text = goal.description
-            goalDetails.visibility = View.GONE
+            goalDetails.visibility = View.GONE // Ensure details are initially hidden
         }
     }
 }

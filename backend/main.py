@@ -136,25 +136,26 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
     try:
         # Decode the JWT token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        
         user_id: int = payload.get("id")
-        
+
         if user_id is None:
             raise credentials_exception
+        
+        # Fetch the user from the database using the user_id
+        user = db.query(User).filter(User.id == user_id).first()  # Assuming User is your User model
+        if user is None:
+            raise credentials_exception
+        
     except JWTError as e:
         # Log the JWT error for debugging purposes
         logger.error(f"JWT error: {e}")
         raise credentials_exception
 
-    # Fetch the user from the database using user_id
-    user = db.query(User).filter(User.id == user_id).first()
-    
-    if user is None:
-        raise credentials_exception
-    return user
+    return user  # Return the user object
 
 # Create an asynchronous engine
 DATABASE_URL = "mysql+aiomysql://root:your_password@localhost/personal_finance_db"
