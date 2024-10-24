@@ -4,5 +4,5 @@ data class NotificationCreate(
     val userId: Int,
     val message: String,
     val notificationTypeId: Int,
-    val isRead: Boolean
+    val isRead: Boolean,
 )

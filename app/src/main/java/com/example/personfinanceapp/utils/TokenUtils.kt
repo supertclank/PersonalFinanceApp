@@ -13,7 +13,8 @@ object TokenUtils {
 
     // Get the token from SharedPreferences
     fun getTokenFromStorage(context: Context): String? {
-        val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val sharedPreferences: SharedPreferences =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return sharedPreferences.getString(TOKEN_KEY, null)
     }
 
@@ -57,7 +58,8 @@ object TokenUtils {
     }
 
     fun saveTokenToStorage(context: Context, token: String) {
-        val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val sharedPreferences: SharedPreferences =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString(TOKEN_KEY, token)
         editor.apply()

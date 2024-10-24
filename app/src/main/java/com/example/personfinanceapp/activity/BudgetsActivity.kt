@@ -43,9 +43,11 @@ class BudgetsActivity : AppCompatActivity() {
                 R.id.nav_budgets -> {
                     startActivity(Intent(this, BudgetsActivity::class.java))
                 }
+
                 R.id.nav_goals -> {
                     startActivity(Intent(this, GoalsActivity::class.java))
                 }
+
                 R.id.nav_settings -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 }

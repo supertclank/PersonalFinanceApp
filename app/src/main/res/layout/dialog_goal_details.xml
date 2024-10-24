@@ -1,53 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/goal_name_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Goal Name"
         android:textSize="18sp"
-        android:textStyle="bold"
-        android:text="Goal Name" />
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/goal_target_amount_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="Target Amount: $" />
+        android:text="@string/target_amount"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/goal_current_amount_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="Current Amount: $" />
+        android:text="@string/current_amount"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/goal_deadline_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="Deadline: " />
+        android:text="@string/deadline"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/goal_description_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="Description: " />
+        android:text="@string/description"
+        android:textSize="16sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
         android:gravity="end"
-        android:layout_marginTop="16dp">
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/button_edit"
@@ -59,14 +58,14 @@
             android:id="@+id/button_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delete"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            android:text="Delete" />
 
         <Button
             android:id="@+id/button_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Close"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            android:text="Close" />
     </LinearLayout>
 </LinearLayout>

@@ -1,55 +1,54 @@
 <!-- goal_box.xml -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:orientation="vertical"
+    android:padding="16dp">
 
-<TextView
-android:id="@+id/goal_title"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:textSize="18sp"
-android:textStyle="bold" />
+    <TextView
+        android:id="@+id/goal_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
-<TextView
-android:id="@+id/goal_summary"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:textSize="14sp" />
+    <TextView
+        android:id="@+id/goal_summary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp" />
 
-<LinearLayout
-android:id="@+id/goal_details"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:visibility="gone"
-android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/goal_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
 
-<!-- Full goal details -->
-<TextView
-    android:id="@+id/goal_description"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" />
+        <!-- Full goal details -->
+        <TextView
+            android:id="@+id/goal_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-<TextView
-    android:id="@+id/goal_target_amount"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/goal_target_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-<!-- Buttons to edit or delete -->
-<Button
-    android:id="@+id/edit_goal_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/edit" />
+        <!-- Buttons to edit or delete -->
+        <Button
+            android:id="@+id/edit_goal_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/edit" />
 
-<Button
-    android:id="@+id/delete_goal_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/delete" />
-</LinearLayout>
+        <Button
+            android:id="@+id/delete_goal_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete" />
     </LinearLayout>
+</LinearLayout>

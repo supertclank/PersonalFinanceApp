@@ -5,5 +5,5 @@ data class ReportRead(
     val userId: Int,
     val reportTypeId: Int,
     val generatedAt: String,
-    val data: Map<String, Any>
+    val data: Map<String, Any>,
 )

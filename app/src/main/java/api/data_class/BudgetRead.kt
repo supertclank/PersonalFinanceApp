@@ -6,5 +6,5 @@ data class BudgetRead(
     val categoryId: Int,
     val amount: Double,
     val startDate: String,
-    val endDate: String
+    val endDate: String,
 )

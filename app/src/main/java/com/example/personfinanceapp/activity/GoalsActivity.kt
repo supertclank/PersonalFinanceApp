@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import api.RetrofitClient
 import api.data_class.GoalsCreate
@@ -86,7 +86,7 @@ class GoalsActivity : AppCompatActivity() {
 
         // Set up RecyclerView for goals
         goalsRecyclerView = findViewById(R.id.goals_recycler_view)
-        goalsRecyclerView.layoutManager = GridLayoutManager(this, 2)
+        goalsRecyclerView.layoutManager = LinearLayoutManager(this)
         goalsAdapter = GoalsAdapter(object : GoalsAdapter.GoalsListener {
             override fun onGoalClick(goal: GoalsRead) {
                 showGoalDetailsDialog(goal)
@@ -127,7 +127,8 @@ class GoalsActivity : AppCompatActivity() {
         val userId = getUserIdFromToken(token)
         if (userId == -1) {
             Log.e(TAG, "fetchGoals: Invalid user ID. Cannot fetch goals.")
-            Toast.makeText(this, "Error: Invalid user ID. Cannot fetch goals.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Error: Invalid user ID. Cannot fetch goals.", Toast.LENGTH_SHORT)
+                .show()
             return  // Exit the function if the user ID is invalid
         }
 
@@ -135,7 +136,8 @@ class GoalsActivity : AppCompatActivity() {
         val authToken = "Bearer $token"  // Format the token properly
         Log.d(TAG, "fetchGoals: Auth token formatted: $authToken")
 
-        val call = apiService.getGoals(0, 10, authToken) // Pass the token in the header
+        // Make the API call to fetch goals
+        val call = apiService.getGoals(0, 10, authToken)
 
         call.enqueue(object : Callback<List<GoalsRead>> {
             override fun onResponse(
@@ -145,16 +147,28 @@ class GoalsActivity : AppCompatActivity() {
                 Log.d(TAG, "fetchGoals: API response received, code: ${response.code()}")
 
                 if (response.isSuccessful) {
-                    val goals = response.body() ?: emptyList()
+                    val goals = response.body() ?: run {
+                        Log.e(TAG, "fetchGoals: Response body is null")
+                        Toast.makeText(this@GoalsActivity, "No goals found", Toast.LENGTH_SHORT)
+                            .show()
+                        return
+                    }
+
                     Log.d(TAG, "fetchGoals: Goals loaded from response: $goals")
-                    goalsList.clear()
-                    goalsList.addAll(goals)
+
+                    // Update goals list and notify the adapter
+                    goalsList.apply {
+                        clear()
+                        addAll(goals)
+                    }
                     goalsAdapter.notifyDataSetChanged()
+
                     Log.d(TAG, "fetchGoals: Goals list updated, total goals: ${goalsList.size}")
                 } else {
                     Log.e(TAG, "fetchGoals: Error ${response.code()}: ${response.message()}")
                     Log.e(TAG, "fetchGoals: Response body: ${response.errorBody()?.string()}")
-                    Toast.makeText(this@GoalsActivity, "Failed to load goals", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@GoalsActivity, "Failed to load goals", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 

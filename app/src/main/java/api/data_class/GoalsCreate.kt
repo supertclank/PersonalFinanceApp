@@ -6,5 +6,5 @@ data class GoalsCreate(
     val target_amount: Double,
     val current_amount: Double,
     val deadline: String,
-    val description: String?
+    val description: String?,
 )

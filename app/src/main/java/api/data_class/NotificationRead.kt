@@ -6,5 +6,5 @@ data class NotificationRead(
     val message: String,
     val notificationTypeId: Int,
     val isRead: Boolean,
-    val createdAt: String
+    val createdAt: String,
 )

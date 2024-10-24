@@ -5,5 +5,5 @@ data class TransactionCreate(
     val amount: Double,
     val categoryId: Int,
     val date: String,
-    val description: String
+    val description: String,
 )

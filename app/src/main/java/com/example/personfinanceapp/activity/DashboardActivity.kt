@@ -55,6 +55,7 @@ class DashboardActivity : AppCompatActivity() {
                         TransactionsActivity::class.java
                     )
                 )
+
                 R.id.nav_reports -> startActivity(Intent(this, ReportsActivity::class.java))
                 R.id.nav_budgets -> startActivity(Intent(this, BudgetsActivity::class.java))
                 R.id.nav_goals -> startActivity(Intent(this, GoalsActivity::class.java))

@@ -52,7 +52,7 @@ interface ApiService {
         @Field("password") password: String,
         @Field("scope") scope: String? = null,
         @Field("client_id") clientId: String? = null,
-        @Field("client_secret") clientSecret: String? = null
+        @Field("client_secret") clientSecret: String? = null,
     ): Call<TokenResponse>
 
     // Budget endpoints
@@ -70,20 +70,24 @@ interface ApiService {
     fun getGoals(
         @Query("page") page: Int,
         @Query("size") size: Int,
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Call<List<GoalsRead>>
 
     @POST("goals/")
     fun createGoal(
         @Body newGoal: GoalsCreate,
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Call<GoalsRead>
 
     @GET("goal/{goal_id}")
     fun getGoal(@Path("goal_id") goalId: Int): Call<GoalsRead>
 
     @PUT("goals/{goalId}")
-    fun updateGoal(@Path("goalId") goalId: Int, @Body goal: GoalsCreate, @Header("Authorization") token: String): Call<GoalsRead>
+    fun updateGoal(
+        @Path("goalId") goalId: Int,
+        @Body goal: GoalsCreate,
+        @Header("Authorization") token: String,
+    ): Call<GoalsRead>
 
     @DELETE("goals/{goalId}")
     fun deleteGoal(@Path("goalId") goalId: Int, @Header("Authorization") token: String): Call<Void>
@@ -105,7 +109,7 @@ interface ApiService {
     @GET("transactions/")
     fun getTransactions(
         @Query("skip") skip: Int,
-        @Query("limit") limit: Int
+        @Query("limit") limit: Int,
     ): Call<List<TransactionRead>>
 
     @GET("transaction/{transaction_id}")
@@ -118,7 +122,7 @@ interface ApiService {
     @GET("notifications/")
     fun getNotifications(
         @Query("skip") skip: Int,
-        @Query("limit") limit: Int
+        @Query("limit") limit: Int,
     ): Call<List<NotificationRead>>
 
     @GET("notification/{notification_id}")

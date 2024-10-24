@@ -1,47 +1,95 @@
-<!-- goal_item.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/card_background"
+    android:clipToPadding="false"
+    android:elevation="4dp"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp">
 
     <TextView
         android:id="@+id/goal_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="4dp"
+        android:text="@string/goal_title"
         android:textSize="18sp"
         android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/goal_summary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/goal_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:visibility="gone" />
+        android:paddingBottom="12dp"
+        android:text="@string/enter_your_goal_title"
+        android:textSize="16sp" />
 
-    <LinearLayout
-        android:id="@+id/goal_details"
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:paddingTop="16dp"
+        android:paddingBottom="4dp"
+        android:text="@string/description"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/edit_goal_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/edit" />
+    <TextView
+        android:id="@+id/goal_description_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="12dp"
+        android:text="@string/enter_a_description_for_your_goal"
+        android:textSize="14sp" />
 
-        <Button
-            android:id="@+id/delete_goal_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/delete" />
-    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="4dp"
+        android:text="@string/current_amount"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/goal_current_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="12dp"
+        android:text="@string/enter_current_amount"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="4dp"
+        android:text="@string/target_amount"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/goal_target_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="12dp"
+        android:text="@string/enter_target_amount"
+        android:textSize="14sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="4dp"
+        android:text="@string/deadline"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/goal_deadline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/enter_deadline" />
 </LinearLayout>

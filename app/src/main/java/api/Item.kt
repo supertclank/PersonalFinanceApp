@@ -7,13 +7,13 @@ data class User(
     val username: String,
     val email: String,
     val hashed_password: String,
-    val createdAt: Date
+    val createdAt: Date,
 )
 
 data class UserCreate(
     val username: String,
     val email: String,
-    val hashed_password: String
+    val hashed_password: String,
 )
 
 data class UserRead(
@@ -21,7 +21,7 @@ data class UserRead(
     val username: String,
     val email: String,
     val hashed_password: String,
-    val createdAt: Date
+    val createdAt: Date,
 )
 
 // Profile data classes
@@ -32,7 +32,7 @@ data class Profile(
     val lastName: String?,
     val email: String?,
     val phoneNumber: String?,
-    val createdAt: Date
+    val createdAt: Date,
 )
 
 data class ProfileCreate(
@@ -40,7 +40,7 @@ data class ProfileCreate(
     val firstName: String?,
     val lastName: String?,
     val email: String?,
-    val phoneNumber: String?
+    val phoneNumber: String?,
 )
 
 data class ProfileRead(
@@ -50,7 +50,7 @@ data class ProfileRead(
     val lastName: String?,
     val email: String?,
     val phoneNumber: String?,
-    val createdAt: Date
+    val createdAt: Date,
 )
 
 // Budget data classes
@@ -60,7 +60,7 @@ data class Budget(
     val budgetCategoryId: Int,
     val amount: BigDecimal,
     val startDate: Date?,
-    val endDate: Date?
+    val endDate: Date?,
 )
 
 data class BudgetCreate(
@@ -68,7 +68,7 @@ data class BudgetCreate(
     val budgetCategoryId: Int,
     val amount: BigDecimal,
     val startDate: Date?,
-    val endDate: Date?
+    val endDate: Date?,
 )
 
 data class BudgetRead(
@@ -77,7 +77,7 @@ data class BudgetRead(
     val budgetCategoryId: Int,
     val amount: BigDecimal,
     val startDate: Date?,
-    val endDate: Date?
+    val endDate: Date?,
 )
 
 // Goal data classes
@@ -88,7 +88,7 @@ data class Goal(
     val targetAmount: BigDecimal,
     val currentAmount: BigDecimal,
     val deadline: Date?,
-    val description: String?
+    val description: String?,
 )
 
 data class GoalsCreate(
@@ -97,7 +97,7 @@ data class GoalsCreate(
     val targetAmount: BigDecimal,
     val currentAmount: BigDecimal,
     val deadline: Date?,
-    val description: String?
+    val description: String?,
 )
 
 data class GoalsRead(
@@ -107,7 +107,7 @@ data class GoalsRead(
     val targetAmount: BigDecimal,
     val currentAmount: BigDecimal,
     val deadline: Date?,
-    val description: String?
+    val description: String?,
 )
 
 // Report data classes
@@ -116,14 +116,14 @@ data class Report(
     val userId: Int,
     val reportTypeId: Int,
     val generatedAt: Date,
-    val data: Map<String, Any>? // JSON is represented as a map in Kotlin
+    val data: Map<String, Any>?, // JSON is represented as a map in Kotlin
 )
 
 data class ReportCreate(
     val userId: Int,
     val reportTypeId: Int,
     val generatedAt: Date,
-    val data: Map<String, Any>? // JSON is represented as a map in Kotlin
+    val data: Map<String, Any>?, // JSON is represented as a map in Kotlin
 )
 
 data class ReportRead(
@@ -131,7 +131,7 @@ data class ReportRead(
     val userId: Int,
     val reportTypeId: Int,
     val generatedAt: Date,
-    val data: Map<String, Any>? // JSON is represented as a map in Kotlin
+    val data: Map<String, Any>?, // JSON is represented as a map in Kotlin
 )
 
 // Transaction data classes
@@ -141,7 +141,7 @@ data class Transaction(
     val amount: BigDecimal,
     val transactionCategoryId: Int,
     val date: Date,
-    val description: String?
+    val description: String?,
 )
 
 data class TransactionCreate(
@@ -149,7 +149,7 @@ data class TransactionCreate(
     val amount: BigDecimal,
     val transactionCategoryId: Int,
     val date: Date,
-    val description: String?
+    val description: String?,
 )
 
 data class TransactionRead(
@@ -158,7 +158,7 @@ data class TransactionRead(
     val amount: BigDecimal,
     val transactionCategoryId: Int,
     val date: Date,
-    val description: String?
+    val description: String?,
 )
 
 // Notification data classes
@@ -168,14 +168,14 @@ data class Notification(
     val message: String,
     val notificationTypeId: Int,
     val isRead: Boolean,
-    val createdAt: Date
+    val createdAt: Date,
 )
 
 data class NotificationCreate(
     val userId: Int,
     val message: String,
     val notificationTypeId: Int,
-    val isRead: Boolean
+    val isRead: Boolean,
 )
 
 data class NotificationRead(
@@ -184,5 +184,5 @@ data class NotificationRead(
     val message: String,
     val notificationTypeId: Int,
     val isRead: Boolean,
-    val createdAt: Date
+    val createdAt: Date,
 )

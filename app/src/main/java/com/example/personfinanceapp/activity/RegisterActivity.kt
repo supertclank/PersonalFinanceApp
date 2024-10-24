@@ -66,12 +66,16 @@ class RegisterActivity : AppCompatActivity() {
         password: String,
         firstName: String,
         lastName: String,
-        phoneNumber: String
+        phoneNumber: String,
     ) {
         RetrofitClient.instance.checkUserExistsByEmail(email).enqueue(object : Callback<Boolean> {
             override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
                 if (response.isSuccessful && response.body() == true) {
-                    Toast.makeText(this@RegisterActivity, "Email already registered", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@RegisterActivity,
+                        "Email already registered",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     // Proceed with registration if email is not registered
                     registerUser(username, email, password, firstName, lastName, phoneNumber)
@@ -79,7 +83,11 @@ class RegisterActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<Boolean>, t: Throwable) {
-                Toast.makeText(this@RegisterActivity, "Network error. Please try again.", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@RegisterActivity,
+                    "Network error. Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         })
     }
@@ -90,26 +98,39 @@ class RegisterActivity : AppCompatActivity() {
         password: String,
         firstName: String,
         lastName: String,
-        phoneNumber: String
+        phoneNumber: String,
     ) {
         val hashedPassword = hashPassword(password)
 
-        val userCreate = UserCreate(username, email, hashedPassword, firstName, lastName, phoneNumber)
+        val userCreate =
+            UserCreate(username, email, hashedPassword, firstName, lastName, phoneNumber)
 
         RetrofitClient.instance.createUser(userCreate).enqueue(object : Callback<UserRead> {
             override fun onResponse(call: Call<UserRead>, response: Response<UserRead>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@RegisterActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@RegisterActivity,
+                        "Registration successful!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
                     startActivity(intent)
                     finish()
                 } else {
-                    Toast.makeText(this@RegisterActivity, "Registration failed. Please try again.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@RegisterActivity,
+                        "Registration failed. Please try again.",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<UserRead>, t: Throwable) {
-                Toast.makeText(this@RegisterActivity, "Network error. Please try again.", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@RegisterActivity,
+                    "Network error. Please try again.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         })
     }
@@ -121,7 +142,7 @@ class RegisterActivity : AppCompatActivity() {
         confirmPassword: String,
         firstName: String,
         lastName: String,
-        phoneNumber: String
+        phoneNumber: String,
     ): Boolean {
         // Validation logic here...
         return true

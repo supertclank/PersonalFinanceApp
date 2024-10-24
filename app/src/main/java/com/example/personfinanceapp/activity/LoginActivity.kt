@@ -100,7 +100,11 @@ class LoginActivity : AppCompatActivity() {
                         val Id = decodeToken(token) ?: run {
                             Log.e("LoginActivity", "Failed to decode token, user ID is null")
                             runOnUiThread {
-                                Toast.makeText(this@LoginActivity, "Failed to retrieve user ID.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    "Failed to retrieve user ID.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             return // Exit the method if user ID cannot be retrieved
                         }
@@ -111,7 +115,11 @@ class LoginActivity : AppCompatActivity() {
                         Log.d("LoginActivity", "User ID: $Id")
 
                         runOnUiThread {
-                            Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@LoginActivity,
+                                "Login successful!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                         val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
@@ -126,15 +134,28 @@ class LoginActivity : AppCompatActivity() {
                         )
                         runOnUiThread {
                             when (response.code) {
-                                401 -> Toast.makeText(this@LoginActivity, "Invalid username or password", Toast.LENGTH_SHORT).show()
-                                else -> Toast.makeText(this@LoginActivity, "Login failed. Please try again.", Toast.LENGTH_SHORT).show()
+                                401 -> Toast.makeText(
+                                    this@LoginActivity,
+                                    "Invalid username or password",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                else -> Toast.makeText(
+                                    this@LoginActivity,
+                                    "Login failed. Please try again.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("LoginActivity", "Login failed: ${e.message}", e)
                     runOnUiThread {
-                        Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Login failed: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
