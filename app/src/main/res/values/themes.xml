@@ -14,6 +14,21 @@
         <item name="colorOnError">@color/colorOnError</item>
     </style>
 
+    <!-- Dark Theme -->
+    <style name="Theme.Personfinanceapp.Dark" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/pastelOrangePrimary</item>
+        <item name="colorPrimaryVariant">@color/pastelOrangePrimaryVariant</item>
+        <item name="colorOnPrimary">@color/pastelOrangeOnPrimary</item>
+        <item name="colorSecondary">@color/pastelOrangeSecondary</item>
+        <item name="colorOnSecondary">@color/pastelOrangeOnSecondary</item>
+        <item name="colorBackground">@color/colorBackgroundDark</item> <!-- Dark background color -->
+        <item name="colorOnBackground">@color/colorOnBackgroundDark</item> <!-- Text color on dark background -->
+        <item name="colorSurface">@color/colorSurfaceDark</item> <!-- Surface color for cards, etc. -->
+        <item name="colorOnSurface">@color/colorOnSurfaceDark</item> <!-- Text color on surface -->
+        <item name="colorError">@color/colorErrorDark</item> <!-- Error color for dark theme -->
+        <item name="colorOnError">@color/colorOnErrorDark</item> <!-- Text color for error messages -->
+    </style>
+
     <!-- Splash Theme -->
     <style name="Theme.SplashTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/splash_screen</item>

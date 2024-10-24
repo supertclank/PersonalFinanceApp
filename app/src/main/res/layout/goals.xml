@@ -19,7 +19,8 @@
             android:id="@+id/goals_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/toolbar" />
+            android:layout_below="@id/toolbar"
+            android:visibility="visible" />
 
         <!-- Button to add new goal -->
         <Button

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme_Light">light</style>
+
+    <style name="AppTheme_Dark">dark</style>
+</resources>

@@ -91,5 +91,9 @@
     <string name="enter_deadline">Enter deadline</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
+    <string name="language_settings">Language Settings</string>
+    <string name="app_settings">App Settings\n</string>
+    <string name="privacy_settings">Privacy Settings\n</string>
+    <string name="user_settings">User Settings</string>
 
 </resources>
