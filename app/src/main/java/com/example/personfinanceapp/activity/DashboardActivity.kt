@@ -10,6 +10,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import api.RetrofitClient
+import api.data_class.GoalsRead
 import api.data_class.UserRead
 import com.example.personfinanceapp.R
 import com.example.personfinanceapp.utils.TokenUtils
@@ -22,7 +23,8 @@ class DashboardActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
-    private lateinit var greetingTextView: TextView // TextView to display the greeting
+    private lateinit var greetingTextView: TextView
+    private val goalsList = mutableListOf<GoalsRead>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,4 +120,5 @@ class DashboardActivity : AppCompatActivity() {
             super.onBackPressed() // Call the default behavior
         }
     }
+
 }

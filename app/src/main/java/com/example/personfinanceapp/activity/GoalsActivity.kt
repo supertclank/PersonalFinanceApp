@@ -237,6 +237,17 @@ class GoalsActivity : AppCompatActivity() {
 
     private fun getUserIdFromToken(token: String): Int {
         val jwt = JWT(token)
-        return jwt.getClaim("sub").asInt() ?: 0
+
+        // Log all claims for debugging
+        val claims = jwt.claims
+        claims.forEach { (key, value) ->
+            Log.d(TAG, "Claim: $key = ${value.asString()}")
+        }
+
+        // Retrieve the user ID claim
+        val userId = jwt.getClaim("user_id").asInt() ?: -1
+        Log.d(TAG, "getUserIdFromToken: Retrieved user ID: $userId")
+
+        return userId
     }
 }

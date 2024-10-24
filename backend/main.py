@@ -117,12 +117,16 @@ def authenticate_user(db: Session, username: str, password: str):
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()
     
+    # Set expiration time
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     
     if 'id' in data:
-        to_encode.update({"id": data['id']})
+        to_encode["id"] = data['id']
+    else:
+        raise ValueError("User ID must be provided in the token payload")
 
+    # Encode the JWT
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -136,17 +140,18 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         # Decode the JWT token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         
-        username: str = payload.get("sub")
+        user_id: int = payload.get("id")
         
-        if username is None:
+        if user_id is None:
             raise credentials_exception
     except JWTError as e:
         # Log the JWT error for debugging purposes
         logger.error(f"JWT error: {e}")
         raise credentials_exception
 
-    # Fetch the user from the database
-    user = get_user_by_username(db, username)
+    # Fetch the user from the database using user_id
+    user = db.query(User).filter(User.id == user_id).first()
+    
     if user is None:
         raise credentials_exception
     return user
@@ -293,9 +298,23 @@ def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
 
 # Goals endpoints
 @app.post("/goals/", response_model=GoalsRead)
-def create_new_goal(goal: GoalsCreate, db: AsyncSession = Depends(get_db), user_id: int = Depends(get_current_user)):
-    logger.info(f"Creating goal for user_id: {user_id}")
-    return create_goal(db=db, goal=goal, user_id=user_id)
+def create_new_goal(
+    goal: GoalsCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    logger.info(f"Creating goal for user_id: {current_user.id}")
+    db_goal = create_goal(db=db, goal=goal, user_id=current_user.id)
+
+    # Return the created goal as GoalsRead model
+    return GoalsRead(
+        goalId=db_goal.id,
+        name=db_goal.name,
+        targetAmount=db_goal.target_amount,
+        currentAmount=db_goal.current_amount,
+        deadline=db_goal.deadline,
+        description=db_goal.description
+    )
 
 @app.get("/goals/", response_model=List[GoalsRead])
 def read_goals(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):

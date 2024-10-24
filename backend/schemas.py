@@ -62,7 +62,6 @@ class BudgetRead(BaseModel):
 
 # Goals schemas
 class GoalsCreate(BaseModel):
-    user_id: int
     name: str
     target_amount: float
     current_amount: float
@@ -72,8 +71,8 @@ class GoalsCreate(BaseModel):
 class GoalsRead(BaseModel):
     goalId: int
     name: str
-    targetAmount: float
-    currentAmount: float
+    target_amount: float
+    current_amount: float
     deadline: date
     description: str
 

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import User, Budget, Goal, Report, Transaction, Notification
-from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse
+from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse, GoalsRead
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 import datetime
@@ -78,7 +78,13 @@ def get_goal(db: Session, goal_id: int):
 def get_goals(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Goal).offset(skip).limit(limit).all()
 
-def create_goal(db: Session, goal: GoalsCreate, user_id: int):
+def get_goal(db: Session, goal_id: int):
+    return db.query(Goal).filter(Goal.id == goal_id).first()
+
+def get_goals(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(Goal).offset(skip).limit(limit).all()
+
+def create_goal(db: Session, goal: GoalsCreate, user_id: int) -> GoalsRead:
     db_goal = Goal(
         user_id=user_id,
         name=goal.name,
@@ -90,8 +96,17 @@ def create_goal(db: Session, goal: GoalsCreate, user_id: int):
     db.add(db_goal)
     db.commit()
     db.refresh(db_goal)
-    return db_goal
-
+    
+    # Map the Goal model to the GoalsRead model
+    return GoalsRead(
+        goalId=db_goal.id,
+        name=db_goal.name,
+        targetAmount=db_goal.target_amount,
+        currentAmount=db_goal.current_amount,
+        deadline=db_goal.deadline,
+        description=db_goal.description
+    )
+    
 def get_report(db: Session, report_id: int):
     return db.query(Report).filter(Report.id == report_id).first()
 
