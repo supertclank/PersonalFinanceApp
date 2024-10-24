@@ -1,0 +1,34 @@
+<!-- dialog_edit_goal.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/edit_goal_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Goal Name" />
+
+    <EditText
+        android:id="@+id/edit_goal_target_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Target Amount"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/edit_goal_current_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Current Amount"
+        android:inputType="numberDecimal" />
+
+    <EditText
+        android:id="@+id/edit_goal_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Description" />
+</LinearLayout>

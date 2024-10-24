@@ -89,5 +89,7 @@
     <string name="enter_current_amount">Enter current amount</string>
     <string name="enter_target_amount">Enter target amount</string>
     <string name="enter_deadline">Enter deadline</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
 
 </resources>

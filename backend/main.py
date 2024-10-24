@@ -308,7 +308,7 @@ def create_new_goal(
 
     # Return the created goal as GoalsRead model
     return GoalsRead(
-        goalId=db_goal.id,
+        id=db_goal.id,
         name=db_goal.name,
         targetAmount=db_goal.target_amount,
         currentAmount=db_goal.current_amount,
@@ -326,6 +326,33 @@ def read_goal(goal_id: int, db: AsyncSession = Depends(get_db)):
     if db_goal is None:
         raise HTTPException(status_code=404, detail="Goal not found")
     return db_goal
+
+@app.put("/goals/{goal_id}", response_model=GoalsRead)
+def update_goal(goal_id: int, goal: GoalsCreate, db: Session = Depends(get_db)):
+    db_goal = db.query(Goal).filter(Goal.id == goal_id).first()
+    if not db_goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    
+    db_goal.name = goal.name
+    db_goal.target_amount = goal.target_amount
+    db_goal.current_amount = goal.current_amount
+    db_goal.deadline = goal.deadline
+    db_goal.description = goal.description
+
+    db.commit()
+    db.refresh(db_goal)
+    return db_goal
+
+@app.delete("/goals/{goal_id}")
+def delete_goal(goal_id: int, db: Session = Depends(get_db)):
+    db_goal = db.query(Goal).filter(Goal.id == goal_id).first()
+    if not db_goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    
+    db.delete(db_goal)
+    db.commit()
+    return {"detail": "Goal deleted successfully"}
+
 
 # Report endpoints
 @app.post("/reports/", response_model=ReportRead)

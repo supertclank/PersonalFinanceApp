@@ -99,10 +99,10 @@ def create_goal(db: Session, goal: GoalsCreate, user_id: int) -> GoalsRead:
     
     # Map the Goal model to the GoalsRead model
     return GoalsRead(
-        goalId=db_goal.id,
+        id=db_goal.id,
         name=db_goal.name,
-        targetAmount=db_goal.target_amount,
-        currentAmount=db_goal.current_amount,
+        target_amount=db_goal.target_amount,
+        current_amount=db_goal.current_amount,
         deadline=db_goal.deadline,
         description=db_goal.description
     )

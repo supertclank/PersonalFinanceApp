@@ -69,7 +69,7 @@ class GoalsCreate(BaseModel):
     description: Optional[str] = None
 
 class GoalsRead(BaseModel):
-    goalId: int
+    id: int
     name: str
     target_amount: float
     current_amount: float

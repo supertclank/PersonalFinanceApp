@@ -16,11 +16,13 @@ import api.data_class.UserRead
 import api.data_class.UsernameRecoveryRequest
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -79,6 +81,12 @@ interface ApiService {
 
     @GET("goal/{goal_id}")
     fun getGoal(@Path("goal_id") goalId: Int): Call<GoalsRead>
+
+    @PUT("goals/{goalId}")
+    fun updateGoal(@Path("goalId") goalId: Int, @Body goal: GoalsCreate, @Header("Authorization") token: String): Call<GoalsRead>
+
+    @DELETE("goals/{goalId}")
+    fun deleteGoal(@Path("goalId") goalId: Int, @Header("Authorization") token: String): Call<Void>
 
     // Report endpoints
     @POST("reports/")
