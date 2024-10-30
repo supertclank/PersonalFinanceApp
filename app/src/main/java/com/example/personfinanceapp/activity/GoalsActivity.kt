@@ -1,20 +1,23 @@
 package com.example.personfinanceapp.activity
 
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.content.Intent
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import api.RetrofitClient
 import api.data_class.GoalsCreate
 import api.data_class.GoalsRead
@@ -62,7 +65,13 @@ class GoalsActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> startActivity(Intent(this, DashboardActivity::class.java))
-                R.id.nav_transactions -> startActivity(Intent(this, TransactionsActivity::class.java))
+                R.id.nav_transactions -> startActivity(
+                    Intent(
+                        this,
+                        TransactionsActivity::class.java
+                    )
+                )
+
                 R.id.nav_reports -> startActivity(Intent(this, ReportsActivity::class.java))
                 R.id.nav_budgets -> startActivity(Intent(this, BudgetsActivity::class.java))
                 R.id.nav_goals -> startActivity(Intent(this, GoalsActivity::class.java))
@@ -71,10 +80,6 @@ class GoalsActivity : AppCompatActivity() {
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
-
-        // Set up RecyclerView for goals
-        goalsRecyclerView = findViewById(R.id.goals_recycler_view)
-        goalsRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Fetch existing goals from the API
         fetchGoals(token)
@@ -93,6 +98,15 @@ class GoalsActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSwipeRefreshLayout() {
+        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+
+        swipeRefreshLayout.setOnRefreshListener {
+            fetchGoals (token)
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+
     private fun fetchGoals(token: String) {
         Log.d(TAG, "fetchGoals: Fetching goals from API")
 
@@ -100,7 +114,8 @@ class GoalsActivity : AppCompatActivity() {
         val userId = getUserIdFromToken(token)
         if (userId == -1) {
             Log.e(TAG, "fetchGoals: Invalid user ID. Cannot fetch goals.")
-            Toast.makeText(this, "Error: Invalid user ID. Cannot fetch goals.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Error: Invalid user ID. Cannot fetch goals.", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -111,28 +126,34 @@ class GoalsActivity : AppCompatActivity() {
         val call = apiService.getGoals(0, 10, authToken)
 
         call.enqueue(object : Callback<List<GoalsRead>> {
-            override fun onResponse(call: Call<List<GoalsRead>>, response: Response<List<GoalsRead>>) {
+            override fun onResponse(
+                call: Call<List<GoalsRead>>,
+                response: Response<List<GoalsRead>>,
+            ) {
                 Log.d(TAG, "fetchGoals: API response received, code: ${response.code()}")
 
                 if (response.isSuccessful) {
                     val goals = response.body() ?: run {
                         Log.e(TAG, "fetchGoals: Response body is null")
-                        Toast.makeText(this@GoalsActivity, "No goals found", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@GoalsActivity, "No goals found", Toast.LENGTH_SHORT)
+                            .show()
                         return
                     }
 
                     Log.d(TAG, "fetchGoals: Goals loaded from response: $goals")
 
+                    // Clear the existing goals list
                     goalsList.clear()
                     goalsList.addAll(goals)
 
-                    // Update the RecyclerView with the new goals
-                    updateGoalsList()
+                    // Update the UI to display the new goals
+                    displayGoals(goals)
 
-                    Log.d(TAG, "fetchGoals: Goals list updated, total goals: ${goalsList.size}")
+                    Log.d(TAG, "fetchGoals: Goals displayed, total goals: ${goalsList.size}")
                 } else {
                     Log.e(TAG, "fetchGoals: Error ${response.code()}: ${response.message()}")
-                    Toast.makeText(this@GoalsActivity, "Failed to load goals", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@GoalsActivity, "Failed to load goals", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 
@@ -144,10 +165,11 @@ class GoalsActivity : AppCompatActivity() {
     }
 
     private fun updateGoalsList() {
-        goalsRecyclerView.removeAllViews() // Clear existing views
+        goalsRecyclerView.removeAllViews()
 
         for (goal in goalsList) {
-            val goalView = LayoutInflater.from(this).inflate(R.layout.goal_item, goalsRecyclerView, false)
+            val goalView =
+                LayoutInflater.from(this).inflate(R.layout.goal_item, goalsRecyclerView, false)
 
             val goalNameTextView = goalView.findViewById<TextView>(R.id.goal_title)
             val targetAmountTextView = goalView.findViewById<TextView>(R.id.goal_target_amount)
@@ -168,13 +190,33 @@ class GoalsActivity : AppCompatActivity() {
         }
     }
 
+    fun displayGoals(goals: List<GoalsRead>) {
+        val goalsContainer: LinearLayout = findViewById(R.id.goalsContainer)
+        goalsContainer.removeAllViews() // Clear any existing views
+
+        for (goal in goals) {
+            // Inflate the goal item layout
+            val goalView =
+                LayoutInflater.from(this).inflate(R.layout.goal_item, goalsContainer, false)
+            goalView.findViewById<TextView>(R.id.goal_title).text = goal.name
+            goalView.findViewById<TextView>(R.id.goal_description).text =
+                goal.description ?: "No description"
+            goalView.findViewById<TextView>(R.id.goal_deadline).text = goal.deadline
+
+            // Add the goal view to the container
+            goalsContainer.addView(goalView)
+        }
+    }
+
     private fun showGoalDetailsDialog(goal: GoalsRead) {
         Log.d(TAG, "showGoalDetailsDialog: Displaying details for goal: ${goal.name}")
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_goal_details, null)
         val goalNameTextView = dialogView.findViewById<TextView>(R.id.goal_name_text_view)
-        val targetAmountTextView = dialogView.findViewById<TextView>(R.id.goal_target_amount_text_view)
-        val currentAmountTextView = dialogView.findViewById<TextView>(R.id.goal_current_amount_text_view)
+        val targetAmountTextView =
+            dialogView.findViewById<TextView>(R.id.goal_target_amount_text_view)
+        val currentAmountTextView =
+            dialogView.findViewById<TextView>(R.id.goal_current_amount_text_view)
         val deadlineTextView = dialogView.findViewById<TextView>(R.id.goal_deadline_text_view)
         val descriptionTextView = dialogView.findViewById<TextView>(R.id.goal_description_text_view)
 
@@ -214,7 +256,11 @@ class GoalsActivity : AppCompatActivity() {
                 // Get user ID from token
                 val userId = getUserIdFromToken(token)
                 if (userId == -1) {
-                    Toast.makeText(this, "Error: Invalid user ID. Cannot update goal.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Error: Invalid user ID. Cannot update goal.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setPositiveButton
                 }
 
@@ -231,6 +277,7 @@ class GoalsActivity : AppCompatActivity() {
             .setNegativeButton("Cancel", null)
             .show()
     }
+
     private fun deleteGoal(goalId: Int) {
         Log.d(TAG, "deleteGoal: Deleting goal with ID: $goalId")
 
@@ -245,7 +292,8 @@ class GoalsActivity : AppCompatActivity() {
                     fetchGoals(token) // Refresh the goals list
                 } else {
                     Log.e(TAG, "deleteGoal: Failed to delete goal. Error code: ${response.code()}")
-                    Toast.makeText(this@GoalsActivity, "Failed to delete goal", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@GoalsActivity, "Failed to delete goal", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 
@@ -269,6 +317,21 @@ class GoalsActivity : AppCompatActivity() {
         val deadlineInput = dialogView.findViewById<EditText>(R.id.add_goal_deadline)
         val descriptionInput = dialogView.findViewById<EditText>(R.id.add_goal_description)
 
+        // Set up the DatePickerDialog
+        deadlineInput.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+                // Format and set the selected date to the EditText in YYYY-MM-DD format
+                val formattedDate =
+                    String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                deadlineInput.setText(formattedDate)
+            }, year, month, day).show()
+        }
+
         AlertDialog.Builder(this)
             .setTitle("Add New Goal")
             .setView(dialogView)
@@ -276,17 +339,55 @@ class GoalsActivity : AppCompatActivity() {
                 // Get user ID from token
                 val userId = getUserIdFromToken(token)
                 if (userId == -1) {
-                    Toast.makeText(this, "Error: Invalid user ID. Cannot create goal.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Error: Invalid user ID. Cannot create goal.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setPositiveButton
+                }
+
+                // Validate input fields
+                val goalName = goalNameInput.text.toString()
+                val targetAmountStr = targetAmountInput.text.toString()
+                val currentAmountStr = currentAmountInput.text.toString()
+                val deadline = deadlineInput.text.toString()
+                val description = descriptionInput.text.toString()
+
+                // Check for empty fields
+                if (goalName.isEmpty() || targetAmountStr.isEmpty() || currentAmountStr.isEmpty() || deadline.isEmpty()) {
+                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                // Validate the deadline format
+                val datePattern = Regex("\\d{4}-\\d{2}-\\d{2}") // YYYY-MM-DD pattern
+                if (!deadline.matches(datePattern)) {
+                    Toast.makeText(
+                        this,
+                        "Please enter a valid date in the format YYYY-MM-DD",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setPositiveButton
+                }
+
+                // Convert amounts to Double
+                val targetAmount = targetAmountStr.toDoubleOrNull()
+                val currentAmount = currentAmountStr.toDoubleOrNull()
+
+                // Validate amounts
+                if (targetAmount == null || currentAmount == null) {
+                    Toast.makeText(this, "Please enter valid amounts", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
 
                 val newGoal = GoalsCreate(
                     user_id = userId, // Pass user ID here
-                    name = goalNameInput.text.toString(),
-                    target_amount = targetAmountInput.text.toString().toDouble(),
-                    current_amount = currentAmountInput.text.toString().toDouble(),
-                    deadline = deadlineInput.text.toString(),
-                    description = descriptionInput.text.toString()
+                    name = goalName,
+                    target_amount = targetAmount,
+                    current_amount = currentAmount,
+                    deadline = deadline,
+                    description = description
                 )
                 createGoal(newGoal, token)
             }
@@ -306,7 +407,8 @@ class GoalsActivity : AppCompatActivity() {
                     fetchGoals(token) // Refresh the goals list
                 } else {
                     Log.e(TAG, "createGoal: Failed to create goal. Error code: ${response.code()}")
-                    Toast.makeText(this@GoalsActivity, "Failed to create goal", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@GoalsActivity, "Failed to create goal", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
 
@@ -320,7 +422,7 @@ class GoalsActivity : AppCompatActivity() {
     private fun getUserIdFromToken(token: String): Int {
         return try {
             val jwt = JWT(token)
-            jwt.getClaim("sub").asInt() ?: -1 // Return -1 if user ID not found
+            jwt.getClaim("id").asInt() ?: -1 // Return -1 if user ID not found
         } catch (e: Exception) {
             Log.e(TAG, "getUserIdFromToken: Error decoding token: ${e.message}")
             -1
