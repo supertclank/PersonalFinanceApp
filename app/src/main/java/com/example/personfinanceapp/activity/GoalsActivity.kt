@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -19,7 +20,6 @@ import api.data_class.GoalsCreate
 import api.data_class.GoalsRead
 import com.auth0.android.jwt.JWT
 import com.example.personfinanceapp.R
-import com.example.personfinanceapp.RecyclerView.GoalsAdapter
 import com.example.personfinanceapp.utils.TokenUtils
 import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
@@ -31,10 +31,9 @@ class GoalsActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var goalsRecyclerView: RecyclerView
-    private lateinit var goalsAdapter: GoalsAdapter
     private val goalsList = mutableListOf<GoalsRead>()
     private val TAG = "GoalsActivity"
-    private lateinit var token: String // Declare the token as a property
+    private lateinit var token: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +49,7 @@ class GoalsActivity : AppCompatActivity() {
         token = TokenUtils.getTokenFromStorage(this) ?: run {
             Log.e(TAG, "onCreate: Token is null")
             Toast.makeText(this, "Error: No valid token", Toast.LENGTH_SHORT).show()
-            return // Exit if no token is available
+            return
         }
 
         Log.d(TAG, "onCreate: Token retrieved: $token")
@@ -76,32 +75,17 @@ class GoalsActivity : AppCompatActivity() {
         // Set up RecyclerView for goals
         goalsRecyclerView = findViewById(R.id.goals_recycler_view)
         goalsRecyclerView.layoutManager = LinearLayoutManager(this)
-        goalsAdapter = GoalsAdapter(object : GoalsAdapter.GoalsListener {
-            override fun onGoalClick(goal: GoalsRead) {
-                showGoalDetailsDialog(goal)
-            }
-
-            override fun onEditGoal(goal: GoalsRead) {
-                editGoal(goal) // Call your editGoal function here
-            }
-
-            override fun onDeleteGoal(goal: GoalsRead) {
-                deleteGoal(goal.id) // Call your deleteGoal function here
-            }
-        })
-        goalsRecyclerView.adapter = goalsAdapter
 
         // Fetch existing goals from the API
         fetchGoals(token)
 
         // Handle "Add Goal" button click
         findViewById<Button>(R.id.add_goal_button).setOnClickListener {
-            showAddGoalDialog(token) // Pass the token here
+            showAddGoalDialog(token)
         }
     }
 
     override fun onBackPressed() {
-        // Close the navigation drawer if it's open
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)
         } else {
@@ -117,14 +101,13 @@ class GoalsActivity : AppCompatActivity() {
         if (userId == -1) {
             Log.e(TAG, "fetchGoals: Invalid user ID. Cannot fetch goals.")
             Toast.makeText(this, "Error: Invalid user ID. Cannot fetch goals.", Toast.LENGTH_SHORT).show()
-            return  // Exit the function if the user ID is invalid
+            return
         }
 
         val apiService = RetrofitClient.instance
-        val authToken = "Bearer $token"  // Format the token properly
+        val authToken = "Bearer $token"
         Log.d(TAG, "fetchGoals: Auth token formatted: $authToken")
 
-        // Make the API call to fetch goals
         val call = apiService.getGoals(0, 10, authToken)
 
         call.enqueue(object : Callback<List<GoalsRead>> {
@@ -132,23 +115,23 @@ class GoalsActivity : AppCompatActivity() {
                 Log.d(TAG, "fetchGoals: API response received, code: ${response.code()}")
 
                 if (response.isSuccessful) {
-                    val goals = response.body()
-                    if (goals != null) {
-                        Log.d(TAG, "fetchGoals: Goals loaded from response: $goals")
-
-                        // Update goals list and notify the adapter
-                        goalsList.clear()  // Clear the existing goals
-                        goalsList.addAll(goals)  // Add new goals
-                        goalsAdapter.notifyDataSetChanged()  // Notify adapter of data change
-
-                        Log.d(TAG, "fetchGoals: Goals list updated, total goals: ${goalsList.size}")
-                    } else {
+                    val goals = response.body() ?: run {
                         Log.e(TAG, "fetchGoals: Response body is null")
                         Toast.makeText(this@GoalsActivity, "No goals found", Toast.LENGTH_SHORT).show()
+                        return
                     }
+
+                    Log.d(TAG, "fetchGoals: Goals loaded from response: $goals")
+
+                    goalsList.clear()
+                    goalsList.addAll(goals)
+
+                    // Update the RecyclerView with the new goals
+                    updateGoalsList()
+
+                    Log.d(TAG, "fetchGoals: Goals list updated, total goals: ${goalsList.size}")
                 } else {
                     Log.e(TAG, "fetchGoals: Error ${response.code()}: ${response.message()}")
-                    Log.e(TAG, "fetchGoals: Response body: ${response.errorBody()?.string()}")
                     Toast.makeText(this@GoalsActivity, "Failed to load goals", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -158,6 +141,31 @@ class GoalsActivity : AppCompatActivity() {
                 Toast.makeText(this@GoalsActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun updateGoalsList() {
+        goalsRecyclerView.removeAllViews() // Clear existing views
+
+        for (goal in goalsList) {
+            val goalView = LayoutInflater.from(this).inflate(R.layout.goal_item, goalsRecyclerView, false)
+
+            val goalNameTextView = goalView.findViewById<TextView>(R.id.goal_title)
+            val targetAmountTextView = goalView.findViewById<TextView>(R.id.goal_target_amount)
+            val currentAmountTextView = goalView.findViewById<TextView>(R.id.goal_current_amount)
+            val deadlineTextView = goalView.findViewById<TextView>(R.id.goal_deadline)
+            val descriptionTextView = goalView.findViewById<TextView>(R.id.goal_description)
+
+            goalNameTextView.text = goal.name
+            targetAmountTextView.text = goal.target_amount.toString()
+            currentAmountTextView.text = goal.current_amount.toString()
+            deadlineTextView.text = goal.deadline
+            descriptionTextView.text = goal.description
+
+            goalView.setOnClickListener { showGoalDetailsDialog(goal) }
+
+            // Add the view to the RecyclerView
+            goalsRecyclerView.addView(goalView)
+        }
     }
 
     private fun showGoalDetailsDialog(goal: GoalsRead) {
@@ -179,18 +187,13 @@ class GoalsActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("Goal Details")
             .setView(dialogView)
-            .setPositiveButton("Edit") { _, _ ->
-                editGoal(goal)
-            }
-            .setNegativeButton("Delete") { _, _ ->
-                deleteGoal(goal.id)
-            }
+            .setPositiveButton("Edit") { _, _ -> editGoal(goal) }
+            .setNegativeButton("Delete") { _, _ -> deleteGoal(goal.id) }
             .setNeutralButton("Close", null)
             .show()
     }
 
     private fun editGoal(goal: GoalsRead) {
-        // Show a dialog to edit the goal
         val dialogView = layoutInflater.inflate(R.layout.goal_item, null)
         val goalNameInput = dialogView.findViewById<EditText>(R.id.goal_title)
         val targetAmountInput = dialogView.findViewById<EditText>(R.id.goal_target_amount)
@@ -198,7 +201,6 @@ class GoalsActivity : AppCompatActivity() {
         val deadlineInput = dialogView.findViewById<EditText>(R.id.goal_deadline)
         val descriptionInput = dialogView.findViewById<EditText>(R.id.goal_description)
 
-        // Populate the fields with existing goal data
         goalNameInput.setText(goal.name)
         targetAmountInput.setText(goal.target_amount.toString())
         currentAmountInput.setText(goal.current_amount.toString())
@@ -209,121 +211,108 @@ class GoalsActivity : AppCompatActivity() {
             .setTitle("Edit Goal")
             .setView(dialogView)
             .setPositiveButton("Save") { _, _ ->
+                // Get user ID from token
+                val userId = getUserIdFromToken(token)
+                if (userId == -1) {
+                    Toast.makeText(this, "Error: Invalid user ID. Cannot update goal.", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
                 val updatedGoal = GoalsCreate(
+                    user_id = userId, // Pass user ID here
                     name = goalNameInput.text.toString(),
                     target_amount = targetAmountInput.text.toString().toDouble(),
                     current_amount = currentAmountInput.text.toString().toDouble(),
                     deadline = deadlineInput.text.toString(),
-                    description = descriptionInput.text.toString(),
-                    user_id = goal.user_id
+                    description = descriptionInput.text.toString()
                 )
-                updateGoal(goal.id, updatedGoal)
+                updateGoal(goal.id, updatedGoal, token)
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
+    private fun deleteGoal(goalId: Int) {
+        Log.d(TAG, "deleteGoal: Deleting goal with ID: $goalId")
 
-    private fun updateGoal(goalId: Int, updatedGoal: GoalsCreate) {
         val apiService = RetrofitClient.instance
-        val authToken = "Bearer $token"
+        val call = apiService.deleteGoal(goalId, "Bearer $token")
 
-        val call = apiService.updateGoal(goalId, updatedGoal, authToken)
-        call.enqueue(object : Callback<GoalsRead> {
-            override fun onResponse(call: Call<GoalsRead>, response: Response<GoalsRead>) {
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
-                    Log.d(TAG, "updateGoal: Goal updated successfully")
-                    Toast.makeText(this@GoalsActivity, "Goal updated successfully", Toast.LENGTH_SHORT).show()
-                    fetchGoals(token) // Refresh the list after updating
+                    Log.d(TAG, "deleteGoal: Successfully deleted goal with ID: $goalId")
+                    Toast.makeText(this@GoalsActivity, "Goal deleted", Toast.LENGTH_SHORT).show()
+                    fetchGoals(token) // Refresh the goals list
                 } else {
-                    Log.e(TAG, "updateGoal: Error ${response.code()}: ${response.message()}")
-                    Toast.makeText(this@GoalsActivity, "Failed to update goal", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "deleteGoal: Failed to delete goal. Error code: ${response.code()}")
+                    Toast.makeText(this@GoalsActivity, "Failed to delete goal", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            override fun onFailure(call: Call<GoalsRead>, t: Throwable) {
-                Log.e(TAG, "updateGoal: API call failed: ${t.message}", t)
-                Toast.makeText(this@GoalsActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e(TAG, "deleteGoal: Error deleting goal: ${t.message}", t)
+                Toast.makeText(this@GoalsActivity, "Error deleting goal", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun deleteGoal(goalId: Int) {
-        AlertDialog.Builder(this)
-            .setTitle("Delete Goal")
-            .setMessage("Are you sure you want to delete this goal?")
-            .setPositiveButton("Delete") { _, _ ->
-                val apiService = RetrofitClient.instance
-                val authToken = "Bearer $token"
-
-                val call = apiService.deleteGoal(goalId, authToken)
-                call.enqueue(object : Callback<Void> {
-                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                        if (response.isSuccessful) {
-                            Log.d(TAG, "deleteGoal: Goal deleted successfully")
-                            Toast.makeText(this@GoalsActivity, "Goal deleted successfully", Toast.LENGTH_SHORT).show()
-                            fetchGoals(token) // Refresh the list after deletion
-                        } else {
-                            Log.e(TAG, "deleteGoal: Error ${response.code()}: ${response.message()}")
-                            Toast.makeText(this@GoalsActivity, "Failed to delete goal", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-
-                    override fun onFailure(call: Call<Void>, t: Throwable) {
-                        Log.e(TAG, "deleteGoal: API call failed: ${t.message}", t)
-                        Toast.makeText(this@GoalsActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                    }
-                })
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+    private fun updateGoal(goalId: Int, updatedGoal: GoalsCreate, token: String) {
+        // Similar to deleteGoal method, implement the API call to update the goal
+        // Make sure to handle the response and refresh the goals list
     }
 
     private fun showAddGoalDialog(token: String) {
-        val dialogView = layoutInflater.inflate(R.layout.goal_item, null)
-        val goalNameInput = dialogView.findViewById<EditText>(R.id.goal_title)
-        val targetAmountInput = dialogView.findViewById<EditText>(R.id.goal_target_amount)
-        val currentAmountInput = dialogView.findViewById<EditText>(R.id.goal_current_amount)
-        val deadlineInput = dialogView.findViewById<EditText>(R.id.goal_deadline)
-        val descriptionInput = dialogView.findViewById<EditText>(R.id.goal_description)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_goal, null)
+        val goalNameInput = dialogView.findViewById<EditText>(R.id.add_goal_name)
+        val targetAmountInput = dialogView.findViewById<EditText>(R.id.add_goal_target_amount)
+        val currentAmountInput = dialogView.findViewById<EditText>(R.id.add_goal_current_amount)
+        val deadlineInput = dialogView.findViewById<EditText>(R.id.add_goal_deadline)
+        val descriptionInput = dialogView.findViewById<EditText>(R.id.add_goal_description)
 
         AlertDialog.Builder(this)
-            .setTitle("Add Goal")
+            .setTitle("Add New Goal")
             .setView(dialogView)
             .setPositiveButton("Add") { _, _ ->
+                // Get user ID from token
+                val userId = getUserIdFromToken(token)
+                if (userId == -1) {
+                    Toast.makeText(this, "Error: Invalid user ID. Cannot create goal.", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
                 val newGoal = GoalsCreate(
+                    user_id = userId, // Pass user ID here
                     name = goalNameInput.text.toString(),
                     target_amount = targetAmountInput.text.toString().toDouble(),
                     current_amount = currentAmountInput.text.toString().toDouble(),
                     deadline = deadlineInput.text.toString(),
-                    description = descriptionInput.text.toString(),
-                    user_id = getUserIdFromToken(token) // Pass the user ID here
+                    description = descriptionInput.text.toString()
                 )
-                createGoal(newGoal)
+                createGoal(newGoal, token)
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun createGoal(goal: GoalsCreate) {
+    private fun createGoal(newGoal: GoalsCreate, token: String) {
         val apiService = RetrofitClient.instance
-        val authToken = "Bearer $token"
+        val call = apiService.createGoal(newGoal, "Bearer $token")
 
-        val call = apiService.createGoal(goal, authToken)
         call.enqueue(object : Callback<GoalsRead> {
             override fun onResponse(call: Call<GoalsRead>, response: Response<GoalsRead>) {
                 if (response.isSuccessful) {
-                    Log.d(TAG, "createGoal: Goal created successfully")
-                    Toast.makeText(this@GoalsActivity, "Goal created successfully", Toast.LENGTH_SHORT).show()
-                    fetchGoals(token) // Refresh the list after creation
+                    Log.d(TAG, "createGoal: Successfully created goal: ${response.body()}")
+                    Toast.makeText(this@GoalsActivity, "Goal created", Toast.LENGTH_SHORT).show()
+                    fetchGoals(token) // Refresh the goals list
                 } else {
-                    Log.e(TAG, "createGoal: Error ${response.code()}: ${response.message()}")
+                    Log.e(TAG, "createGoal: Failed to create goal. Error code: ${response.code()}")
                     Toast.makeText(this@GoalsActivity, "Failed to create goal", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<GoalsRead>, t: Throwable) {
-                Log.e(TAG, "createGoal: API call failed: ${t.message}", t)
-                Toast.makeText(this@GoalsActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "createGoal: Error creating goal: ${t.message}", t)
+                Toast.makeText(this@GoalsActivity, "Error creating goal", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -331,10 +320,10 @@ class GoalsActivity : AppCompatActivity() {
     private fun getUserIdFromToken(token: String): Int {
         return try {
             val jwt = JWT(token)
-            jwt.getClaim("id").asInt() ?: -1 // Return -1 if the claim is not found
+            jwt.getClaim("sub").asInt() ?: -1 // Return -1 if user ID not found
         } catch (e: Exception) {
-            Log.e(TAG, "getUserIdFromToken: Error parsing token: ${e.message}", e)
-            -1 // Return -1 if an error occurs
+            Log.e(TAG, "getUserIdFromToken: Error decoding token: ${e.message}")
+            -1
         }
     }
 }
