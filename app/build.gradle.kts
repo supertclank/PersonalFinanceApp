@@ -84,6 +84,9 @@ dependencies {
     implementation ("com.auth0:java-jwt:4.2.1")
     implementation(libs.androidx.swiperefreshlayout) // or the latest version
 
+    implementation ("androidx.cardview:cardview:1.0.0")
+
+
 
 
 
