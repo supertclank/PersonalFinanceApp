@@ -1,71 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <TextView
-        android:id="@+id/goal_name_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Goal Name"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/goal_target_amount_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/target_amount"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/goal_current_amount_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/current_amount"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/goal_deadline_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/deadline"
-        android:textSize="16sp" />
-
-    <TextView
-        android:id="@+id/goal_description_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/description"
-        android:textSize="16sp" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginBottom="8dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="end"
-        android:orientation="horizontal">
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp">
 
-        <Button
-            android:id="@+id/button_edit"
-            android:layout_width="wrap_content"
+        <!-- Detailed Information (initially hidden) -->
+        <LinearLayout
+            android:id="@+id/goal_details"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit" />
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:visibility="gone">
 
-        <Button
-            android:id="@+id/button_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Delete" />
+            <!-- Description Label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="4dp"
+                android:text="@string/description"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/button_close"
-            android:layout_width="wrap_content"
+            <!-- Detailed Description -->
+            <TextView
+                android:id="@+id/goal_description_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp"
+                android:text="@string/enter_a_description_for_your_goal"
+                android:textSize="14sp" />
+
+            <!-- Current Amount Label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="4dp"
+                android:text="@string/current_amount"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Current Amount Value -->
+            <TextView
+                android:id="@+id/goal_current_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp"
+                android:text="@string/enter_current_amount"
+                android:textSize="14sp" />
+
+            <!-- Target Amount Label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="4dp"
+                android:text="@string/target_amount"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Target Amount Value -->
+            <TextView
+                android:id="@+id/goal_target_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="12dp"
+                android:text="@string/enter_target_amount"
+                android:textSize="14sp" />
+
+            <!-- Deadline Label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="4dp"
+                android:text="@string/deadline"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Deadline Value -->
+            <TextView
+                android:id="@+id/goal_deadline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enter_deadline" />
+        </LinearLayout>
+
+        <!-- Additional Information -->
+        <TextView
+            android:id="@+id/goal_name_text_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="Close" />
+            android:text="Goal Name"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/goal_target_amount_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/target_amount"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/goal_current_amount_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/current_amount"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/goal_deadline_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/deadline"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/goal_description_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/description"
+            android:textSize="16sp" />
+
+        <!-- Buttons for Edit, Delete, and Close -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit" />
+
+            <Button
+                android:id="@+id/button_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Delete" />
+
+            <Button
+                android:id="@+id/button_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Close" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>
