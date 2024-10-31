@@ -1,33 +1,64 @@
-<!-- dialog_edit_goal.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/goal_title" />
+
     <EditText
         android:id="@+id/edit_goal_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Goal Name" />
+        android:hint="@string/edit_your_goal_title" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/target_amount" />
 
     <EditText
         android:id="@+id/edit_goal_target_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Target Amount"
+        android:hint="@string/edit_target_amount"
         android:inputType="numberDecimal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_amount" />
 
     <EditText
         android:id="@+id/edit_goal_current_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Current Amount"
+        android:hint="@string/edit_current_amount"
         android:inputType="numberDecimal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/description" />
 
     <EditText
         android:id="@+id/edit_goal_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Description" />
+        android:hint="@string/edit_description_for_your_goal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/deadline" />
+
+    <EditText
+        android:id="@+id/edit_goal_deadline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/edit_deadline"
+        android:inputType="date" />
 </LinearLayout>

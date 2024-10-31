@@ -95,5 +95,10 @@
     <string name="app_settings">App Settings\n</string>
     <string name="privacy_settings">Privacy Settings\n</string>
     <string name="user_settings">User Settings</string>
+    <string name="edit_target_amount">Edit Tartget Amount</string>
+    <string name="edit_current_amount">Edit Current Amount</string>
+    <string name="edit_your_goal_title">Edit Your Goal Title</string>
+    <string name="edit_description_for_your_goal">Edit Description For Your Goal</string>
+    <string name="edit_deadline">Edit Deadline</string>
 
 </resources>
