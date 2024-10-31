@@ -12,11 +12,11 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import api.RetrofitClient
 import api.data_class.GoalsCreate
@@ -33,7 +33,6 @@ class GoalsActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
-    private lateinit var goalsRecyclerView: RecyclerView
     private val goalsList = mutableListOf<GoalsRead>()
     private val TAG = "GoalsActivity"
     private lateinit var token: String
@@ -45,10 +44,6 @@ class GoalsActivity : AppCompatActivity() {
 
         Log.d(TAG, "onCreate: Initializing the activity")
 
-        // Set up the toolbar
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
         // Retrieve token using TokenUtil
         token = TokenUtils.getTokenFromStorage(this) ?: run {
             Log.e(TAG, "onCreate: Token is null")
@@ -58,49 +53,65 @@ class GoalsActivity : AppCompatActivity() {
 
         Log.d(TAG, "onCreate: Token retrieved: $token")
 
-        // Set up the DrawerLayout and NavigationView
+        val toolbar: Toolbar = findViewById(R.id.toolbar) // Initialize toolbar
+        setSupportActionBar(toolbar) // Set the toolbar as the action bar
+
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.nav_view)
 
-        // Navigation item selection listener
+        // Set up toggle for the navigation drawer
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+        Log.d(TAG, "onCreate: Navigation drawer toggle set up")
+
+        // Handle navigation item selections
         navigationView.setNavigationItemSelectedListener { menuItem ->
+            Log.d(TAG, "onCreate: Navigation item selected: ${menuItem.itemId}")
             when (menuItem.itemId) {
                 R.id.nav_home -> startActivity(Intent(this, DashboardActivity::class.java))
-                R.id.nav_transactions -> startActivity(
-                    Intent(
-                        this,
-                        TransactionsActivity::class.java
-                    )
-                )
-
+                R.id.nav_transactions -> startActivity(Intent(this, TransactionsActivity::class.java))
                 R.id.nav_reports -> startActivity(Intent(this, ReportsActivity::class.java))
                 R.id.nav_budgets -> startActivity(Intent(this, BudgetsActivity::class.java))
                 R.id.nav_goals -> startActivity(Intent(this, GoalsActivity::class.java))
                 R.id.nav_settings -> startActivity(Intent(this, SettingsActivity::class.java))
             }
             drawerLayout.closeDrawer(GravityCompat.START)
+            Log.d(TAG, "onCreate: Drawer closed after navigation")
             true
         }
 
+        // Initialize SwipeRefreshLayout
+        setupSwipeRefreshLayout()
+        Log.d(TAG, "onCreate: SwipeRefreshLayout initialized")
+
         // Fetch existing goals from the API
+        Log.d(TAG, "onCreate: Fetching existing goals from the API")
         fetchGoals(token)
 
         // Handle "Add Goal" button click
         findViewById<Button>(R.id.add_goal_button).setOnClickListener {
+            Log.d(TAG, "onCreate: Add Goal button clicked")
             showAddGoalDialog(token)
         }
     }
 
     override fun onBackPressed() {
+        Log.d(TAG, "onBackPressed: Back button pressed")
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            Log.d(TAG, "onBackPressed: Drawer is open, closing it")
             drawerLayout.closeDrawer(GravityCompat.START)
         } else {
+            Log.d(TAG, "onBackPressed: Drawer is closed, calling super.onBackPressed()")
             super.onBackPressed()
         }
     }
 
     private fun setupSwipeRefreshLayout() {
-        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipe_refresh_layout)
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout) // Initialize here
 
         swipeRefreshLayout.setOnRefreshListener {
             fetchGoals(token)
@@ -130,7 +141,7 @@ class GoalsActivity : AppCompatActivity() {
             ) {
                 Log.d(TAG, "fetchGoals: Received API response with code: ${response.code()}")
 
-                // Stop refreshing here if using SwipeRefreshLayout
+                // Stop refreshing here
                 swipeRefreshLayout.isRefreshing = false
 
                 if (response.isSuccessful) {
@@ -169,37 +180,10 @@ class GoalsActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                // Stop refreshing here if using SwipeRefreshLayout
+                // Stop refreshing here
                 swipeRefreshLayout.isRefreshing = false
             }
         })
-    }
-
-    private fun updateGoalsList() {
-        goalsRecyclerView.removeAllViews()
-
-        for (goal in goalsList) {
-            val goalView =
-                LayoutInflater.from(this).inflate(R.layout.goal_item, goalsRecyclerView, false)
-
-            val goalNameTextView = goalView.findViewById<TextView>(R.id.goal_title)
-            val targetAmountTextView = goalView.findViewById<TextView>(R.id.goal_target_amount)
-            val currentAmountTextView = goalView.findViewById<TextView>(R.id.goal_current_amount)
-            val deadlineTextView = goalView.findViewById<TextView>(R.id.goal_deadline)
-            val descriptionTextView = goalView.findViewById<TextView>(R.id.goal_description)
-
-
-            goalNameTextView.text = goal.name
-            targetAmountTextView.text = goal.target_amount.toString()
-            currentAmountTextView.text = goal.current_amount.toString()
-            deadlineTextView.text = goal.deadline
-            descriptionTextView.text = goal.description
-
-            goalView.setOnClickListener { showGoalDetailsDialog(goal) }
-
-            // Add the view to the RecyclerView
-            goalsRecyclerView.addView(goalView)
-        }
     }
 
     fun displayGoals(goals: List<GoalsRead>) {
@@ -210,11 +194,18 @@ class GoalsActivity : AppCompatActivity() {
             // Inflate the goal item layout
             val goalView =
                 LayoutInflater.from(this).inflate(R.layout.goal_item, goalsContainer, false)
+
+            // Set the values for the goal item
             goalView.findViewById<TextView>(R.id.goal_title).text = goal.name
             goalView.findViewById<TextView>(R.id.goal_description).text =
                 goal.description ?: "No description"
             goalView.findViewById<TextView>(R.id.goal_deadline).text = goal.deadline
 
+            // Set the current and target amounts
+            goalView.findViewById<TextView>(R.id.goal_current_amount).text =
+                goal.current_amount.toString()
+            goalView.findViewById<TextView>(R.id.goal_target_amount).text =
+                goal.target_amount.toString()
 
             val deleteButton = goalView.findViewById<Button>(R.id.button_delete)
             deleteButton.setOnClickListener {
@@ -225,36 +216,10 @@ class GoalsActivity : AppCompatActivity() {
             editButton.setOnClickListener {
                 editGoal(goal)
             }
+
             // Add the goal view to the container
             goalsContainer.addView(goalView)
         }
-    }
-
-    private fun showGoalDetailsDialog(goal: GoalsRead) {
-        Log.d(TAG, "showGoalDetailsDialog: Displaying details for goal: ${goal.name}")
-
-        val dialogView = layoutInflater.inflate(R.layout.dialog_goal_details, null)
-        val goalNameTextView = dialogView.findViewById<TextView>(R.id.goal_name_text_view)
-        val targetAmountTextView =
-            dialogView.findViewById<TextView>(R.id.goal_target_amount_text_view)
-        val currentAmountTextView =
-            dialogView.findViewById<TextView>(R.id.goal_current_amount_text_view)
-        val deadlineTextView = dialogView.findViewById<TextView>(R.id.goal_deadline_text_view)
-        val descriptionTextView = dialogView.findViewById<TextView>(R.id.goal_description_text_view)
-
-        goalNameTextView.text = goal.name
-        targetAmountTextView.text = goal.target_amount.toString()
-        currentAmountTextView.text = goal.current_amount.toString()
-        deadlineTextView.text = goal.deadline
-        descriptionTextView.text = goal.description
-
-        AlertDialog.Builder(this)
-            .setTitle("Goal Details")
-            .setView(dialogView)
-            .setPositiveButton("Edit") { _, _ -> editGoal(goal) }
-            .setNegativeButton("Delete") { _, _ -> deleteGoal(goal.id) }
-            .setNeutralButton("Close", null)
-            .show()
     }
 
     private fun editGoal(goal: GoalsRead) {
@@ -335,25 +300,38 @@ class GoalsActivity : AppCompatActivity() {
         Log.d(TAG, "updateGoal: Updating goal with ID: $goalId")
 
         val apiService = RetrofitClient.instance
-        apiService.updateGoal(goalId, updatedGoal, "Bearer ${this.token}").enqueue(object : Callback<GoalsRead> {
-            override fun onResponse(call: Call<GoalsRead>, response: Response<GoalsRead>) {
-                Log.d(TAG, "updateGoal: Response code: ${response.code()}")
+        apiService.updateGoal(goalId, updatedGoal, "Bearer ${this.token}")
+            .enqueue(object : Callback<GoalsRead> {
+                override fun onResponse(call: Call<GoalsRead>, response: Response<GoalsRead>) {
+                    Log.d(TAG, "updateGoal: Response code: ${response.code()}")
 
-                if (response.isSuccessful) {
-                    Log.d(TAG, "updateGoal: Successfully updated goal with ID: $goalId")
-                    Toast.makeText(this@GoalsActivity, "Goal updated successfully.", Toast.LENGTH_SHORT).show()
-                    fetchGoals(this@GoalsActivity.token) // Refresh the goals list
-                } else {
-                    Log.e(TAG, "updateGoal: Failed to update goal: ${response.message()}")
-                    Toast.makeText(this@GoalsActivity, "Error updating goal.", Toast.LENGTH_SHORT).show()
+                    if (response.isSuccessful) {
+                        Log.d(TAG, "updateGoal: Successfully updated goal with ID: $goalId")
+                        Toast.makeText(
+                            this@GoalsActivity,
+                            "Goal updated successfully.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        fetchGoals(this@GoalsActivity.token) // Refresh the goals list
+                    } else {
+                        Log.e(TAG, "updateGoal: Failed to update goal: ${response.message()}")
+                        Toast.makeText(
+                            this@GoalsActivity,
+                            "Error updating goal.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<GoalsRead>, t: Throwable) {
-                Log.e(TAG, "updateGoal: API call failed: ${t.message}", t)
-                Toast.makeText(this@GoalsActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onFailure(call: Call<GoalsRead>, t: Throwable) {
+                    Log.e(TAG, "updateGoal: API call failed: ${t.message}", t)
+                    Toast.makeText(
+                        this@GoalsActivity,
+                        "Network error: ${t.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
     }
 
     private fun showAddGoalDialog(token: String) {
@@ -428,6 +406,16 @@ class GoalsActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
 
+                // Check that the current amount is not higher than the target amount
+                if (currentAmount > targetAmount) {
+                    Toast.makeText(
+                        this,
+                        "Current amount cannot be higher than target amount",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setPositiveButton
+                }
+
                 val newGoal = GoalsCreate(
                     user_id = userId, // Pass user ID here
                     name = goalName,
@@ -436,7 +424,7 @@ class GoalsActivity : AppCompatActivity() {
                     deadline = deadline,
                     description = description
                 )
-                createGoal(newGoal, token)
+                createGoal(newGoal, token) // Create goal and refresh list
             }
             .setNegativeButton("Cancel", null)
             .show()

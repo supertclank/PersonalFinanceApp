@@ -121,5 +121,4 @@ class DashboardActivity : AppCompatActivity() {
             super.onBackPressed() // Call the default behavior
         }
     }
-
 }
