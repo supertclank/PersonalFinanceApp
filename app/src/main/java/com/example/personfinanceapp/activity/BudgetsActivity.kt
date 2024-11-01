@@ -1,6 +1,5 @@
 package com.example.personfinanceapp.activity
 
-import Budget
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
@@ -23,12 +22,12 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import api.RetrofitClient
 import api.data_class.BudgetCategory
+import api.data_class.BudgetCreate
+import api.data_class.BudgetRead
 import com.auth0.android.jwt.JWT
 import com.example.personfinanceapp.R
 import com.example.personfinanceapp.utils.TokenUtils
 import com.google.android.material.navigation.NavigationView
-import api.data_class.BudgetRead
-import api.data_class.BudgetCreate
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -78,7 +77,13 @@ class BudgetsActivity : AppCompatActivity() {
             Log.d(TAG, "onCreate: Navigation item selected: ${menuItem.itemId}")
             when (menuItem.itemId) {
                 R.id.nav_home -> startActivity(Intent(this, DashboardActivity::class.java))
-                R.id.nav_transactions -> startActivity(Intent(this, TransactionsActivity::class.java))
+                R.id.nav_transactions -> startActivity(
+                    Intent(
+                        this,
+                        TransactionsActivity::class.java
+                    )
+                )
+
                 R.id.nav_reports -> startActivity(Intent(this, ReportsActivity::class.java))
                 R.id.nav_budgets -> startActivity(Intent(this, BudgetsActivity::class.java))
                 R.id.nav_goals -> startActivity(Intent(this, GoalsActivity::class.java))
@@ -152,7 +157,11 @@ class BudgetsActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val budgets = response.body() ?: run {
                         Log.e(TAG, "fetchBudget: Response body is null")
-                        Toast.makeText(this@BudgetsActivity, "No Budgets found.", Toast.LENGTH_SHORT)
+                        Toast.makeText(
+                            this@BudgetsActivity,
+                            "No Budgets found.",
+                            Toast.LENGTH_SHORT
+                        )
                             .show()
                         return
                     }
@@ -191,19 +200,24 @@ class BudgetsActivity : AppCompatActivity() {
         })
     }
 
-    fun displayBudgets(budgets: List<BudgetRead>) {
+    fun displayBudgets(budget: List<BudgetRead>) {
         val budgetsContainer: LinearLayout = findViewById(R.id.budgetsContainer)
         budgetsContainer.removeAllViews() // Clear any existing views
 
-        for (budget in budgets) {
+        for (budget in budget) {
             // Inflate the budget item layout
-            val budgetView = LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
+            val budgetView =
+                LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
 
             // Set the values for the budget item
-            budgetView.findViewById<TextView>(R.id.budget_category_title).text = "Category ID: ${budget.categoryId}"
-            budgetView.findViewById<TextView>(R.id.budget_amount_value).text = "Amount: £${budget.amount}"
-            budgetView.findViewById<TextView>(R.id.budget_start_date).text = "Start Date: ${budget.startDate}"
-            budgetView.findViewById<TextView>(R.id.budget_end_date).text = "End Date: ${budget.endDate}"
+            budgetView.findViewById<TextView>(R.id.budget_category_title).text =
+                "Category ID: ${budget.categoryId}"
+            budgetView.findViewById<TextView>(R.id.budget_amount_value).text =
+                "Amount: £${budget.amount}"
+            budgetView.findViewById<TextView>(R.id.budget_start_date).text =
+                "Start Date: ${budget.startDate}"
+            budgetView.findViewById<TextView>(R.id.budget_end_date).text =
+                "End Date: ${budget.endDate}"
 
             // Set up delete button functionality
             val deleteButton = budgetView.findViewById<Button>(R.id.button_delete_budget)
@@ -214,7 +228,7 @@ class BudgetsActivity : AppCompatActivity() {
             // Set up edit button functionality
             val editButton = budgetView.findViewById<Button>(R.id.button_edit_budget)
             editButton.setOnClickListener {
-                editBudget(budget.id)
+                editBudget(budget)
             }
 
             // Add the budget view to the container
@@ -223,41 +237,47 @@ class BudgetsActivity : AppCompatActivity() {
     }
 
     private fun fetchBudgetCategories(callback: (List<BudgetCategory>) -> Unit) {
-        showLoadingIndicator() // Show loading indicator
+
+        val apiService = RetrofitClient.instance
 
         // Make an API call to fetch budget categories
         apiService.getBudgetCategories().enqueue(object : Callback<List<BudgetCategory>> {
-            override fun onResponse(call: Call<List<BudgetCategory>>, response: Response<List<BudgetCategory>>) {
-                hideLoadingIndicator() // Hide loading indicator
-
+            override fun onResponse(
+                call: Call<List<BudgetCategory>>,
+                response: Response<List<BudgetCategory>>,
+            ) {
                 if (response.isSuccessful) {
                     val categories = response.body() ?: emptyList()
                     callback(categories)
                     populateCategorySpinner(categories) // Populate the spinner with fetched categories
                 } else {
                     // Handle error
-                    Toast.makeText(this@BudgetsActivity, "Error fetching budget categories: ${response.message()}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@BudgetsActivity,
+                        "Error fetching budget categories: ${response.message()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<List<BudgetCategory>>, t: Throwable) {
-                hideLoadingIndicator() // Hide loading indicator
-                // Handle failure
-                Toast.makeText(this@BudgetsActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@BudgetsActivity,
+                    "Network error: ${t.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
 
     private fun populateCategorySpinner(categories: List<BudgetCategory>) {
         val categorySpinner: Spinner = findViewById(R.id.spinner_budget_category)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
+        val adapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         categorySpinner.adapter = adapter
 
     }
-
-
-
 
     private fun editBudget(budget: BudgetRead) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_budget, null)
@@ -274,7 +294,8 @@ class BudgetsActivity : AppCompatActivity() {
         endDateInput.setText(budget.endDate)
 
         fetchBudgetCategories { categories ->
-            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
+            val adapter =
+                ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             categorySpinner.adapter = adapter
 
@@ -326,17 +347,26 @@ class BudgetsActivity : AppCompatActivity() {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Log.d(TAG, "deleteBudget: Successfully deleted budget with ID: $budgetId")
-                    Toast.makeText(this@BudgetsActivity, "Budget deleted", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@BudgetsActivity, "Budget deleted", Toast.LENGTH_SHORT)
+                        .show()
                     fetchBudgets(token) // Refresh the budgets list
                 } else {
-                    Log.e(TAG, "deleteBudget: Failed to delete budget. Error code: ${response.code()}")
-                    Toast.makeText(this@BudgetsActivity, "Failed to delete budget", Toast.LENGTH_SHORT).show()
+                    Log.e(
+                        TAG,
+                        "deleteBudget: Failed to delete budget. Error code: ${response.code()}"
+                    )
+                    Toast.makeText(
+                        this@BudgetsActivity,
+                        "Failed to delete budget",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.e(TAG, "deleteBudget: Error deleting budget: ${t.message}", t)
-                Toast.makeText(this@BudgetsActivity, "Error deleting budget", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@BudgetsActivity, "Error deleting budget", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }
@@ -384,7 +414,15 @@ class BudgetsActivity : AppCompatActivity() {
         val amountInput = dialogView.findViewById<EditText>(R.id.add_budget_amount)
         val startDateInput = dialogView.findViewById<EditText>(R.id.add_budget_start_date)
         val endDateInput = dialogView.findViewById<EditText>(R.id.add_budget_end_date)
-        val categoryInput = dialogView.findViewById<EditText>(R.id.add_budget_category_id)
+        val categorySpinner = dialogView.findViewById<Spinner>(R.id.add_budget_category_spinner)
+
+        // Fetch categories and set up the spinner
+        fetchBudgetCategories { categories ->
+            val categoryNames = categories.map { it.name }
+            val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
+            categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            categorySpinner.adapter = categoryAdapter
+        }
 
         // Set up DatePickerDialogs for start and end dates
         startDateInput.setOnClickListener {
@@ -392,7 +430,6 @@ class BudgetsActivity : AppCompatActivity() {
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
-
             DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
                 val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 startDateInput.setText(formattedDate)
@@ -404,7 +441,6 @@ class BudgetsActivity : AppCompatActivity() {
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
-
             DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
                 val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 endDateInput.setText(formattedDate)
@@ -415,41 +451,40 @@ class BudgetsActivity : AppCompatActivity() {
             .setTitle("Add New Budget")
             .setView(dialogView)
             .setPositiveButton("Add") { _, _ ->
-                // Get user ID from token
-                val userId = getUserIdFromToken(token)
-                if (userId == -1) {
-                    Toast.makeText(this, "Error: Invalid user ID. Cannot create budget.", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-
                 // Validate input fields
                 val amountStr = amountInput.text.toString()
                 val startDate = startDateInput.text.toString()
                 val endDate = endDateInput.text.toString()
-                val categoryIdStr = categoryInput.text.toString()
 
-                if (amountStr.isEmpty() || startDate.isEmpty() || endDate.isEmpty() || categoryIdStr.isEmpty()) {
+                if (amountStr.isEmpty() || startDate.isEmpty() || endDate.isEmpty()) {
                     Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
 
                 val datePattern = Regex("\\d{4}-\\d{2}-\\d{2}")
                 if (!startDate.matches(datePattern) || !endDate.matches(datePattern)) {
-                    Toast.makeText(this, "Please enter valid dates in the format YYYY-MM-DD", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Please enter valid dates in the format YYYY-MM-DD",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setPositiveButton
                 }
 
                 val amount = amountStr.toDoubleOrNull()
-                val categoryId = categoryIdStr.toIntOrNull()
-
-                if (amount == null || categoryId == null) {
-                    Toast.makeText(this, "Please enter valid values for amount and category", Toast.LENGTH_SHORT).show()
+                if (amount == null) {
+                    Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
 
+                // Get the selected category ID based on the selected category name
+                val selectedCategoryIndex = categorySpinner.selectedItemPosition
+                val selectedCategoryId = categories[selectedCategoryIndex].id
+
+                // Create the new budget with the selected category
                 val newBudget = BudgetCreate(
-                    userId = userId,
-                    categoryId = categoryId,
+                    userId = getUserIdFromToken(token),
+                    categoryId = selectedCategoryId,
                     amount = amount,
                     startDate = startDate,
                     endDate = endDate
@@ -468,18 +503,27 @@ class BudgetsActivity : AppCompatActivity() {
             override fun onResponse(call: Call<BudgetRead>, response: Response<BudgetRead>) {
                 if (response.isSuccessful) {
                     Log.d(TAG, "createBudget: Successfully created budget: ${response.body()}")
-                    Toast.makeText(this@BudgetsActivity, "Budget created", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@BudgetsActivity, "Budget created", Toast.LENGTH_SHORT)
+                        .show()
                     fetchBudgets(token) // Refresh the budget list
                 } else {
-                    Log.e(TAG, "createBudget: Failed to create budget. Error code: ${response.code()}")
-                    Toast.makeText(this@BudgetsActivity, "Failed to create budget", Toast.LENGTH_SHORT)
+                    Log.e(
+                        TAG,
+                        "createBudget: Failed to create budget. Error code: ${response.code()}"
+                    )
+                    Toast.makeText(
+                        this@BudgetsActivity,
+                        "Failed to create budget",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                 }
             }
 
             override fun onFailure(call: Call<BudgetRead>, t: Throwable) {
                 Log.e(TAG, "createBudget: Error creating budget: ${t.message}", t)
-                Toast.makeText(this@BudgetsActivity, "Error creating budget", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@BudgetsActivity, "Error creating budget", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }

@@ -7,6 +7,19 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/goal_title"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/add_goal_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_your_goal_title"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/target_amount"
         android:layout_marginBottom="4dp" />
 

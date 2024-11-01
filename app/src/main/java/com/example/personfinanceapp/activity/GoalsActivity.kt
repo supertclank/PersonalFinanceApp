@@ -73,7 +73,13 @@ class GoalsActivity : AppCompatActivity() {
             Log.d(TAG, "onCreate: Navigation item selected: ${menuItem.itemId}")
             when (menuItem.itemId) {
                 R.id.nav_home -> startActivity(Intent(this, DashboardActivity::class.java))
-                R.id.nav_transactions -> startActivity(Intent(this, TransactionsActivity::class.java))
+                R.id.nav_transactions -> startActivity(
+                    Intent(
+                        this,
+                        TransactionsActivity::class.java
+                    )
+                )
+
                 R.id.nav_reports -> startActivity(Intent(this, ReportsActivity::class.java))
                 R.id.nav_budgets -> startActivity(Intent(this, BudgetsActivity::class.java))
                 R.id.nav_goals -> startActivity(Intent(this, GoalsActivity::class.java))

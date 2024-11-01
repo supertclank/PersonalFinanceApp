@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from models import Base, User, Goal, Budget
+from models import Base, User, Goal, Budget, BudgetCategory
 from database import engine, get_db
 
 from passlib.context import CryptContext
@@ -34,6 +34,7 @@ from schemas import (
     TransactionCreate, TransactionRead,
     NotificationCreate, NotificationRead,
     TokenResponse, LoginRequest,
+    BudgetCategoryCreate, BudgetCategoryRead,
     UsernameRecoveryRequest
 )
 
@@ -336,6 +337,12 @@ def delete_budget(budget_id: int, db: Session = Depends(get_db)):
     db.delete(db_budget)
     db.commit()
     return {"detail": "Budget deleted successfully"}
+
+@app.get("/budget/categories/", response_model=List[BudgetCategoryRead])
+def get_budget_categories(db: Session = Depends(get_db)):
+    # Retrieve all categories from the database
+    categories = db.query(BudgetCategory).all()
+    return categories
 
 # Goals endpoints
 @app.post("/goals/", response_model=GoalsRead)
