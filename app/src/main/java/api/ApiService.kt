@@ -57,7 +57,7 @@ interface ApiService {
     ): Call<TokenResponse>
 
     // Budget endpoints
-    @POST("budget/")
+    @POST("budgets/")
     fun createBudget(
         @Body newBudget: BudgetCreate,
         @Header("Authorization") token: String,
@@ -65,15 +65,18 @@ interface ApiService {
 
     @GET("budgets/")
     fun getBudgets(
-        @Query("page") page: Int,
-        @Query("size") size: Int,
+        @Query("skip") skip: Int,
+        @Query("limit") limit: Int,
         @Header("Authorization") token: String,
     ): Call<List<BudgetRead>>
 
-    @GET("budget/{budget_id}")
-    fun getBudget(@Path("budget_id") budgetId: Int): Call<BudgetRead>
+    @GET("budgets/{budgetId}")
+    fun getBudget(
+        @Path("budgetId") budgetId: Int,
+        @Header("Authorization") token: String,
+    ): Call<BudgetRead>
 
-    @PUT("budget/{budgetId}")
+    @PUT("budgets/{budgetId}")
     fun updateBudget(
         @Path("budgetId") budgetId: Int,
         @Body budget: BudgetCreate,

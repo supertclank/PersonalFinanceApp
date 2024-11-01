@@ -60,16 +60,11 @@ class BudgetRead(BaseModel):
     startDate: date
     endDate: date
 
-#Budget Category schemas    
-class BudgetCategoryCreate(BaseModel):
+# Budget Category Schema
+class BudgetCategoryRead(BaseModel):
+    id: int
     name: str
     description: str
-
-class BudgetCategoryRead(BudgetCategoryCreate):
-    id: int
-
-    class Config:
-        orm_mode = True
 
 # Goals schemas
 class GoalsCreate(BaseModel):

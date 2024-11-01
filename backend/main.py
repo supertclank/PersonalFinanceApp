@@ -34,7 +34,7 @@ from schemas import (
     TransactionCreate, TransactionRead,
     NotificationCreate, NotificationRead,
     TokenResponse, LoginRequest,
-    BudgetCategoryCreate, BudgetCategoryRead,
+    BudgetCategoryRead,
     UsernameRecoveryRequest
 )
 
@@ -287,7 +287,6 @@ def create_new_budget(
     logger.info(f"Creating budget for user_id: {current_user.id}")
     db_budget = create_budget(db=db, budget=budget)
 
-    # Return the created budget as BudgetRead model
     return BudgetRead(
         id=db_budget.id,
         userId=db_budget.user_id,
@@ -340,9 +339,8 @@ def delete_budget(budget_id: int, db: Session = Depends(get_db)):
 
 @app.get("/budget/categories/", response_model=List[BudgetCategoryRead])
 def get_budget_categories(db: Session = Depends(get_db)):
-    # Retrieve all categories from the database
-    categories = db.query(BudgetCategory).all()
-    return categories
+    return db.query(BudgetCategory).all()
+
 
 # Goals endpoints
 @app.post("/goals/", response_model=GoalsRead)
