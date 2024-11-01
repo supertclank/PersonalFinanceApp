@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Budget Name -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/budget_category" />
+
+    <Spinner
+        android:id="@+id/spinner_budget_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Budget Amount -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/budget_amount" />
+
+    <EditText
+        android:id="@+id/edit_budget_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_budget_amount"
+        android:inputType="numberDecimal" />
+
+    <!-- Start Date -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/start_date" />
+
+    <EditText
+        android:id="@+id/edit_budget_start_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_start_date"
+        android:inputType="date" />
+
+    <!-- End Date -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/end_date" />
+
+    <EditText
+        android:id="@+id/edit_budget_end_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_end_date"
+        android:inputType="date" />
+</LinearLayout>

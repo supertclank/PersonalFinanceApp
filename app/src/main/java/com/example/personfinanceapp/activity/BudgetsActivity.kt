@@ -1,14 +1,18 @@
 package com.example.personfinanceapp.activity
 
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -115,11 +119,11 @@ class BudgetsActivity : AppCompatActivity() {
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout) // Initialize here
 
         swipeRefreshLayout.setOnRefreshListener {
-            fetchbudgets(token)
+            fetchBudgets(token)
         }
     }
 
-    private fun fetchbudgets(token: String) {
+    private fun fetchBudgets(token: String) {
         Log.d(TAG, "fetchBudgets: Fetching goals from API")
 
         // Extract user ID from the token
@@ -193,20 +197,22 @@ class BudgetsActivity : AppCompatActivity() {
 
         for (budget in budgets) {
             // Inflate the budget item layout
-            val budgetView =
-                LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
+            val budgetView = LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
 
             // Set the values for the budget item
-            budgetView.findViewById<TextView>(R.id.budget_amount).text = "Amount: £${budget.amount}"
-            budgetView.findViewById<TextView>(R.id.budget_dates).text =
-                "From: ${budget.startDate} To: ${budget.endDate}"
+            budgetView.findViewById<TextView>(R.id.budget_category_title).text = "Category ID: ${budget.categoryId}"
+            budgetView.findViewById<TextView>(R.id.budget_amount_value).text = "Amount: £${budget.amount}"
+            budgetView.findViewById<TextView>(R.id.budget_start_date).text = "Start Date: ${budget.startDate}"
+            budgetView.findViewById<TextView>(R.id.budget_end_date).text = "End Date: ${budget.endDate}"
 
-            val deleteButton = budgetView.findViewById<Button>(R.id.button_delete)
+            // Set up delete button functionality
+            val deleteButton = budgetView.findViewById<Button>(R.id.button_delete_budget)
             deleteButton.setOnClickListener {
                 deleteBudget(budget.id)
             }
 
-            val editButton = budgetView.findViewById<Button>(R.id.button_edit)
+            // Set up edit button functionality
+            val editButton = budgetView.findViewById<Button>(R.id.button_edit_budget)
             editButton.setOnClickListener {
                 editBudget(budget.id)
             }
@@ -216,20 +222,36 @@ class BudgetsActivity : AppCompatActivity() {
         }
     }
 
+    private fun fetchCategories() {
+        // Make your API call to fetch categories here
+        // For example, you can use Retrofit to get categories
+    }
+
+
     private fun editBudget(budget: BudgetRead) {
         // Use the updated dialog layout
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_budget, null)
 
-        val categoryIdInput = dialogView.findViewById<EditText>(R.id.edit_budget_category_id)
+        val categorySpinner = dialogView.findViewById<Spinner>(R.id.spinner_budget_category)
         val amountInput = dialogView.findViewById<EditText>(R.id.edit_budget_amount)
         val startDateInput = dialogView.findViewById<EditText>(R.id.edit_budget_start_date)
         val endDateInput = dialogView.findViewById<EditText>(R.id.edit_budget_end_date)
 
         // Prepopulate the fields with current budget data
-        categoryIdInput.setText(budget.categoryId.toString())
+        // Set the spinner to the current category
         amountInput.setText(budget.amount.toString())
         startDateInput.setText(budget.startDate)
         endDateInput.setText(budget.endDate)
+
+        fetchCategories { categories ->
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            categorySpinner.adapter = adapter
+
+            // Set the current category in the spinner
+            val currentCategoryPosition = categories.indexOfFirst { it.id == budget.categoryId }
+            categorySpinner.setSelection(currentCategoryPosition)
+        }
 
         AlertDialog.Builder(this)
             .setTitle("Edit Budget")
@@ -246,10 +268,13 @@ class BudgetsActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
 
+                // Get selected category ID from spinner
+                val selectedCategoryId = categorySpinner.selectedItemId.toInt() // Ensure this is correct
+
                 // Create updated budget object with user input
                 val updatedBudget = BudgetCreate(
                     userId = userId,
-                    categoryId = categoryIdInput.text.toString().toInt(),
+                    categoryId = selectedCategoryId,
                     amount = amountInput.text.toString().toDouble(),
                     startDate = startDateInput.text.toString(),
                     endDate = endDateInput.text.toString()
@@ -261,7 +286,173 @@ class BudgetsActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun deleteBudget(budgetId: Int) {
+        Log.d(TAG, "deleteBudget: Deleting budget with ID: $budgetId")
 
+        val apiService = RetrofitClient.instance
+        val call = apiService.deleteBudget(budgetId, "Bearer $token") // Ensure the API call matches your budget deletion endpoint
+
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d(TAG, "deleteBudget: Successfully deleted budget with ID: $budgetId")
+                    Toast.makeText(this@BudgetsActivity, "Budget deleted", Toast.LENGTH_SHORT).show()
+                    fetchBudgets(token) // Refresh the budgets list
+                } else {
+                    Log.e(TAG, "deleteBudget: Failed to delete budget. Error code: ${response.code()}")
+                    Toast.makeText(this@BudgetsActivity, "Failed to delete budget", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e(TAG, "deleteBudget: Error deleting budget: ${t.message}", t)
+                Toast.makeText(this@BudgetsActivity, "Error deleting budget", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun updateBudget(budgetId: Int, updatedBudget: BudgetCreate, token: String) {
+        Log.d(TAG, "updateBudget: Updating budget with ID: $budgetId")
+
+        val apiService = RetrofitClient.instance
+        apiService.updateBudget(budgetId, updatedBudget, "Bearer $token")
+            .enqueue(object : Callback<BudgetRead> {
+                override fun onResponse(call: Call<BudgetRead>, response: Response<BudgetRead>) {
+                    Log.d(TAG, "updateBudget: Response code: ${response.code()}")
+
+                    if (response.isSuccessful) {
+                        Log.d(TAG, "updateBudget: Successfully updated budget with ID: $budgetId")
+                        Toast.makeText(
+                            this@BudgetsActivity,
+                            "Budget updated successfully.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        fetchBudgets(token) // Refresh the budgets list
+                    } else {
+                        Log.e(TAG, "updateBudget: Failed to update budget: ${response.message()}")
+                        Toast.makeText(
+                            this@BudgetsActivity,
+                            "Error updating budget.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<BudgetRead>, t: Throwable) {
+                    Log.e(TAG, "updateBudget: API call failed: ${t.message}", t)
+                    Toast.makeText(
+                        this@BudgetsActivity,
+                        "Network error: ${t.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
+    }
+
+    private fun showAddBudgetDialog(token: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_budget, null)
+        val amountInput = dialogView.findViewById<EditText>(R.id.add_budget_amount)
+        val startDateInput = dialogView.findViewById<EditText>(R.id.add_budget_start_date)
+        val endDateInput = dialogView.findViewById<EditText>(R.id.add_budget_end_date)
+        val categoryInput = dialogView.findViewById<EditText>(R.id.add_budget_category_id)
+
+        // Set up DatePickerDialogs for start and end dates
+        startDateInput.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+                val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                startDateInput.setText(formattedDate)
+            }, year, month, day).show()
+        }
+
+        endDateInput.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+                val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                endDateInput.setText(formattedDate)
+            }, year, month, day).show()
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Add New Budget")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+                // Get user ID from token
+                val userId = getUserIdFromToken(token)
+                if (userId == -1) {
+                    Toast.makeText(this, "Error: Invalid user ID. Cannot create budget.", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                // Validate input fields
+                val amountStr = amountInput.text.toString()
+                val startDate = startDateInput.text.toString()
+                val endDate = endDateInput.text.toString()
+                val categoryIdStr = categoryInput.text.toString()
+
+                if (amountStr.isEmpty() || startDate.isEmpty() || endDate.isEmpty() || categoryIdStr.isEmpty()) {
+                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val datePattern = Regex("\\d{4}-\\d{2}-\\d{2}")
+                if (!startDate.matches(datePattern) || !endDate.matches(datePattern)) {
+                    Toast.makeText(this, "Please enter valid dates in the format YYYY-MM-DD", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val amount = amountStr.toDoubleOrNull()
+                val categoryId = categoryIdStr.toIntOrNull()
+
+                if (amount == null || categoryId == null) {
+                    Toast.makeText(this, "Please enter valid values for amount and category", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+
+                val newBudget = BudgetCreate(
+                    userId = userId,
+                    categoryId = categoryId,
+                    amount = amount,
+                    startDate = startDate,
+                    endDate = endDate
+                )
+                createBudget(newBudget, token) // Create budget and refresh list
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun createBudget(newBudget: BudgetCreate, token: String) {
+        val apiService = RetrofitClient.instance
+        val call = apiService.createBudget(newBudget, "Bearer $token")
+
+        call.enqueue(object : Callback<BudgetRead> {
+            override fun onResponse(call: Call<BudgetRead>, response: Response<BudgetRead>) {
+                if (response.isSuccessful) {
+                    Log.d(TAG, "createBudget: Successfully created budget: ${response.body()}")
+                    Toast.makeText(this@BudgetsActivity, "Budget created", Toast.LENGTH_SHORT).show()
+                    fetchBudgets(token) // Refresh the budget list
+                } else {
+                    Log.e(TAG, "createBudget: Failed to create budget. Error code: ${response.code()}")
+                    Toast.makeText(this@BudgetsActivity, "Failed to create budget", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+
+            override fun onFailure(call: Call<BudgetRead>, t: Throwable) {
+                Log.e(TAG, "createBudget: Error creating budget: ${t.message}", t)
+                Toast.makeText(this@BudgetsActivity, "Error creating budget", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
 
     private fun getUserIdFromToken(token: String): Int {
         return try {

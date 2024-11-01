@@ -5,31 +5,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main content layout with Toolbar -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <!-- Toolbar at the top -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            android:background="?attr/colorPrimary" />
 
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar">
 
-        <!-- Your activity content -->
-        <TextView
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:id="@+id/budgetsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <Button
+            android:id="@+id/add_budget_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/budgets_content" />
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="@string/add_budget" />
 
-        <!-- Additional activity-specific views -->
-
-    </LinearLayout>
+    </RelativeLayout>
 
     <!-- Navigation drawer -->
     <com.google.android.material.navigation.NavigationView
@@ -38,4 +52,5 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

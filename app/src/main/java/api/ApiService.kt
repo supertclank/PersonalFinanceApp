@@ -65,6 +65,15 @@ interface ApiService {
     @GET("budget/{budget_id}")
     fun getBudget(@Path("budget_id") budgetId: Int): Call<BudgetRead>
 
+    @PUT("budgets/{budgetId}")
+    fun updateBudget(
+        @Path("budgetId") budgetId: Int,
+        @Body budget: BudgetCreate,
+    ): Call<BudgetRead>
+
+    @DELETE("budgets/{budgetId}")
+    fun deleteBudget(@Path("budgetId") budgetId: Int): Call<Void>
+
     // Goal endpoints
     @GET("goals/")
     fun getGoals(

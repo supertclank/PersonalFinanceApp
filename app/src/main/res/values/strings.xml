@@ -95,10 +95,21 @@
     <string name="app_settings">App Settings\n</string>
     <string name="privacy_settings">Privacy Settings\n</string>
     <string name="user_settings">User Settings</string>
-    <string name="edit_target_amount">Edit Tartget Amount</string>
+    <string name="edit_target_amount">Edit Target Amount</string>
     <string name="edit_current_amount">Edit Current Amount</string>
     <string name="edit_your_goal_title">Edit Your Goal Title</string>
     <string name="edit_description_for_your_goal">Edit Description For Your Goal</string>
     <string name="edit_deadline">Edit Deadline</string>
+
+    <!-- Budget Strings -->
+    <string name="add_budget">Add Budget</string>
+    <string name="enter_budget_amount">Enter Budget Amount</string>
+    <string name="budget_amount">Budget Amount</string>
+    <string name="budget_category">Budget Category</string>
+    <string name="enter_start_date">Enter Start Date</string>
+    <string name="start_date">Start Date</string>
+    <string name="enter_end_date">Enter End Date</string>
+    <string name="end_date">End Date</string>
+    <string name="enter_budget_category">Enter Budget Category</string>
 
 </resources>
