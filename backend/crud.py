@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import User, Budget, Goal, Report, Transaction, Notification
-from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse, GoalsRead
+from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse, GoalsRead, BudgetRead
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 import datetime
@@ -70,13 +70,13 @@ def create_budget(db: Session, budget: BudgetCreate):
     db.add(db_budget)
     db.commit()
     db.refresh(db_budget)
-    return db_budget
-
-def get_goal(db: Session, goal_id: int):
-    return db.query(Goal).filter(Goal.id == goal_id).first()
-
-def get_goals(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Goal).offset(skip).limit(limit).all()
+    
+    return BudgetRead(
+        id=db_budget.id,
+        amount=db_budget.amount,
+        start_date=db_budget.start_date,
+        end_date=db_budget.end_date
+    )
 
 def get_goal(db: Session, goal_id: int):
     return db.query(Goal).filter(Goal.id == goal_id).first()

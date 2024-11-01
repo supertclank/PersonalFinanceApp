@@ -1,5 +1,6 @@
 package api
 
+import api.data_class.BudgetCategory
 import api.data_class.BudgetCreate
 import api.data_class.BudgetRead
 import api.data_class.GoalsCreate
@@ -56,23 +57,37 @@ interface ApiService {
     ): Call<TokenResponse>
 
     // Budget endpoints
-    @POST("budgets/")
-    fun createBudget(@Body budget: BudgetCreate): Call<BudgetRead>
+    @POST("budget/")
+    fun createBudget(
+        @Body newBudget: BudgetCreate,
+        @Header("Authorization") token: String,
+    ): Call<BudgetRead>
 
     @GET("budgets/")
-    fun getBudgets(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<BudgetRead>>
+    fun getBudgets(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Header("Authorization") token: String,
+    ): Call<List<BudgetRead>>
 
     @GET("budget/{budget_id}")
     fun getBudget(@Path("budget_id") budgetId: Int): Call<BudgetRead>
 
-    @PUT("budgets/{budgetId}")
+    @PUT("budget/{budgetId}")
     fun updateBudget(
         @Path("budgetId") budgetId: Int,
         @Body budget: BudgetCreate,
+        @Header("Authorization") token: String,
     ): Call<BudgetRead>
 
     @DELETE("budgets/{budgetId}")
-    fun deleteBudget(@Path("budgetId") budgetId: Int): Call<Void>
+    fun deleteBudget(
+        @Path("budgetId") budgetId: Int,
+        @Header("Authorization") token: String
+    ): Call<Void>
+
+    @GET("budget/categories/")
+    fun getBudgetCategories(): Call<List<BudgetCategory>>
 
     // Goal endpoints
     @GET("goals/")
@@ -99,7 +114,10 @@ interface ApiService {
     ): Call<GoalsRead>
 
     @DELETE("goals/{goalId}")
-    fun deleteGoal(@Path("goalId") goalId: Int, @Header("Authorization") token: String): Call<Void>
+    fun deleteGoal(
+        @Path("goalId") goalId: Int,
+        @Header("Authorization") token: String
+    ): Call<Void>
 
     // Report endpoints
     @POST("reports/")

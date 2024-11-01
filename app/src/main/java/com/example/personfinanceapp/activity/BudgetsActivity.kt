@@ -1,8 +1,8 @@
 package com.example.personfinanceapp.activity
 
+import Budget
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Bundle
@@ -22,7 +22,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import api.RetrofitClient
-import api.data_class.GoalsRead
+import api.data_class.BudgetCategory
 import com.auth0.android.jwt.JWT
 import com.example.personfinanceapp.R
 import com.example.personfinanceapp.utils.TokenUtils
@@ -93,13 +93,13 @@ class BudgetsActivity : AppCompatActivity() {
         setupSwipeRefreshLayout()
         Log.d(TAG, "onCreate: SwipeRefreshLayout initialized")
 
-        // Fetch existing goals from the API
-        Log.d(TAG, "onCreate: Fetching existing goals from the API")
+        // Fetch existing Budgets from the API
+        Log.d(TAG, "onCreate: Fetching existing Budgets from the API")
         fetchBudgets(token)
 
-        // Handle "Add Goal" button click
+        // Handle "Add Budget" button click
         findViewById<Button>(R.id.add_budget_button).setOnClickListener {
-            Log.d(TAG, "onCreate: Add Goal button clicked")
+            Log.d(TAG, "onCreate: Add Budget button clicked")
             showAddBudgetDialog(token)
         }
     }
@@ -124,22 +124,22 @@ class BudgetsActivity : AppCompatActivity() {
     }
 
     private fun fetchBudgets(token: String) {
-        Log.d(TAG, "fetchBudgets: Fetching goals from API")
+        Log.d(TAG, "fetchBudgets: Fetching budgets from API")
 
         // Extract user ID from the token
         val userId = getUserIdFromToken(token)
         if (userId == -1) {
-            Log.e(TAG, "fetchGoals: Invalid user ID. Cannot fetch goals.")
+            Log.e(TAG, "fetchBudgets: Invalid user ID. Cannot fetch Budgets.")
             Toast.makeText(this, "Unable to retrieve user data.", Toast.LENGTH_SHORT).show()
             // Optionally stop refreshing here if you have a SwipeRefreshLayout
             return
         }
 
         val apiService = RetrofitClient.instance
-        Log.d(TAG, "fetchGoals: Formatted auth token")
+        Log.d(TAG, "fetchBudgets: Formatted auth token")
 
         // Start the API call
-        apiService.getGoals(0, 10, "Bearer $token").enqueue(object : Callback<List<GoalsRead>> {
+        apiService.getBudgets(0, 10, "Bearer $token").enqueue(object : Callback<List<BudgetRead>> {
             override fun onResponse(
                 call: Call<List<BudgetRead>>,
                 response: Response<List<BudgetRead>>,
@@ -151,34 +151,34 @@ class BudgetsActivity : AppCompatActivity() {
 
                 if (response.isSuccessful) {
                     val budgets = response.body() ?: run {
-                        Log.e(TAG, "fetchGoals: Response body is null")
-                        Toast.makeText(this@BudgetsActivity, "No goals found.", Toast.LENGTH_SHORT)
+                        Log.e(TAG, "fetchBudget: Response body is null")
+                        Toast.makeText(this@BudgetsActivity, "No Budgets found.", Toast.LENGTH_SHORT)
                             .show()
                         return
                     }
 
-                    Log.d(TAG, "fetchGoals: Goals loaded successfully: $budgets")
+                    Log.d(TAG, "fetchBudgets: Budgets loaded successfully: $budgets")
 
-                    // Clear the existing goals list and add new ones
+                    // Clear the existing Budgets list and add new ones
                     budgetsList.clear()
                     budgetsList.addAll(budgets)
 
-                    // Update the UI with the new goals
+                    // Update the UI with the new Budgets
                     displayBudgets(budgetsList)
 
-                    Log.d(TAG, "fetchGoals: Displayed goals; total count: ${budgetsList.size}")
+                    Log.d(TAG, "fetchBudgets: Displayed Budgets; total count: ${budgetsList.size}")
                 } else {
-                    Log.e(TAG, "fetchGoals: Error ${response.code()} - ${response.message()}")
+                    Log.e(TAG, "fetchBudgets: Error ${response.code()} - ${response.message()}")
                     Toast.makeText(
-                        this@budgetsActivity,
-                        "Failed to retrieve goals.",
+                        this@BudgetsActivity,
+                        "Failed to retrieve Budgets.",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }
 
             override fun onFailure(call: Call<List<BudgetRead>>, t: Throwable) {
-                Log.e(TAG, "fetchGoals: API call failed: ${t.message}", t)
+                Log.e(TAG, "fetchBudgets: API call failed: ${t.message}", t)
                 Toast.makeText(
                     this@BudgetsActivity,
                     "Network error: ${t.message}",
@@ -222,14 +222,44 @@ class BudgetsActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchCategories() {
-        // Make your API call to fetch categories here
-        // For example, you can use Retrofit to get categories
+    private fun fetchBudgetCategories(callback: (List<BudgetCategory>) -> Unit) {
+        showLoadingIndicator() // Show loading indicator
+
+        // Make an API call to fetch budget categories
+        apiService.getBudgetCategories().enqueue(object : Callback<List<BudgetCategory>> {
+            override fun onResponse(call: Call<List<BudgetCategory>>, response: Response<List<BudgetCategory>>) {
+                hideLoadingIndicator() // Hide loading indicator
+
+                if (response.isSuccessful) {
+                    val categories = response.body() ?: emptyList()
+                    callback(categories)
+                    populateCategorySpinner(categories) // Populate the spinner with fetched categories
+                } else {
+                    // Handle error
+                    Toast.makeText(this@BudgetsActivity, "Error fetching budget categories: ${response.message()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<BudgetCategory>>, t: Throwable) {
+                hideLoadingIndicator() // Hide loading indicator
+                // Handle failure
+                Toast.makeText(this@BudgetsActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun populateCategorySpinner(categories: List<BudgetCategory>) {
+        val categorySpinner: Spinner = findViewById(R.id.spinner_budget_category)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        categorySpinner.adapter = adapter
+
     }
 
 
+
+
     private fun editBudget(budget: BudgetRead) {
-        // Use the updated dialog layout
         val dialogView = layoutInflater.inflate(R.layout.dialog_edit_budget, null)
 
         val categorySpinner = dialogView.findViewById<Spinner>(R.id.spinner_budget_category)
@@ -243,7 +273,7 @@ class BudgetsActivity : AppCompatActivity() {
         startDateInput.setText(budget.startDate)
         endDateInput.setText(budget.endDate)
 
-        fetchCategories { categories ->
+        fetchBudgetCategories { categories ->
             val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             categorySpinner.adapter = adapter
@@ -269,7 +299,7 @@ class BudgetsActivity : AppCompatActivity() {
                 }
 
                 // Get selected category ID from spinner
-                val selectedCategoryId = categorySpinner.selectedItemId.toInt() // Ensure this is correct
+                val selectedCategoryId = categorySpinner.selectedItemId.toInt()
 
                 // Create updated budget object with user input
                 val updatedBudget = BudgetCreate(
@@ -290,7 +320,7 @@ class BudgetsActivity : AppCompatActivity() {
         Log.d(TAG, "deleteBudget: Deleting budget with ID: $budgetId")
 
         val apiService = RetrofitClient.instance
-        val call = apiService.deleteBudget(budgetId, "Bearer $token") // Ensure the API call matches your budget deletion endpoint
+        val call = apiService.deleteBudget(budgetId, "Bearer $token")
 
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {

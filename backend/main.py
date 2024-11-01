@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from models import Base, User, Goal
+from models import Base, User, Goal, Budget
 from database import engine, get_db
 
 from passlib.context import CryptContext
@@ -278,24 +278,64 @@ async def login(
     
 # Budget endpoints
 @app.post("/budgets/", response_model=BudgetRead)
-async def create_new_budget(budget: BudgetCreate, db: AsyncSession = Depends(get_db)):
-    return await create_budget(db=db, budget=budget)
-
-@app.get("/budgets/", response_model=List[BudgetRead])
-async def read_budgets(
-    skip: int = 0, 
-    limit: int = 10, 
-    db: AsyncSession = Depends(get_db),
+def create_new_budget(
+    budget: BudgetCreate,
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return await get_budgets(db=db, user_id=current_user.id, skip=skip, limit=limit)
+    logger.info(f"Creating budget for user_id: {current_user.id}")
+    db_budget = create_budget(db=db, budget=budget)
 
-@app.get("/budget/{budget_id}", response_model=BudgetRead)
-def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
+    # Return the created budget as BudgetRead model
+    return BudgetRead(
+        id=db_budget.id,
+        userId=db_budget.user_id,
+        budgetCategoryId=db_budget.budget_category_id,
+        amount=db_budget.amount,
+        startDate=db_budget.start_date,
+        endDate=db_budget.end_date
+    )
+
+@app.get("/budgets/", response_model=List[BudgetRead])
+def read_budgets(
+    skip: int = 0, 
+    limit: int = 10, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return get_budgets(db, user_id=current_user.id, skip=skip, limit=limit)
+
+@app.get("/budgets/{budget_id}", response_model=BudgetRead)
+def read_budget(budget_id: int, db: Session = Depends(get_db)):
     db_budget = get_budget(db, budget_id=budget_id)
     if db_budget is None:
         raise HTTPException(status_code=404, detail="Budget not found")
     return db_budget
+
+@app.put("/budgets/{budget_id}", response_model=BudgetRead)
+def update_budget(budget_id: int, budget: BudgetCreate, db: Session = Depends(get_db)):
+    db_budget = db.query(Budget).filter(Budget.id == budget_id).first()
+    if not db_budget:
+        raise HTTPException(status_code=404, detail="Budget not found")
+    
+    db_budget.budget_category_id = budget.budgetCategoryId
+    db_budget.amount = budget.amount
+    db_budget.start_date = budget.startDate
+    db_budget.end_date = budget.endDate
+
+    db.commit()
+    db.refresh(db_budget)
+    return db_budget
+
+@app.delete("/budgets/{budget_id}")
+def delete_budget(budget_id: int, db: Session = Depends(get_db)):
+    db_budget = db.query(Budget).filter(Budget.id == budget_id).first()
+    if not db_budget:
+        raise HTTPException(status_code=404, detail="Budget not found")
+    
+    db.delete(db_budget)
+    db.commit()
+    return {"detail": "Budget deleted successfully"}
 
 # Goals endpoints
 @app.post("/goals/", response_model=GoalsRead)
