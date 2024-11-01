@@ -139,23 +139,31 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     )
     
     try:
+        logger.info(f"Decoding token: {token}")
         # Decode the JWT token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("id")
+        logger.info(f"Extracted user ID from token: {user_id}")
 
         if user_id is None:
+            logger.error("User ID not found in token payload")
             raise credentials_exception
         
         # Fetch the user from the database using the user_id
-        user = db.query(User).filter(User.id == user_id).first()  # Assuming User is your User model
+        user = db.query(User).filter(User.id == user_id).first()
         if user is None:
+            logger.error(f"User not found for ID: {user_id}")
             raise credentials_exception
         
     except JWTError as e:
         # Log the JWT error for debugging purposes
         logger.error(f"JWT error: {e}")
         raise credentials_exception
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        raise credentials_exception
 
+    logger.info(f"Authenticated user: {user}")
     return user  # Return the user object
 
 # Create an asynchronous engine
@@ -285,31 +293,24 @@ def create_new_budget(
     current_user: User = Depends(get_current_user)
 ):
     logger.info(f"Creating budget for user_id: {current_user.id}")
-    db_budget = create_budget(db=db, budget=budget)
+    db_budget = create_budget(db=db, budget=budget, user_id=current_user.id)
 
     return BudgetRead(
         id=db_budget.id,
-        userId=db_budget.user_id,
-        budgetCategoryId=db_budget.budget_category_id,
         amount=db_budget.amount,
-        startDate=db_budget.start_date,
-        endDate=db_budget.end_date
+        startDate=db_budget.startDate,
+        endDate=db_budget.endDate
     )
 
 @app.get("/budgets/", response_model=List[BudgetRead])
-def read_budgets(
-    skip: int = 0, 
-    limit: int = 10, 
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    return get_budgets(db, user_id=current_user.id, skip=skip, limit=limit)
+def read_budgets(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    return get_budgets(db, skip=skip, limit=limit)
 
 @app.get("/budgets/{budget_id}", response_model=BudgetRead)
-def read_budget(budget_id: int, db: Session = Depends(get_db)):
-    db_budget = get_budget(db, budget_id=budget_id)
+def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
+    db_budget = get_budget(db, budget_id=Budget_id)
     if db_budget is None:
-        raise HTTPException(status_code=404, detail="Budget not found")
+        raise HTTPException(status_code=404, detail="budget not found")
     return db_budget
 
 @app.put("/budgets/{budget_id}", response_model=BudgetRead)
@@ -329,18 +330,25 @@ def update_budget(budget_id: int, budget: BudgetCreate, db: Session = Depends(ge
 
 @app.delete("/budgets/{budget_id}")
 def delete_budget(budget_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Deleting budget with ID: {budget_id}")
     db_budget = db.query(Budget).filter(Budget.id == budget_id).first()
     if not db_budget:
+        logger.warning(f"Budget with ID: {budget_id} not found")
         raise HTTPException(status_code=404, detail="Budget not found")
     
     db.delete(db_budget)
     db.commit()
+    logger.info(f"Budget deleted successfully: {budget_id}")
+
     return {"detail": "Budget deleted successfully"}
 
 @app.get("/budget/categories/", response_model=List[BudgetCategoryRead])
 def get_budget_categories(db: Session = Depends(get_db)):
-    return db.query(BudgetCategory).all()
+    logger.info("Fetching budget categories")
+    categories = db.query(BudgetCategory).all()
+    logger.info(f"Budget categories retrieved: {len(categories)} found")
 
+    return categories
 
 # Goals endpoints
 @app.post("/goals/", response_model=GoalsRead)

@@ -56,8 +56,8 @@ def get_user_by_username(db: Session, username: str):
 def get_budget(db: Session, budget_id: int):
     return db.query(Budget).filter(Budget.id == budget_id).first()
 
-def get_budgets(db: Session, user_id: int, skip: int = 0, limit: int = 10):
-    return db.query(Budget).filter(Budget.user_id == user_id).offset(skip).limit(limit).all()
+def get_budgets(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(Budget).offset(skip).limit(limit).all()
 
 def create_budget(db: Session, budget: BudgetCreate):
     db_budget = Budget(
@@ -96,8 +96,7 @@ def create_goal(db: Session, goal: GoalsCreate, user_id: int) -> GoalsRead:
     db.add(db_goal)
     db.commit()
     db.refresh(db_goal)
-    
-    # Map the Goal model to the GoalsRead model
+
     return GoalsRead(
         id=db_goal.id,
         name=db_goal.name,

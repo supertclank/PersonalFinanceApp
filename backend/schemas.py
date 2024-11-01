@@ -55,7 +55,7 @@ class BudgetCreate(BaseModel):
     endDate: date
 
 class BudgetRead(BaseModel):
-    budgetId: int
+    id: int
     amount: float
     startDate: date
     endDate: date

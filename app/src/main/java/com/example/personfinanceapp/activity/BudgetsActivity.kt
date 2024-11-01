@@ -496,7 +496,7 @@ class BudgetsActivity : AppCompatActivity() {
 
         // Make sure to pass the userId from the token correctly
         val budgetToCreate = BudgetCreate(
-            userId = getUserIdFromToken(token), // Ensure this is correctly set
+            userId = getUserIdFromToken(token),
             budgetCategoryId = newBudget.budgetCategoryId,
             amount = newBudget.amount,
             startDate = newBudget.startDate,
