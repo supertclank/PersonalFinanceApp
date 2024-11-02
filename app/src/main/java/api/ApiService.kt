@@ -7,9 +7,12 @@ import api.data_class.GoalsCreate
 import api.data_class.GoalsRead
 import api.data_class.NotificationCreate
 import api.data_class.NotificationRead
+import api.data_class.NotificationType
 import api.data_class.ReportCreate
 import api.data_class.ReportRead
+import api.data_class.ReportType
 import api.data_class.TokenResponse
+import api.data_class.TransactionCategory
 import api.data_class.TransactionCreate
 import api.data_class.TransactionRead
 import api.data_class.UserCreate
@@ -124,26 +127,75 @@ interface ApiService {
 
     // Report endpoints
     @POST("reports/")
-    fun createReport(@Body report: ReportCreate): Call<ReportRead>
+    fun createReport(
+        @Body report: ReportCreate,
+        @Header("Authorization") token: String,
+    ): Call<ReportRead>
 
     @GET("reports/")
-    fun getReports(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<ReportRead>>
+    fun getReports(
+        @Query("skip") skip: Int,
+        @Query("limit") limit: Int,
+        @Header("Authorization") token: String,
+    ): Call<List<ReportRead>>
 
     @GET("report/{report_id}")
-    fun getReport(@Path("report_id") reportId: Int): Call<ReportRead>
+    fun getReport(
+        @Path("report_id") reportId: Int,
+        @Header("Authorization") token: String,
+        ): Call<ReportRead>
+
+    @PUT("reports/{reportId}")
+    fun updateReport(
+        @Path("reportId") reportId: Int,
+        @Body report: ReportCreate,
+        @Header("Authorization") token: String,
+        ): Call<ReportRead>
+
+    @DELETE("reports/{reportId}")
+    fun deleteReport(
+        @Path("reportId") reportId: Int,
+        @Header("Authorization") token: String
+    ): Call<Void>
+
+    @GET("report/types/")
+    fun getReportTypes(): Call<List<ReportType>>
 
     // Transaction endpoints
     @POST("transactions/")
-    fun createTransaction(@Body transaction: TransactionCreate): Call<TransactionRead>
+    fun createTransaction(
+        @Body newTransaction: TransactionCreate,
+        @Header("Authorization") token: String,
+    ): Call<TransactionRead>
 
     @GET("transactions/")
     fun getTransactions(
         @Query("skip") skip: Int,
         @Query("limit") limit: Int,
+        @Header("Authorization") token: String,
     ): Call<List<TransactionRead>>
 
     @GET("transaction/{transaction_id}")
-    fun getTransaction(@Path("transaction_id") transactionId: Int): Call<TransactionRead>
+    fun getTransaction(
+        @Path("transaction_id") transactionId: Int,
+        @Header("Authorization") token: String,
+    ): Call<TransactionRead>
+
+    @PUT("transactions/{transactionId}")
+    fun updateTransaction(
+        @Path("transactionId") transactionId: Int,
+        @Body transaction: TransactionCreate,
+        @Header("Authorization") token: String,
+    ): Call<TransactionRead>
+
+    @DELETE("transactions/{transactionId}")
+    fun deleteTransaction(
+        @Path("transactionId") transactionId: Int,
+        @Header("Authorization") token: String
+    ): Call<Void>
+
+    @GET("transaction/categories/")
+    fun getTransactionCategories(): Call<List<TransactionCategory>>
 
     // Notifications endpoints
     @POST("notifications/")
@@ -153,10 +205,27 @@ interface ApiService {
     fun getNotifications(
         @Query("skip") skip: Int,
         @Query("limit") limit: Int,
+        @Header("Authorization") token: String,
     ): Call<List<NotificationRead>>
 
     @GET("notification/{notification_id}")
     fun getNotification(@Path("notification_id") notificationId: Int): Call<NotificationRead>
+
+    @PUT("notifications/{notificationId}")
+    fun updateNotification(
+        @Path("notificationId") notificationId: Int,
+        @Body notification: NotificationCreate,
+        @Header("Authorization") token: String,
+    ) : Call<NotificationRead>
+
+    @DELETE("notifications/{notificationId}")
+    fun deleteNotification(
+        @Path("notificationId") notificationId: Int,
+        @Header("Authorization") token: String
+    ): Call<Void>
+
+    @GET("notification/types/")
+    fun getNotificationTypes(): Call<List<NotificationType>>
 
     // Username recovery endpoint
     @POST("username/recover/")

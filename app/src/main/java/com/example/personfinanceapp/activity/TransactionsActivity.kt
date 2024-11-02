@@ -1,13 +1,37 @@
 package com.example.personfinanceapp.activity
 
+import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.content.Intent
+import android.icu.util.Calendar
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import api.RetrofitClient
+import api.data_class.TransactionCategory
+import api.data_class.TransactionCreate
+import api.data_class.TransactionRead
+import com.auth0.android.jwt.JWT
 import com.example.personfinanceapp.R
+import com.example.personfinanceapp.utils.TokenUtils
 import com.google.android.material.navigation.NavigationView
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class TransactionsActivity : AppCompatActivity() {
 

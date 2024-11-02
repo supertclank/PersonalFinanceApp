@@ -2,9 +2,9 @@ package api.data_class
 
 data class NotificationRead(
     val id: Int,
-    val userId: Int,
+    val user_id: Int,
     val message: String,
-    val notificationTypeId: Int,
+    val notification_type_id: Int,
     val isRead: Boolean,
-    val createdAt: String,
+    val created_at: String,
 )

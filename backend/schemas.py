@@ -130,7 +130,7 @@ class NotificationCreate(BaseModel):
     user_id: int
     message: str
     isRead: Optional[bool] = False
-    date: Optional[datetime] = None
+    created_at: Optional[datetime] = None
     notification_type_id: int
 
 class NotificationRead(BaseModel):
@@ -138,7 +138,7 @@ class NotificationRead(BaseModel):
     user_id: int
     message: str
     isRead: Optional[bool] = False
-    date: Optional[datetime] = None
+    created_at: Optional[datetime] = None
     notification_type_id: int
     
 class NotificationType(BaseModel):

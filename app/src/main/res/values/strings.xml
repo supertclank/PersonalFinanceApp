@@ -111,5 +111,7 @@
     <string name="enter_end_date">Enter End Date</string>
     <string name="end_date">End Date</string>
     <string name="enter_budget_category">Enter Budget Category</string>
+    <string name="add_transaction">Add Transaction</string>
+    <string name="create_report">Create Report</string>
 
 </resources>

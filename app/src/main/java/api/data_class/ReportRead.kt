@@ -2,8 +2,8 @@ package api.data_class
 
 data class ReportRead(
     val id: Int,
-    val userId: Int,
-    val reportTypeId: Int,
-    val generatedAt: String,
+    val user_id: Int,
+    val report_type_id: Int,
+    val generated_at: String,
     val data: Map<String, Any>,
 )
