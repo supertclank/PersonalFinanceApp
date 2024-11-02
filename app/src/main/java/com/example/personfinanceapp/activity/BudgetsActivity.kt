@@ -218,7 +218,7 @@ class BudgetsActivity : AppCompatActivity() {
                 val budgetView = LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
 
                 // Get the category name from categoryMap, or use a fallback if not found
-                val name = categoryMap[budget.budget_category_id] ?: "Unknown Category"
+                val name = categoryMap[budget.budget_category_id]
                 Log.d("displayBudgets", "Budget ID: ${budget.id}, Category ID: ${budget.budget_category_id}, Category Name: $name")
 
                 // Set the values for the budget item

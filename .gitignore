@@ -25,3 +25,5 @@ backend/__pycache__/utils.cpython-312.pyc
 *.pyc
 backend/test_password.py
 backend/test_password_verification.py
+/backend/__pycache__
+/backend/__pycache__

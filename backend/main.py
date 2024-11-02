@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from models import Base, User, Goal, Budget, BudgetCategory
+from models import Base, User, Goal, Budget, BudgetCategory, Report, Transaction, TransactionCategory, Notification, NotificationType
 from database import engine, get_db
 
 from passlib.context import CryptContext
@@ -303,11 +303,11 @@ def create_new_budget(
     )
 
 @app.get("/budgets/", response_model=List[BudgetRead])
-def read_budgets(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+def read_budgets(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return get_budgets(db, skip=skip, limit=limit)
 
 @app.get("/budgets/{budget_id}", response_model=BudgetRead)
-def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
+def read_budget(budget_id: int, db: Session = Depends(get_db)):
     db_budget = get_budget(db, budget_id=budget_id)
     if db_budget is None:
         raise HTTPException(status_code=404, detail="budget not found")
@@ -371,11 +371,11 @@ def create_new_goal(
     )
 
 @app.get("/goals/", response_model=List[GoalsRead])
-def read_goals(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+def read_goals(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return get_goals(db, skip=skip, limit=limit)
 
 @app.get("/goal/{goal_id}", response_model=GoalsRead)
-def read_goal(goal_id: int, db: AsyncSession = Depends(get_db)):
+def read_goal(goal_id: int, db: Session = Depends(get_db)):
     db_goal = get_goal(db, goal_id=goal_id)
     if db_goal is None:
         raise HTTPException(status_code=404, detail="Goal not found")
@@ -410,52 +410,127 @@ def delete_goal(goal_id: int, db: Session = Depends(get_db)):
 
 # Report endpoints
 @app.post("/reports/", response_model=ReportRead)
-def create_new_report(report: ReportCreate, db: AsyncSession = Depends(get_db)):
-    return create_report(db=db, report=report)
+def create_new_report(
+    report: ReportCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+    ):
+    
+    logger.info(f"Creating report for user_id: {current_user.id}")
+    db_report = create_report(db=db, report=report, user_id=current_user.id)
+    
+    return ReportRead(
+        id = db_report.id,
+        report_type_id = db_report.report_type_id,
+        data = db_report.data,
+        generated_at = db_report.generated_at       
+    )
 
 @app.get("/reports/", response_model=List[ReportRead])
-def read_reports(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+def read_reports(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return get_reports(db, skip=skip, limit=limit)
 
 @app.get("/report/{report_id}", response_model=ReportRead)
-def read_report(report_id: int, db: AsyncSession = Depends(get_db)):
+def read_report(report_id: int, db: Session = Depends(get_db)):
     db_report = get_report(db, report_id=report_id)
     if db_report is None:
         raise HTTPException(status_code=404, detail="Report not found")
     return db_report
 
+@app.put("/reports/{report_id}", response_model=ReportRead)
+def update_report(report_id: int, report: ReportCreate, db: Session = Depends(get_db)):
+    db_report = db.query(Report).filter(Report.id == report_id).first()
+    if not db_report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    db_report.report_type_id = report.report_type_id,
+    db_report.data = report.data,
+    
+    db.commit()
+    db.refresh(db_report)
+    return db_report
+
+@app.delete("/reports/{report_id}")
+def delete_report(report_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Deleting report with ID: {report_id}")
+    db_report = db.query(Report).filter(report_id == report_id).first()
+    if not db_report:
+        logger.warning(f"Report with ID: {report_id} not found")
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    db.delete(db_report)
+    db.commit()
+    logger.info(f"Report deleted successfully: {report_id}")
+    
+    return {"Detail": "Report deketed successfully"}
+    
 # Transaction endpoints
 @app.post("/transactions/", response_model=TransactionRead)
-def create_new_transaction(transaction: TransactionCreate, db: AsyncSession = Depends(get_db)):
-    return create_transaction(db=db, transaction=transaction)
+def create_new_transaction(
+    transaction: TransactionCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+    ):
+    logger.info(f"Creating transaction for user_id: {current_user.id}")
+    db_transaction = create_transaction(db=db, transaction=transaction, user_id=current_user.id)
+    
+    return TransactionRead(
+        id = db_transaction.id,
+        amount = db_transaction.amount,
+        date = db_transaction.description,
+        transaction_category_id = db_transaction.transaction_category_id
+    )
 
 @app.get("/transactions/", response_model=List[TransactionRead])
-def read_transactions(
-    skip: int = 0, 
-    limit: int = 10, 
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+def read_transactions(skip: int = 0, limit: int = 10, db: Session = Depends(get_db),current_user: User = Depends(get_current_user)):
     return get_transactions(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @app.get("/transaction/{transaction_id}", response_model=TransactionRead)
-def read_transaction(transaction_id: int, db: AsyncSession = Depends(get_db)):
+def read_transaction(transaction_id: int, db: Session = Depends(get_db)):
     db_transaction = get_transaction(db, transaction_id=transaction_id)
     if db_transaction is None:
         raise HTTPException(status_code=404, detail="Transaction not found")
     return db_transaction
 
+@app.put("/transactions/{transaction_id}", response_model=TransactionRead)
+def update_transaction(transaction_id: int, transaction: TransactionCreate, db: Session = Depends(get_db)):
+    db_transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+    if not db_transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    db_transaction.amount = transaction.amount
+    db_transaction.date = transaction.date
+    db_transaction.transaction_category_id = transaction.transaction_category_id
+    
+    db.commit()
+    db.refresh(db_transaction)
+    return db_transaction
+
+@app.delete("/transaction/{transaction_id}")
+def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Deleting trainsaction with ID: {transaction_id}")
+    db_transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+    if not db_transaction:
+        logger.warning(f"Transaction with ID: {transaction_id} not found")
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    
+    db.delete(db_transaction)
+    db.commit()
+    logger.info(f"Transaction deleted successfully: {transaction_id}")
+    
+    return {"detail" : "Transaction deleted successfully"}
+
 # Notification endpoints
 @app.post("/notifications/", response_model=NotificationRead)
-def create_new_notification(notification: NotificationCreate, db: AsyncSession = Depends(get_db)):
+def create_new_notification(notification: NotificationCreate, db: Session = Depends(get_db)):
     return create_notification(db=db, notification=notification)
 
 @app.get("/notifications/", response_model=List[NotificationRead])
-def read_notifications(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+def read_notifications(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return get_notifications(db, skip=skip, limit=limit)
 
 @app.get("/notification/{notification_id}", response_model=NotificationRead)
-def read_notification(notification_id: int, db: AsyncSession = Depends(get_db)):
+def read_notification(notification_id: int, db: Session = Depends(get_db)):
     db_notification = get_notification(db, notification_id=notification_id)
     if db_notification is None:
         raise HTTPException(status_code=404, detail="Notification not found")

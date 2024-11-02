@@ -48,16 +48,19 @@ class UsernameRecoveryRequest(BaseModel):
 
 # Budget schemas
 class BudgetCreate(BaseModel):
-    budget_category_id: int
     amount: float
     start_date: date
     end_date: date
+    user_id: int
+    budget_category_id: int
 
 class BudgetRead(BaseModel):
     id: int
     amount: float
     start_date: date
     end_date: date
+    user_id: int
+    budget_category_id: int
 
 # Budget Category Schema
 class BudgetCategoryRead(BaseModel):
@@ -80,42 +83,65 @@ class GoalsRead(BaseModel):
     current_amount: float
     deadline: date
     description: str
+    user_id: int
 
 # Report schemas
 class ReportCreate(BaseModel):
-    userId: int
-    reportTypeId: int
+    user_id: int
+    report_type_id: int
+    generated_at: date
     data: dict
 
 class ReportRead(BaseModel):
-    reportId: int
-    reportTypeId: int
+    id: int
+    user_id: int
+    report_type_id: int
     data: dict
-    generatedAt: datetime
+    generated_at: datetime
+    
+class ReportType(BaseModel):
+    id: int
+    name: str
+    description: str
 
 # Transaction schemas
 class TransactionCreate(BaseModel):
-    userId: int
+    user_id: int
     amount: float
     date: datetime
     description: str
-    transactionCategoryId: int
+    transaction_category_id: int
 
 class TransactionRead(BaseModel):
-    transactionId: int
+    id: int
+    user_id: int
     amount: float
     date: datetime
     description: str
-
+    transaction_category_id: int
+    
+class TransactionCategory(BaseModel):
+    id: int
+    name: str
+    description: str
+    
 # Notification schemas
 class NotificationCreate(BaseModel):
-    userId: int
+    user_id: int
     message: str
     isRead: Optional[bool] = False
     date: Optional[datetime] = None
+    notification_type_id: int
 
 class NotificationRead(BaseModel):
-    notificationId: int
+    id: int
+    user_id: int
     message: str
-    isRead: bool
-    createdAt: datetime
+    isRead: Optional[bool] = False
+    date: Optional[datetime] = None
+    notification_type_id: int
+    
+class NotificationType(BaseModel):
+    id: int
+    name: str
+    description: str

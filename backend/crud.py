@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import User, Budget, Goal, Report, Transaction, Notification
-from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, NotificationCreate, UserResponse, GoalsRead, BudgetRead
+from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, TransactionRead, NotificationCreate, NotificationRead, UserResponse, GoalsRead, BudgetRead, ReportRead
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 import datetime
@@ -112,16 +112,23 @@ def get_report(db: Session, report_id: int):
 def get_reports(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Report).offset(skip).limit(limit).all()
 
-def create_report(db: Session, report: ReportCreate):
+def create_report(db: Session, report: ReportCreate, user_id: int) -> ReportRead:
     db_report = Report(
-        user_id=report.userId,
-        report_type_id=report.reportTypeId,
-        data=report.data
+        user_id = db_report.user_id,
+        report_type_id = db_report.report_type_id,
+        generated_at = db_report.generated_at,
+        data = db_report.data
     )
     db.add(db_report)
     db.commit()
     db.refresh(db_report)
-    return db_report
+
+    return ReportRead(
+        id=db_report.id,
+        report_type_id = db_report.report_type_id,
+        generated_at = db_report.generated_at,
+        data = db_report.data,
+    )
 
 def get_transaction(db: Session, transaction_id: int):
     return db.query(Transaction).filter(Transaction.id == transaction_id).first()
@@ -131,16 +138,22 @@ def get_transactions(db: Session, user_id: int, skip: int = 0, limit: int = 10):
 
 def create_transaction(db: Session, transaction: TransactionCreate):
     db_transaction = Transaction(
-        user_id=transaction.userId,
-        amount=transaction.amount,
-        transaction_category_id=transaction.categoryId,
-        date=transaction.transactionDate,
-        description=transaction.description
+        user_id = db_transaction.user_id,
+        amount = db_transaction.amount,
+        transaction_category_id = db_transaction.transaction_category_id,
+        date = db_transaction.date,
+        description = db_transaction.description
     )
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
-    return db_transaction
+    return TransactionRead(
+        id = db_transaction.id,
+        amount = db_transaction.amount,
+        date = db_transaction.date,
+        description = db_transaction.description,
+        transaction_category_id = db_transaction.transaction_category_id,
+    )
 
 def get_notification(db: Session, notification_id: int):
     return db.query(Notification).filter(Notification.id == notification_id).first()
@@ -157,4 +170,11 @@ def create_notification(db: Session, notification: NotificationCreate):
     db.add(db_notification)
     db.commit()
     db.refresh(db_notification)
-    return db_notification
+    
+    return NotificationRead(
+        id = db_notification.id,
+        message = db_notification.message,
+        isRead = db_notification.is_read,
+        date = db_notification.date,
+        notification_type_id = db_notification.notification_type_id
+    ) 
