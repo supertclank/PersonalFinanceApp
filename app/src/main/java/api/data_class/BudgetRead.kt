@@ -1,10 +1,10 @@
 package api.data_class
 
 data class BudgetRead(
-    val budgetId: Int,
-    val userId: Int,
-    val budgetCategoryId: Int,
+    val id: Int,
+    val user_id: Int,
+    val budget_category_id: Int,
     val amount: Double,
-    val startDate: String,
-    val endDate: String,
+    val start_date: String,
+    val end_date: String,
 )

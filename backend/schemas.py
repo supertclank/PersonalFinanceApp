@@ -48,17 +48,16 @@ class UsernameRecoveryRequest(BaseModel):
 
 # Budget schemas
 class BudgetCreate(BaseModel):
-    userId: int
-    budgetCategoryId: int
+    budget_category_id: int
     amount: float
-    startDate: date
-    endDate: date
+    start_date: date
+    end_date: date
 
 class BudgetRead(BaseModel):
     id: int
     amount: float
-    startDate: date
-    endDate: date
+    start_date: date
+    end_date: date
 
 # Budget Category Schema
 class BudgetCategoryRead(BaseModel):

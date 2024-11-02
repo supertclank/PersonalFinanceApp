@@ -61,11 +61,11 @@ def get_budgets(db: Session, skip: int = 0, limit: int = 10):
 
 def create_budget(db: Session, budget: BudgetCreate):
     db_budget = Budget(
-        user_id=budget.userId,
-        budget_category_id=budget.budgetCategoryId,
+        user_id=budget.user_id,
+        budget_category_id=budget.budget_category_id,
         amount=budget.amount,
-        start_date=budget.startDate,
-        end_date=budget.endDate
+        start_date=budget.start_date,
+        end_date=budget.end_date
     )
     db.add(db_budget)
     db.commit()

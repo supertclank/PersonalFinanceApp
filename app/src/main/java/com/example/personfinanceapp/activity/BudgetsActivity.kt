@@ -137,7 +137,6 @@ class BudgetsActivity : AppCompatActivity() {
         if (userId == -1) {
             Log.e(TAG, "fetchBudgets: Invalid user ID. Cannot fetch Budgets.")
             Toast.makeText(this, "Unable to retrieve user data.", Toast.LENGTH_SHORT).show()
-            // Optionally stop refreshing here if you have a SwipeRefreshLayout
             return
         }
 
@@ -201,39 +200,48 @@ class BudgetsActivity : AppCompatActivity() {
         })
     }
 
-    fun displayBudgets(budget: List<BudgetRead>) {
+    fun displayBudgets(budgets: List<BudgetRead>) {
         val budgetsContainer: LinearLayout = findViewById(R.id.budgetsContainer)
         budgetsContainer.removeAllViews() // Clear any existing views
 
-        for (budget in budget) {
-            // Inflate the budget item layout
-            val budgetView =
-                LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
+        // Fetch categories to get a map of category IDs to names
+        fetchBudgetCategories { categories ->
+            // Log the fetched categories
+            Log.d("displayBudgets", "Fetched categories: $categories")
 
-            // Set the values for the budget item
-            budgetView.findViewById<TextView>(R.id.budget_category_title).text =
-                "Category ID: ${budget.budgetCategoryId}"
-            budgetView.findViewById<TextView>(R.id.budget_amount_value).text =
-                "Amount: £${budget.amount}"
-            budgetView.findViewById<TextView>(R.id.budget_start_date).text =
-                "Start Date: ${budget.startDate}"
-            budgetView.findViewById<TextView>(R.id.budget_end_date).text =
-                "End Date: ${budget.endDate}"
+            // Create a map of category IDs to category names
+            val categoryMap = categories.associateBy({ it.id }, { it.name })
+            Log.d("displayBudgets", "Category Map: $categoryMap")
 
-            // Set up delete button functionality
-            val deleteButton = budgetView.findViewById<Button>(R.id.button_delete_budget)
-            deleteButton.setOnClickListener {
-                deleteBudget(budget.budgetId)
+            for (budget in budgets) {
+                // Inflate the budget item layout
+                val budgetView = LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
+
+                // Get the category name from categoryMap, or use a fallback if not found
+                val name = categoryMap[budget.budget_category_id] ?: "Unknown Category"
+                Log.d("displayBudgets", "Budget ID: ${budget.id}, Category ID: ${budget.budget_category_id}, Category Name: $name")
+
+                // Set the values for the budget item
+                budgetView.findViewById<TextView>(R.id.budget_category_value).text = "Category: $name"
+                budgetView.findViewById<TextView>(R.id.budget_amount_value).text = "Amount: £${budget.amount}"
+                budgetView.findViewById<TextView>(R.id.budget_start_date).text = "Start Date: ${budget.start_date}"
+                budgetView.findViewById<TextView>(R.id.budget_end_date).text = "End Date: ${budget.end_date}"
+
+                // Set up delete button functionality
+                val deleteButton = budgetView.findViewById<Button>(R.id.button_delete_budget)
+                deleteButton.setOnClickListener {
+                    deleteBudget(budget.id)
+                }
+
+                // Set up edit button functionality
+                val editButton = budgetView.findViewById<Button>(R.id.button_edit_budget)
+                editButton.setOnClickListener {
+                    editBudget(budget)
+                }
+
+                // Add the budget view to the container
+                budgetsContainer.addView(budgetView)
             }
-
-            // Set up edit button functionality
-            val editButton = budgetView.findViewById<Button>(R.id.button_edit_budget)
-            editButton.setOnClickListener {
-                editBudget(budget)
-            }
-
-            // Add the budget view to the container
-            budgetsContainer.addView(budgetView)
         }
     }
 
@@ -287,8 +295,8 @@ class BudgetsActivity : AppCompatActivity() {
         // Prepopulate the fields with current budget data
         // Set the spinner to the current category
         amountInput.setText(budget.amount.toString())
-        startDateInput.setText(budget.startDate)
-        endDateInput.setText(budget.endDate)
+        startDateInput.setText(budget.start_date)
+        endDateInput.setText(budget.end_date)
 
         fetchBudgetCategories { categories ->
             val adapter =
@@ -297,7 +305,7 @@ class BudgetsActivity : AppCompatActivity() {
             categorySpinner.adapter = adapter
 
             // Set the current category in the spinner
-            val currentCategoryPosition = categories.indexOfFirst { it.id == budget.budgetCategoryId }
+            val currentCategoryPosition = categories.indexOfFirst { it.id == budget.budget_category_id }
             categorySpinner.setSelection(currentCategoryPosition)
         }
 
@@ -321,14 +329,14 @@ class BudgetsActivity : AppCompatActivity() {
 
                 // Create updated budget object with user input
                 val updatedBudget = BudgetCreate(
-                    userId = userId,
-                    budgetCategoryId = selectedCategoryId,
+                    user_id = userId,
+                    budget_category_id = selectedCategoryId,
                     amount = amountInput.text.toString().toDouble(),
-                    startDate = startDateInput.text.toString(),
-                    endDate = endDateInput.text.toString()
+                    start_date = startDateInput.text.toString(),
+                    end_date = endDateInput.text.toString()
                 )
                 // Call updateBudget function to save changes
-                updateBudget(budget.budgetId, updatedBudget, token)
+                updateBudget(budget.id, updatedBudget, token)
             }
             .setNegativeButton(R.string.back, null)
             .show()
@@ -479,11 +487,11 @@ class BudgetsActivity : AppCompatActivity() {
 
                 // Create the new budget
                 val newBudget = BudgetCreate(
-                    userId = getUserIdFromToken(token),
-                    budgetCategoryId = selectedCategoryId,
+                    user_id = getUserIdFromToken(token),
+                    budget_category_id = selectedCategoryId,
                     amount = amountStr.toDouble(),
-                    startDate = startDate,
-                    endDate = endDate
+                    start_date = startDate,
+                    end_date = endDate
                 )
                 createBudget(newBudget, token) // Create budget and refresh list
             }
@@ -496,11 +504,11 @@ class BudgetsActivity : AppCompatActivity() {
 
         // Make sure to pass the userId from the token correctly
         val budgetToCreate = BudgetCreate(
-            userId = getUserIdFromToken(token),
-            budgetCategoryId = newBudget.budgetCategoryId,
+            user_id = getUserIdFromToken(token),
+            budget_category_id = newBudget.budget_category_id,
             amount = newBudget.amount,
-            startDate = newBudget.startDate,
-            endDate = newBudget.endDate
+            start_date = newBudget.start_date,
+            end_date = newBudget.end_date
         )
 
         val call = apiService.createBudget(budgetToCreate, "Bearer $token")

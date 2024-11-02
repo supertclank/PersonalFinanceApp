@@ -296,10 +296,10 @@ def create_new_budget(
     db_budget = create_budget(db=db, budget=budget, user_id=current_user.id)
 
     return BudgetRead(
-        id=db_budget.id,
-        amount=db_budget.amount,
-        startDate=db_budget.startDate,
-        endDate=db_budget.endDate
+        id = db_budget.id,
+        amount = db_budget.amount,
+        start_date = db_budget.start_date,
+        end_date = db_budget.end_date
     )
 
 @app.get("/budgets/", response_model=List[BudgetRead])
@@ -308,7 +308,7 @@ def read_budgets(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_
 
 @app.get("/budgets/{budget_id}", response_model=BudgetRead)
 def read_budget(budget_id: int, db: AsyncSession = Depends(get_db)):
-    db_budget = get_budget(db, budget_id=Budget_id)
+    db_budget = get_budget(db, budget_id=budget_id)
     if db_budget is None:
         raise HTTPException(status_code=404, detail="budget not found")
     return db_budget
@@ -319,10 +319,10 @@ def update_budget(budget_id: int, budget: BudgetCreate, db: Session = Depends(ge
     if not db_budget:
         raise HTTPException(status_code=404, detail="Budget not found")
     
-    db_budget.budget_category_id = budget.budgetCategoryId
+    db_budget.budget_category_id = budget.budget_category_id
     db_budget.amount = budget.amount
-    db_budget.start_date = budget.startDate
-    db_budget.end_date = budget.endDate
+    db_budget.start_date = budget.start_date
+    db_budget.end_date = budget.end_date
 
     db.commit()
     db.refresh(db_budget)
@@ -362,12 +362,12 @@ def create_new_goal(
 
     # Return the created goal as GoalsRead model
     return GoalsRead(
-        id=db_goal.id,
-        name=db_goal.name,
-        targetAmount=db_goal.target_amount,
-        currentAmount=db_goal.current_amount,
-        deadline=db_goal.deadline,
-        description=db_goal.description
+        id = db_goal.id,
+        name = db_goal.name,
+        targetAmount = db_goal.target_amount,
+        currentAmount = db_goal.current_amount,
+        deadline = db_goal.deadline,
+        description = db_goal.description
     )
 
 @app.get("/goals/", response_model=List[GoalsRead])
