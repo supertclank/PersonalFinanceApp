@@ -27,7 +27,7 @@
                 android:padding="16dp">
 
                 <LinearLayout
-                    android:id="@+id/budgetsContainer"
+                    android:id="@+id/transactionContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />

@@ -5,62 +5,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main content layout with Toolbar -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <!-- Toolbar at the top -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            android:background="?attr/colorPrimary" />
 
-        <!-- Content layout for Settings -->
-        <LinearLayout
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="match_parent"
+            android:layout_below="@id/toolbar">
 
-            <!-- Title for Settings Activity -->
-            <TextView
-                android:id="@+id/settings_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"
-                android:text="@string/settings"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp">
 
-            <!-- Example Switch for Dark Mode -->
-            <Switch
-                android:id="@+id/dark_mode_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:checked="false"
-                android:text="@string/dark_mode" />
+            </ScrollView>
 
-            <!-- Placeholder for settings content -->
-            <TextView
-                android:id="@+id/settings_content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="24dp"
-                android:text="@string/settings_content"
-                android:textSize="16sp" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            <!-- Add other settings components here (e.g., more Switches, CheckBoxes, etc.) -->
-        </LinearLayout>
-
-    </LinearLayout>
+    </RelativeLayout>
 
     <!-- Navigation drawer -->
     <com.google.android.material.navigation.NavigationView
