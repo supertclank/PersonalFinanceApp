@@ -34,7 +34,8 @@ from schemas import (
     TransactionCreate, TransactionRead,
     NotificationCreate, NotificationRead,
     TokenResponse, LoginRequest,
-    BudgetCategoryRead,
+    BudgetCategoryRead, TransactionCategoryRead,
+    ReportTypeRead, NotificationTypeRead,
     UsernameRecoveryRequest
 )
 
@@ -519,6 +520,14 @@ def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
     logger.info(f"Transaction deleted successfully: {transaction_id}")
     
     return {"detail" : "Transaction deleted successfully"}
+
+@app.get("/transaction/categories/", response_model=List[TransactionCategoryRead])
+def get_transaction_categories(db: Session = Depends(get_db)):
+    logger.info("Fetching transaction categories")
+    categories = db.query(TransactionCategory).all()
+    logger.info(f"Transaction categories retrieved: {len(categories)} found")
+
+    return categories
 
 # Notification endpoints
 @app.post("/notifications/", response_model=NotificationRead)

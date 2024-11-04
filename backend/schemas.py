@@ -75,6 +75,7 @@ class GoalsCreate(BaseModel):
     current_amount: float
     deadline: date
     description: Optional[str] = None
+    user_id: int
 
 class GoalsRead(BaseModel):
     id: int
@@ -99,7 +100,7 @@ class ReportRead(BaseModel):
     data: dict
     generated_at: datetime
     
-class ReportType(BaseModel):
+class ReportTypeRead(BaseModel):
     id: int
     name: str
     description: str
@@ -120,7 +121,7 @@ class TransactionRead(BaseModel):
     description: str
     transaction_category_id: int
     
-class TransactionCategory(BaseModel):
+class TransactionCategoryRead(BaseModel):
     id: int
     name: str
     description: str
@@ -141,7 +142,7 @@ class NotificationRead(BaseModel):
     created_at: Optional[datetime] = None
     notification_type_id: int
     
-class NotificationType(BaseModel):
+class NotificationTypeRead(BaseModel):
     id: int
     name: str
     description: str

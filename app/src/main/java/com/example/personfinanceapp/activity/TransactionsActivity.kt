@@ -444,7 +444,7 @@ class TransactionsActivity : AppCompatActivity() {
 
     private fun showAddTransactionDialog(token: String) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_transaction, null)
-        val categorySpinner = dialogView.findViewById<Spinner>(R.id.spinner_transaction_category)
+        val categorySpinner = dialogView.findViewById<Spinner>(R.id.add_spinner_transaction_category)
         val amountInput = dialogView.findViewById<EditText>(R.id.add_transaction_amount)
         val dateInput = dialogView.findViewById<EditText>(R.id.add_transaction_date)
         val descriptionInput = dialogView.findViewById<EditText>(R.id.add_transaction_description)
@@ -577,6 +577,7 @@ class TransactionsActivity : AppCompatActivity() {
         return try {
             val jwt = JWT(token)
             jwt.getClaim("id").asInt() ?: -1 // Return -1 if user ID not found
+            Log.d(TAG, "getUserIdFromToken: User ID found: ${jwt.getClaim("id").asInt()}")
         } catch (e: Exception) {
             Log.e(TAG, "getUserIdFromToken: Error decoding token: ${e.message}")
             -1

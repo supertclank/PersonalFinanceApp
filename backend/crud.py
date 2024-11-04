@@ -136,17 +136,18 @@ def get_transaction(db: Session, transaction_id: int):
 def get_transactions(db: Session, user_id: int, skip: int = 0, limit: int = 10):
     return db.query(Transaction).filter(Transaction.user_id == user_id).offset(skip).limit(limit).all()
 
-def create_transaction(db: Session, transaction: TransactionCreate):
+def create_transaction(db: Session, transaction: TransactionCreate, user_id: int) -> TransactionRead:
     db_transaction = Transaction(
-        user_id = db_transaction.user_id,
-        amount = db_transaction.amount,
-        transaction_category_id = db_transaction.transaction_category_id,
-        date = db_transaction.date,
-        description = db_transaction.description
+        user_id = user_id,
+        amount = Transaction.amount,
+        transaction_category_id = Transaction.transaction_category_id,
+        date = Transaction.date,
+        description = Transaction.description
     )
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
+    
     return TransactionRead(
         id = db_transaction.id,
         amount = db_transaction.amount,
