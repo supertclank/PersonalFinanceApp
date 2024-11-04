@@ -214,17 +214,25 @@ class BudgetsActivity : AppCompatActivity() {
 
             for (budget in budgets) {
                 // Inflate the budget item layout
-                val budgetView = LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
+                val budgetView =
+                    LayoutInflater.from(this).inflate(R.layout.budget_item, budgetsContainer, false)
 
                 // Get the category name from categoryMap, or use a fallback if not found
                 val name = categoryMap[budget.budget_category_id]
-                Log.d("displayBudgets", "Budget ID: ${budget.id}, Category ID: ${budget.budget_category_id}, Category Name: $name")
+                Log.d(
+                    "displayBudgets",
+                    "Budget ID: ${budget.id}, Category ID: ${budget.budget_category_id}, Category Name: $name"
+                )
 
                 // Set the values for the budget item
-                budgetView.findViewById<TextView>(R.id.budget_category_value).text = "Category: $name"
-                budgetView.findViewById<TextView>(R.id.budget_amount_value).text = "Amount: £${budget.amount}"
-                budgetView.findViewById<TextView>(R.id.budget_start_date).text = "Start Date: ${budget.start_date}"
-                budgetView.findViewById<TextView>(R.id.budget_end_date).text = "End Date: ${budget.end_date}"
+                budgetView.findViewById<TextView>(R.id.budget_category_value).text =
+                    "Category: $name"
+                budgetView.findViewById<TextView>(R.id.budget_amount_value).text =
+                    "Amount: £${budget.amount}"
+                budgetView.findViewById<TextView>(R.id.budget_start_date).text =
+                    "Start Date: ${budget.start_date}"
+                budgetView.findViewById<TextView>(R.id.budget_end_date).text =
+                    "End Date: ${budget.end_date}"
 
                 // Set up delete button functionality
                 val deleteButton = budgetView.findViewById<Button>(R.id.button_delete_budget)
@@ -297,7 +305,8 @@ class BudgetsActivity : AppCompatActivity() {
             categorySpinner.adapter = adapter
 
             // Set the current category in the spinner
-            val currentCategoryPosition = categories.indexOfFirst { it.id == budget.budget_category_id }
+            val currentCategoryPosition =
+                categories.indexOfFirst { it.id == budget.budget_category_id }
             categorySpinner.setSelection(currentCategoryPosition)
         }
 
@@ -421,7 +430,8 @@ class BudgetsActivity : AppCompatActivity() {
             categories = fetchedCategories // Assign fetched categories to the variable
             if (categories.isNotEmpty()) {
                 val categoryNames = categories.map { it.name }
-                val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
+                val categoryAdapter =
+                    ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
                 categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 categorySpinner.adapter = categoryAdapter
             } else {
@@ -437,7 +447,8 @@ class BudgetsActivity : AppCompatActivity() {
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
             DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-                val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                val formattedDate =
+                    String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 startDateInput.setText(formattedDate)
             }, year, month, day).show()
         }
@@ -448,7 +459,8 @@ class BudgetsActivity : AppCompatActivity() {
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
             DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-                val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                val formattedDate =
+                    String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 endDateInput.setText(formattedDate)
             }, year, month, day).show()
         }
@@ -509,17 +521,26 @@ class BudgetsActivity : AppCompatActivity() {
             override fun onResponse(call: Call<BudgetRead>, response: Response<BudgetRead>) {
                 if (response.isSuccessful) {
                     Log.d(TAG, "createBudget: Successfully created budget: ${response.body()}")
-                    Toast.makeText(this@BudgetsActivity, "Budget created", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@BudgetsActivity, "Budget created", Toast.LENGTH_SHORT)
+                        .show()
                     fetchBudgets(token) // Refresh the budget list
                 } else {
-                    Log.e(TAG, "createBudget: Failed to create budget. Error code: ${response.code()}")
-                    Toast.makeText(this@BudgetsActivity, "Failed to create budget", Toast.LENGTH_SHORT).show()
+                    Log.e(
+                        TAG,
+                        "createBudget: Failed to create budget. Error code: ${response.code()}"
+                    )
+                    Toast.makeText(
+                        this@BudgetsActivity,
+                        "Failed to create budget",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<BudgetRead>, t: Throwable) {
                 Log.e(TAG, "createBudget: Error creating budget: ${t.message}", t)
-                Toast.makeText(this@BudgetsActivity, "Error creating budget", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@BudgetsActivity, "Error creating budget", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }

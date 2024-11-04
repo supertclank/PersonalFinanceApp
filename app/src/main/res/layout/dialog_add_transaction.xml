@@ -7,48 +7,61 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/transaction"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="4dp"
+        android:text="@string/transaction" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/amount"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="4dp"
+        android:text="@string/amount" />
 
     <EditText
         android:id="@+id/add_transaction_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:hint="@string/enter_amount"
-        android:inputType="numberDecimal"
-        android:layout_marginBottom="16dp" />
+        android:inputType="numberDecimal" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/date"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="4dp"
+        android:text="@string/date" />
 
     <EditText
         android:id="@+id/add_transaction_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/enter_date"
-        android:inputType="date"
+        android:layout_marginBottom="16dp"
         android:focusable="false"
-        android:layout_marginBottom="16dp" />
+        android:hint="@string/enter_date"
+        android:inputType="date" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/description"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="4dp"
+        android:text="@string/description" />
 
     <EditText
         android:id="@+id/add_transaction_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/enter_a_description_for_your_transaction"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        android:hint="@string/enter_a_description_for_your_transaction" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/transaction_category" />
+
+    <Spinner
+        android:id="@+id/add_spinner_transaction_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:spinnerMode="dropdown" />
 </LinearLayout>

@@ -7,7 +7,6 @@ import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -109,7 +108,7 @@ class TransactionsActivity : AppCompatActivity() {
         setupSwipeRefreshLayout()
         Log.d(TAG, "onCreate: Swipe refresh layout initialized")
 
-        Log.d(TAG, "OnCreate: Fetch exisiting Transactions from the API")
+        Log.d(TAG, "OnCreate: Fetch existing Transactions from the API")
         fetchTransactions(token)
 
         findViewById<Button>(R.id.add_transaction_button).setOnClickListener {
@@ -131,7 +130,7 @@ class TransactionsActivity : AppCompatActivity() {
     private fun setupSwipeRefreshLayout() {
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
 
-        swipeRefreshLayout.setOnRefreshListener{
+        swipeRefreshLayout.setOnRefreshListener {
             fetchTransactions(token)
         }
     }
@@ -140,7 +139,7 @@ class TransactionsActivity : AppCompatActivity() {
         Log.d(TAG, "fetchTransactions: Fetching transactions from the API")
 
         val userId = getUserIdFromToken(token)
-        if(userId == -1){
+        if (userId == -1) {
             Log.e(TAG, "fetchTransactions: User ID not found")
             Toast.makeText(this, "Unable to retrieve user data", Toast.LENGTH_SHORT).show()
             return
@@ -149,76 +148,89 @@ class TransactionsActivity : AppCompatActivity() {
         val apiService = RetrofitClient.instance
         Log.d(TAG, "fetchTransactions: Formatted auth token")
 
-        apiService.getTransactions(0, 10, "Bearer $token").enqueue(object : Callback<List<TransactionRead>> {
-            override fun onResponse(
-                call: Call<List<TransactionRead>>,
-                response: Response<List<TransactionRead>>
-            ) {
+        apiService.getTransactions(0, 10, "Bearer $token")
+            .enqueue(object : Callback<List<TransactionRead>> {
+                override fun onResponse(
+                    call: Call<List<TransactionRead>>,
+                    response: Response<List<TransactionRead>>,
+                ) {
 
 
-                swipeRefreshLayout.isRefreshing = false
+                    swipeRefreshLayout.isRefreshing = false
 
-                if (response.isSuccessful) {
-                    val transactions = response.body() ?: run {
-                        Log.e(TAG, "fetchTransactions: Response body is null")
-                        Toast.makeText(
-                            this@TransactionsActivity,
-                            "Unable to retrieve transactions",
-                            Toast.LENGTH_SHORT)
+                    if (response.isSuccessful) {
+                        val transactions = response.body() ?: run {
+                            Log.e(TAG, "fetchTransactions: Response body is null")
+                            Toast.makeText(
+                                this@TransactionsActivity,
+                                "Unable to retrieve transactions",
+                                Toast.LENGTH_SHORT
+                            )
 
-                            .show()
-                        return
-                    }
-                    Log.d(TAG, "fetchTransactions: Transactions retrieved successfully")
+                                .show()
+                            return
+                        }
+                        Log.d(TAG, "fetchTransactions: Transactions retrieved successfully")
 
-                    // Clear the existing list and add the new transactions
-                    transactionsList.clear()
-                    transactionsList.addAll(transactions)
-                    Log.d(TAG, "fetchTransactions: Transactions list updated")
+                        // Clear the existing list and add the new transactions
+                        transactionsList.clear()
+                        transactionsList.addAll(transactions)
+                        Log.d(TAG, "fetchTransactions: Transactions list updated")
 
-                    displayTransactions(transactionsList)
+                        displayTransactions(transactionsList)
 
-                    Log.d(TAG, "fetchTransactions: Transactions list size ${transactionsList.size}")
+                        Log.d(
+                            TAG,
+                            "fetchTransactions: Transactions list size ${transactionsList.size}"
+                        )
                     } else {
-                        Log.e(TAG, "fetchTransactions: Error ${response.code()} - ${response.message()}")
+                        Log.e(
+                            TAG,
+                            "fetchTransactions: Error ${response.code()} - ${response.message()}"
+                        )
                         Toast.makeText(
                             this@TransactionsActivity,
                             "Unable to retrieve transactions",
-                            Toast.LENGTH_SHORT)
+                            Toast.LENGTH_SHORT
+                        )
                             .show()
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<List<TransactionRead>>, t: Throwable) {
-                Log.e(TAG, "fetchTransactions: API call failled: ${t.message}", t)
-                Toast.makeText(
-                    this@TransactionsActivity,
-                    "Network error",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                override fun onFailure(call: Call<List<TransactionRead>>, t: Throwable) {
+                    Log.e(TAG, "fetchTransactions: API call failed: ${t.message}", t)
+                    Toast.makeText(
+                        this@TransactionsActivity,
+                        "Network error",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
 
-                swipeRefreshLayout.isRefreshing = false
-            }
-        })
+                    swipeRefreshLayout.isRefreshing = false
+                }
+            })
     }
 
-    fun displayTransactions(transactions: List<TransactionRead>){
+    fun displayTransactions(transactions: List<TransactionRead>) {
         val transactionsContainer: LinearLayout = findViewById(R.id.transactions_container)
         transactionsContainer.removeAllViews() // clear any existing views
 
         fetchTransactionCategories { categories ->
             Log.d(TAG, "displayTransactions: Categories fetched")
 
-            val categoryMap = categories.associateBy({ it.id}, { it.name })
+            val categoryMap = categories.associateBy({ it.id }, { it.name })
             Log.d(TAG, "displayTransactions, Categories mapped: $categoryMap")
 
             for (transaction in transactions) {
                 val transactionView =
-                    LayoutInflater.from(this).inflate(R.layout.transaction_item, transactionsContainer)
+                    LayoutInflater.from(this)
+                        .inflate(R.layout.transaction_item, transactionsContainer)
 
                 val name = categoryMap[transaction.transaction_category_id]
-                Log.d(TAG,"displayTransactions: Transaction ID: ${transaction.id}, Category ID: ${transaction.transaction_category_id}, Name: $name")
+                Log.d(
+                    TAG,
+                    "displayTransactions: Transaction ID: ${transaction.id}, Category ID: ${transaction.transaction_category_id}, Name: $name"
+                )
 
                 transactionView.findViewById<TextView>(R.id.transaction_title).text = name
                 transactionView.findViewById<TextView>(R.id.transaction_date).text =
@@ -296,7 +308,8 @@ class TransactionsActivity : AppCompatActivity() {
             categorySpinner.adapter = adapter
 
             // Set the current category in the spinner
-            val currentCategoryPosition = categories.indexOfFirst { it.id == Transaction.transaction_category_id }
+            val currentCategoryPosition =
+                categories.indexOfFirst { it.id == Transaction.transaction_category_id }
             categorySpinner.setSelection(currentCategoryPosition)
         }
 
@@ -342,8 +355,15 @@ class TransactionsActivity : AppCompatActivity() {
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
-                    Log.d(TAG, "deleteTransaction: Successfully deleted transaction with ID: $transactionId")
-                    Toast.makeText(this@TransactionsActivity, "Transaction deleted", Toast.LENGTH_SHORT)
+                    Log.d(
+                        TAG,
+                        "deleteTransaction: Successfully deleted transaction with ID: $transactionId"
+                    )
+                    Toast.makeText(
+                        this@TransactionsActivity,
+                        "Transaction deleted",
+                        Toast.LENGTH_SHORT
+                    )
                         .show()
                     fetchTransactions(token) // Refresh the transactions list
                 } else {
@@ -361,23 +381,37 @@ class TransactionsActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.e(TAG, "deleteTransaction: Error deleting transaction: ${t.message}", t)
-                Toast.makeText(this@TransactionsActivity, "Error deleting transaction", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this@TransactionsActivity,
+                    "Error deleting transaction",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
         })
     }
 
-    private fun updateTransaction(transactionId: Int, updatedTransaction: TransactionCreate, token: String) {
+    private fun updateTransaction(
+        transactionId: Int,
+        updatedTransaction: TransactionCreate,
+        token: String,
+    ) {
         Log.d(TAG, "updateTransaction: Updating transaction with ID: $transactionId")
 
         val apiService = RetrofitClient.instance
         apiService.updateTransaction(transactionId, updatedTransaction, "Bearer $token")
             .enqueue(object : Callback<TransactionRead> {
-                override fun onResponse(call: Call<TransactionRead>, response: Response<TransactionRead>) {
+                override fun onResponse(
+                    call: Call<TransactionRead>,
+                    response: Response<TransactionRead>,
+                ) {
                     Log.d(TAG, "updateTransaction: Response code: ${response.code()}")
 
                     if (response.isSuccessful) {
-                        Log.d(TAG, "updateTransaction: Successfully updated transaction with ID: $transactionId")
+                        Log.d(
+                            TAG,
+                            "updateTransaction: Successfully updated transaction with ID: $transactionId"
+                        )
                         Toast.makeText(
                             this@TransactionsActivity,
                             "Transaction updated successfully.",
@@ -385,7 +419,10 @@ class TransactionsActivity : AppCompatActivity() {
                         ).show()
                         fetchTransactions(token) // Refresh the transactions list
                     } else {
-                        Log.e(TAG, "updateTransaction: Failed to update transaction: ${response.message()}")
+                        Log.e(
+                            TAG,
+                            "updateTransaction: Failed to update transaction: ${response.message()}"
+                        )
                         Toast.makeText(
                             this@TransactionsActivity,
                             "Error updating transaction.",
@@ -420,7 +457,8 @@ class TransactionsActivity : AppCompatActivity() {
             categories = fetchedCategories // Assign fetched categories to the variable
             if (categories.isNotEmpty()) {
                 val categoryNames = categories.map { it.name }
-                val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
+                val categoryAdapter =
+                    ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
                 categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 categorySpinner.adapter = categoryAdapter
             } else {
@@ -436,7 +474,8 @@ class TransactionsActivity : AppCompatActivity() {
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
             DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
-                val formattedDate = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                val formattedDate =
+                    String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 dateInput.setText(formattedDate)
             }, year, month, day).show()
         }
@@ -479,7 +518,7 @@ class TransactionsActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun createTransaction(newTransaction: TransactionRead, token: String) {
+    private fun createTransaction(newTransaction: TransactionCreate, token: String) {
         val apiService = RetrofitClient.instance
 
         // Make sure to pass the userId from the token correctly
@@ -494,20 +533,41 @@ class TransactionsActivity : AppCompatActivity() {
         val call = apiService.createTransaction(transactionToCreate, "Bearer $token")
 
         call.enqueue(object : Callback<TransactionRead> {
-            override fun onResponse(call: Call<TransactionRead>, response: Response<TransactionRead>) {
+            override fun onResponse(
+                call: Call<TransactionRead>,
+                response: Response<TransactionRead>,
+            ) {
                 if (response.isSuccessful) {
-                    Log.d(TAG, "createTransaction: Successfully created Transaction: ${response.body()}")
-                    Toast.makeText(this@TransactionsActivity, "Transaction created", Toast.LENGTH_SHORT).show()
+                    Log.d(
+                        TAG,
+                        "createTransaction: Successfully created Transaction: ${response.body()}"
+                    )
+                    Toast.makeText(
+                        this@TransactionsActivity,
+                        "Transaction created",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     fetchTransactions(token) // Refresh the Transaction list
                 } else {
-                    Log.e(TAG, "createTransaction: Failed to create transaction. Error code: ${response.code()}")
-                    Toast.makeText(this@TransactionsActivity, "Failed to create transaction", Toast.LENGTH_SHORT).show()
+                    Log.e(
+                        TAG,
+                        "createTransaction: Failed to create transaction. Error code: ${response.code()}"
+                    )
+                    Toast.makeText(
+                        this@TransactionsActivity,
+                        "Failed to create transaction",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
             override fun onFailure(call: Call<TransactionRead>, t: Throwable) {
                 Log.e(TAG, "createTransaction: Error creating Transaction: ${t.message}", t)
-                Toast.makeText(this@TransactionsActivity, "Error creating transaction", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@TransactionsActivity,
+                    "Error creating transaction",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
