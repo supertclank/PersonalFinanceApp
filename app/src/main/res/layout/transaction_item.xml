@@ -19,7 +19,7 @@
 
         <!-- Title -->
         <TextView
-            android:id="@+id/goal_title"
+            android:id="@+id/transaction_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="4dp"
@@ -29,7 +29,7 @@
 
         <!-- Transaction Description -->
         <TextView
-            android:id="@+id/goal_description"
+            android:id="@+id/transaction_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="12dp"
@@ -48,7 +48,7 @@
 
         <!-- Amount Value -->
         <TextView
-            android:id="@+id/goal_current_amount"
+            android:id="@+id/transaction_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="12dp"
@@ -67,7 +67,7 @@
 
         <!-- Date Value -->
         <TextView
-            android:id="@+id/goal_deadline"
+            android:id="@+id/transaction_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/enter_date" />

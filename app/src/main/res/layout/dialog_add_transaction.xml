@@ -17,7 +17,7 @@
         android:layout_marginBottom="4dp" />
 
     <EditText
-        android:id="@+id/add_goal_target_amount"
+        android:id="@+id/add_transaction_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/enter_amount"
@@ -31,7 +31,7 @@
         android:layout_marginBottom="4dp" />
 
     <EditText
-        android:id="@+id/add_goal_deadline"
+        android:id="@+id/add_transaction_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/enter_date"
@@ -46,7 +46,7 @@
         android:layout_marginBottom="4dp" />
 
     <EditText
-        android:id="@+id/add_goal_description"
+        android:id="@+id/add_transaction_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/enter_a_description_for_your_transaction"

@@ -117,5 +117,6 @@
     <string name="edit_date">Edit Date</string>
     <string name="edit_description_for_your_transaction">Edit Description For Your Transaction</string>
     <string name="edit_amount">Edit Amount</string>
+    <string name="transaction_category">Transaction Category</string>
 
 </resources>

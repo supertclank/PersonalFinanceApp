@@ -7,7 +7,6 @@ import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -275,13 +274,6 @@ class BudgetsActivity : AppCompatActivity() {
                 ).show()
             }
         })
-    }
-
-    private fun populateCategorySpinner(dialogView: View, categories: List<BudgetCategory>) {
-        val categorySpinner: Spinner = dialogView.findViewById(R.id.add_budget_category_spinner)
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        categorySpinner.adapter = adapter
     }
 
     private fun editBudget(budget: BudgetRead) {
