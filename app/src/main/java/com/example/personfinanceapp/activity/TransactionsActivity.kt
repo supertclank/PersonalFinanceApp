@@ -212,19 +212,22 @@ class TransactionsActivity : AppCompatActivity() {
     }
 
     fun displayTransactions(transactions: List<TransactionRead>) {
-        val transactionsContainer: LinearLayout = findViewById(R.id.transactions_container)
+        val transactionsContainer: LinearLayout = findViewById(R.id.transactionsContainer)
         transactionsContainer.removeAllViews() // clear any existing views
 
+        // Fetch categories to get a map of category IDs to names
         fetchTransactionCategories { categories ->
+            // Log the fetched categories
             Log.d(TAG, "displayTransactions: Categories fetched")
 
+            // Create a map of category IDs to names
             val categoryMap = categories.associateBy({ it.id }, { it.name })
             Log.d(TAG, "displayTransactions, Categories mapped: $categoryMap")
 
             for (transaction in transactions) {
                 val transactionView =
                     LayoutInflater.from(this)
-                        .inflate(R.layout.transaction_item, transactionsContainer)
+                        .inflate(R.layout.transaction_item, transactionsContainer, false)
 
                 val name = categoryMap[transaction.transaction_category_id]
                 Log.d(
@@ -232,11 +235,14 @@ class TransactionsActivity : AppCompatActivity() {
                     "displayTransactions: Transaction ID: ${transaction.id}, Category ID: ${transaction.transaction_category_id}, Name: $name"
                 )
 
-                transactionView.findViewById<TextView>(R.id.transaction_title).text = name
+                transactionView.findViewById<TextView>(R.id.transaction_description).text =
+                    "${transaction.description}"
+                transactionView.findViewById<TextView>(R.id.transaction_category).text =
+                    "${name}"
                 transactionView.findViewById<TextView>(R.id.transaction_date).text =
-                    transaction.date
+                    "£${transaction.date}"
                 transactionView.findViewById<TextView>(R.id.transaction_amount).text =
-                    transaction.amount.toString()
+                    "${transaction.amount}"
 
                 val deleteButton =
                     transactionView.findViewById<Button>(R.id.button_delete)

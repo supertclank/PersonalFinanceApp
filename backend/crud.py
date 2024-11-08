@@ -114,10 +114,10 @@ def get_reports(db: Session, skip: int = 0, limit: int = 10):
 
 def create_report(db: Session, report: ReportCreate, user_id: int) -> ReportRead:
     db_report = Report(
-        user_id = db_report.user_id,
-        report_type_id = db_report.report_type_id,
-        generated_at = db_report.generated_at,
-        data = db_report.data
+        user_id = report.user_id,
+        report_type_id = report.report_type_id,
+        generated_at = report.generated_at,
+        data = report.data
     )
     db.add(db_report)
     db.commit()
@@ -139,10 +139,10 @@ def get_transactions(db: Session, user_id: int, skip: int = 0, limit: int = 10):
 def create_transaction(db: Session, transaction: TransactionCreate, user_id: int) -> TransactionRead:
     db_transaction = Transaction(
         user_id = user_id,
-        amount = Transaction.amount,
-        transaction_category_id = Transaction.transaction_category_id,
-        date = Transaction.date,
-        description = Transaction.description
+        amount = transaction.amount,
+        transaction_category_id = transaction.transaction_category_id,
+        date = transaction.date,
+        description = transaction.description
     )
     db.add(db_transaction)
     db.commit()

@@ -109,7 +109,7 @@ class ReportTypeRead(BaseModel):
 class TransactionCreate(BaseModel):
     user_id: int
     amount: float
-    date: datetime
+    date: date
     description: str
     transaction_category_id: int
 
@@ -117,7 +117,7 @@ class TransactionRead(BaseModel):
     id: int
     user_id: int
     amount: float
-    date: datetime
+    date: date
     description: str
     transaction_category_id: int
     
