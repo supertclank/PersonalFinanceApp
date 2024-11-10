@@ -98,7 +98,7 @@ class ReportRead(BaseModel):
     user_id: int
     report_type_id: int
     data: dict
-    generated_at: datetime
+    generated_at: date
     
 class ReportTypeRead(BaseModel):
     id: int

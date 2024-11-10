@@ -21,12 +21,16 @@
         <item name="colorOnPrimary">@color/pastelOrangeOnPrimary</item>
         <item name="colorSecondary">@color/pastelOrangeSecondary</item>
         <item name="colorOnSecondary">@color/pastelOrangeOnSecondary</item>
-        <item name="colorBackground">@color/colorBackgroundDark</item> <!-- Dark background color -->
-        <item name="colorOnBackground">@color/colorOnBackgroundDark</item> <!-- Text color on dark background -->
-        <item name="colorSurface">@color/colorSurfaceDark</item> <!-- Surface color for cards, etc. -->
+        <item name="colorBackground">@color/colorBackgroundDark
+        </item> <!-- Dark background color -->
+        <item name="colorOnBackground">@color/colorOnBackgroundDark
+        </item> <!-- Text color on dark background -->
+        <item name="colorSurface">@color/colorSurfaceDark
+        </item> <!-- Surface color for cards, etc. -->
         <item name="colorOnSurface">@color/colorOnSurfaceDark</item> <!-- Text color on surface -->
         <item name="colorError">@color/colorErrorDark</item> <!-- Error color for dark theme -->
-        <item name="colorOnError">@color/colorOnErrorDark</item> <!-- Text color for error messages -->
+        <item name="colorOnError">@color/colorOnErrorDark
+        </item> <!-- Text color for error messages -->
     </style>
 
     <!-- Splash Theme -->

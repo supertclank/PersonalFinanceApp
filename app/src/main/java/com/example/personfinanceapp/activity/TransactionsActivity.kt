@@ -450,7 +450,8 @@ class TransactionsActivity : AppCompatActivity() {
 
     private fun showAddTransactionDialog(token: String) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_transaction, null)
-        val categorySpinner = dialogView.findViewById<Spinner>(R.id.add_spinner_transaction_category)
+        val categorySpinner =
+            dialogView.findViewById<Spinner>(R.id.add_spinner_transaction_category)
         val amountInput = dialogView.findViewById<EditText>(R.id.add_transaction_amount)
         val dateInput = dialogView.findViewById<EditText>(R.id.add_transaction_date)
         val descriptionInput = dialogView.findViewById<EditText>(R.id.add_transaction_description)

@@ -89,7 +89,7 @@ interface ApiService {
     @DELETE("budgets/{budgetId}")
     fun deleteBudget(
         @Path("budgetId") budgetId: Int,
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Call<Void>
 
     @GET("budget/categories/")
@@ -122,7 +122,7 @@ interface ApiService {
     @DELETE("goals/{goalId}")
     fun deleteGoal(
         @Path("goalId") goalId: Int,
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Call<Void>
 
     // Report endpoints
@@ -143,19 +143,12 @@ interface ApiService {
     fun getReport(
         @Path("report_id") reportId: Int,
         @Header("Authorization") token: String,
-        ): Call<ReportRead>
-
-    @PUT("reports/{reportId}")
-    fun updateReport(
-        @Path("reportId") reportId: Int,
-        @Body report: ReportCreate,
-        @Header("Authorization") token: String,
-        ): Call<ReportRead>
+    ): Call<ReportRead>
 
     @DELETE("reports/{reportId}")
     fun deleteReport(
         @Path("reportId") reportId: Int,
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Call<Void>
 
     @GET("report/types/")
@@ -191,7 +184,7 @@ interface ApiService {
     @DELETE("transactions/{transactionId}")
     fun deleteTransaction(
         @Path("transactionId") transactionId: Int,
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Call<Void>
 
     @GET("transaction/categories/")
@@ -216,12 +209,12 @@ interface ApiService {
         @Path("notificationId") notificationId: Int,
         @Body notification: NotificationCreate,
         @Header("Authorization") token: String,
-    ) : Call<NotificationRead>
+    ): Call<NotificationRead>
 
     @DELETE("notifications/{notificationId}")
     fun deleteNotification(
         @Path("notificationId") notificationId: Int,
-        @Header("Authorization") token: String
+        @Header("Authorization") token: String,
     ): Call<Void>
 
     @GET("notification/types/")

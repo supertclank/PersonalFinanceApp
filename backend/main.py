@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from models import Base, User, Goal, Budget, BudgetCategory, Report, Transaction, TransactionCategory, Notification, NotificationType
+from models import Base, User, Goal, Budget, BudgetCategory, Report, Transaction, TransactionCategory, Notification, NotificationType, ReportType
 from database import engine, get_db
 
 from passlib.context import CryptContext
@@ -21,7 +21,7 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 
 # Standard libraries
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import List
 from sqlalchemy.exc import IntegrityError
 
@@ -214,10 +214,6 @@ async def recover_username(request: UsernameRecoveryRequest, db: Session = Depen
 
     send_email(request.email, email_subject, email_body)
     return {"message": "An email with your username has been sent."}
-
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from typing import List
 
 app = FastAPI()
 
@@ -415,17 +411,114 @@ def create_new_report(
     report: ReportCreate, 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
-    ):
+):
+    logger.info(f"Creating report for user_id: {current_user.id} with type {report.report_type_id}")
+
+    # Generate data based on the report type
+    if report.report_type_id == 1:  # Goals Report
+        goals_data = fetch_goals_data(db, current_user.id)
+        report_data = {
+            "user_id": current_user.id,
+            "report_type_id": 1,
+            "generated_at": datetime.now().isoformat(),
+            "data": {"goals": goals_data}
+        }
+
+    elif report.report_type_id == 2:  # Budgets Report
+        budgets_data = fetch_budgets_data(db, current_user.id)
+        report_data = {
+            "user_id": current_user.id,
+            "report_type_id": 2,
+            "generated_at": datetime.today().isoformat(),
+            "data": {"budgets": budgets_data}
+        }
+
+    elif report.report_type_id == 3:  # Transactions Report
+        transactions_data = fetch_transactions_data(db, current_user.id)
+        report_data = {
+            "user_id": current_user.id,
+            "report_type_id": 3,
+            "generated_at": datetime.now().isoformat(),
+            "data": {"transactions": transactions_data}
+        }
+
+    elif report.report_type_id == 4:  # Comprehensive Report
+        goals_data = fetch_goals_data(db, current_user.id)
+        budgets_data = fetch_budgets_data(db, current_user.id)
+        transactions_data = fetch_transactions_data(db, current_user.id)
+
+        combined_data = {
+            "goals": goals_data,
+            "budgets": budgets_data,
+            "transactions": transactions_data
+        }
+        report_data = {
+            "user_id": current_user.id,
+            "report_type_id": 4,
+            "generated_at": datetime.now().isoformat(),
+            "data": combined_data
+        }
     
-    logger.info(f"Creating report for user_id: {current_user.id}")
-    db_report = create_report(db=db, report=report, user_id=current_user.id)
+    else:
+        raise ValueError("Invalid report_type_id")
+
+    # Create the report in the database
+    db_report = create_report(db=db, report=ReportCreate(**report_data), user_id=current_user.id)
     
+    # Return the report data
     return ReportRead(
-        id = db_report.id,
-        report_type_id = db_report.report_type_id,
-        data = db_report.data,
-        generated_at = db_report.generated_at       
+        id=db_report.id,
+        report_type_id=db_report.report_type_id,
+        data=db_report.data,
+        generated_at=db_report.generated_at       
     )
+
+def fetch_goals_data(db, user_id):
+    # Fetch the user's goals data from the database
+    goals = db.query(Goal).filter(Goal.user_id == user_id).all()
+    goals_data = [
+        {
+            "id": goal.id,
+            "name": goal.name,
+            "target_amount": goal.target_amount,
+            "current_amount": goal.current_amount,
+            "deadline": goal.deadline,
+            "description": goal.description
+        }
+        for goal in goals
+    ]
+    return goals_data
+
+def fetch_budgets_data(db, user_id):
+    # Fetch the user's budgets data from the database
+    budgets = db.query(Budget).filter(Budget.user_id == user_id).all()
+    budgets_data = [
+        {
+            "id": budget.id,
+            "category_id": budget.budget_category_id,
+            "amount": budget.amount,
+            "start_date": budget.start_date,
+            "end_date": budget.end_date
+        }
+        for budget in budgets
+    ]
+    return budgets_data
+
+def fetch_transactions_data(db, user_id):
+    # Fetch the user's transactions data from the database
+    transactions = db.query(Transaction).filter(Transaction.user_id == user_id).all()
+    transactions_data = [
+        {
+            "id": transaction.id,
+            "category_id": transaction.transaction_category_id,
+            "amount": transaction.amount,
+            "date": transaction.date,
+            "description": transaction.description
+        }
+        for transaction in transactions
+    ]
+    return transactions_data
+
 
 @app.get("/reports/", response_model=List[ReportRead])
 def read_reports(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
@@ -436,19 +529,6 @@ def read_report(report_id: int, db: Session = Depends(get_db)):
     db_report = get_report(db, report_id=report_id)
     if db_report is None:
         raise HTTPException(status_code=404, detail="Report not found")
-    return db_report
-
-@app.put("/reports/{report_id}", response_model=ReportRead)
-def update_report(report_id: int, report: ReportCreate, db: Session = Depends(get_db)):
-    db_report = db.query(Report).filter(Report.id == report_id).first()
-    if not db_report:
-        raise HTTPException(status_code=404, detail="Report not found")
-    
-    db_report.report_type_id = report.report_type_id,
-    db_report.data = report.data,
-    
-    db.commit()
-    db.refresh(db_report)
     return db_report
 
 @app.delete("/reports/{report_id}")
@@ -463,7 +543,18 @@ def delete_report(report_id: int, db: Session = Depends(get_db)):
     db.commit()
     logger.info(f"Report deleted successfully: {report_id}")
     
-    return {"Detail": "Report deketed successfully"}
+    return {"Detail": "Report deleted successfully"}
+
+@app.get("/report/types/",  response_model=List[ReportTypeRead])
+def get_report_types(db: Session = Depends(get_db)):
+    
+    logger.info("Fetching report types")
+    
+    types = db.query(ReportType).all()
+    
+    logger.info(f"report types retrieved: {len(types)} found")
+
+    return types
     
 # Transaction endpoints
 @app.post("/transactions/", response_model=TransactionRead)
@@ -523,8 +614,11 @@ def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
 
 @app.get("/transaction/categories/", response_model=List[TransactionCategoryRead])
 def get_transaction_categories(db: Session = Depends(get_db)):
+    
     logger.info("Fetching transaction categories")
+    
     categories = db.query(TransactionCategory).all()
+    
     logger.info(f"Transaction categories retrieved: {len(categories)} found")
 
     return categories

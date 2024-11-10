@@ -2,12 +2,12 @@ package com.example.personfinanceapp.activity
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
@@ -29,6 +29,8 @@ import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.Calendar
+import java.util.Locale
 
 class ReportsActivity : AppCompatActivity() {
 
@@ -95,7 +97,7 @@ class ReportsActivity : AppCompatActivity() {
         setupSwipeRefreshLayout()
         Log.d(TAG, "onCreate: SwipeRefreshLayout initialized")
 
-        // Fetch existing Reportss from the API
+        // Fetch existing Reports from the API
         Log.d(TAG, "onCreate: Fetching existing Reports from the API")
         fetchReports(token)
 
@@ -153,7 +155,7 @@ class ReportsActivity : AppCompatActivity() {
 
                 if (response.isSuccessful) {
                     val reports = response.body() ?: run {
-                        Log.e(TAG, "fetcReport: Response body is null")
+                        Log.e(TAG, "fetchReport: Response body is null")
                         Toast.makeText(
                             this@ReportsActivity,
                             "No Reports found.",
@@ -201,25 +203,25 @@ class ReportsActivity : AppCompatActivity() {
         val reportsContainer: LinearLayout = findViewById(R.id.reportsContainer)
         reportsContainer.removeAllViews() // Clear any existing views
 
-        // Fetch categories to get a map of category IDs to names
-        fetchReportsTypes { categories ->
-            // Log the fetched categories
-            Log.d("displayReports", "Fetched categories: $categories")
+        // Fetch types to get a map of types IDs to names
+        fetchReportsTypes { types ->
+            // Log the fetched types
+            Log.d("displayReports", "Fetched types: $types")
 
-            // Create a map of category IDs to category names
-            val categoryMap = categories.associateBy({ it.id }, { it.name })
-            Log.d("displayReports", "Category Map: $categoryMap")
+            // Create a map of types IDs to type names
+            val typesMap = types.associateBy({ it.id }, { it.name })
+            Log.d("displayReports", "types Map: $typesMap")
 
             for (report in reports) {
                 // Inflate the report item layout
                 val reportView =
                     LayoutInflater.from(this).inflate(R.layout.report_item, reportsContainer, false)
 
-                // Get the category name from categoryMap, or use a fallback if not found
-                val name = categoryMap[report.report_type_id]
+                // Get the types name from typesMap, or use a fallback if not found
+                val name = typesMap[report.report_type_id]
                 Log.d(
                     "displayReports",
-                    "Report ID: ${report.id}, Category ID: ${report.report_type_id}, Category Name: $name"
+                    "Report ID: ${report.id}, types ID: ${report.report_type_id}, types Name: $name"
                 )
 
                 // Set the values for the report item
@@ -236,12 +238,6 @@ class ReportsActivity : AppCompatActivity() {
                     deleteReport(report.id)
                 }
 
-                // Set up edit button functionality
-                val editButton = reportView.findViewById<Button>(R.id.button_edit_report)
-                editButton.setOnClickListener {
-                    editReport(report)
-                }
-
                 // Add the report view to the container
                 reportsContainer.addView(reportView)
             }
@@ -251,20 +247,20 @@ class ReportsActivity : AppCompatActivity() {
     private fun fetchReportsTypes(callback: (List<ReportType>) -> Unit) {
         val apiService = RetrofitClient.instance
 
-        // Make an API call to fetch report categories
+        // Make an API call to fetch report types
         apiService.getReportTypes().enqueue(object : Callback<List<ReportType>> {
             override fun onResponse(
                 call: Call<List<ReportType>>,
                 response: Response<List<ReportType>>,
             ) {
                 if (response.isSuccessful) {
-                    val categories = response.body() ?: emptyList()
-                    callback(categories) // Pass the fetched categories to the callback
+                    val types = response.body() ?: emptyList()
+                    callback(types) // Pass the fetched types to the callback
                 } else {
                     // Handle error
                     Toast.makeText(
                         this@ReportsActivity,
-                        "Error fetching report categories: ${response.message()}",
+                        "Error fetching report types: ${response.message()}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -278,62 +274,6 @@ class ReportsActivity : AppCompatActivity() {
                 ).show()
             }
         })
-    }
-
-    private fun editReport(report: ReportRead) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_report, null)
-
-        val categorySpinner = dialogView.findViewById<Spinner>(R.id.spinner_report_category)
-        val dataInput = dialogView.findViewById<EditText>(R.id.edit_report_data)
-        val generatedAtInput = dialogView.findViewById<EditText>(R.id.edit_report_date)
-
-        // Prepopulate the fields with current report data
-        // Set the spinner to the current category
-        dataInput.setText(report.data.toString())
-        generatedAtInput.setText(report.generated_at)
-
-        fetchReportsTypes { categories ->
-            val adapter =
-                ArrayAdapter(this, android.R.layout.simple_spinner_item, categories.map { it.name })
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            categorySpinner.adapter = adapter
-
-            // Set the current category in the spinner
-            val currentCategoryPosition =
-                categories.indexOfFirst { it.id == report.report_type_id }
-            categorySpinner.setSelection(currentCategoryPosition)
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle("Edit Report")
-            .setView(dialogView)
-            .setPositiveButton(R.string.submit) { _, _ ->
-                // Get user ID from token
-                val userId = getUserIdFromToken(token)
-                if (userId == -1) {
-                    Toast.makeText(
-                        this,
-                        "Error: Invalid user ID. Cannot update reports.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setPositiveButton
-                }
-
-                // Get selected category ID from spinner
-                val selectedCategoryId = categorySpinner.selectedItemId.toInt()
-
-                // Create updated report object with user input
-                val updatedReport = ReportCreate(
-                    user_id = userId,
-                    report_type_id = selectedCategoryId,
-                    data = dataInput.text.toString().toDouble(),
-                    generated_at = generatedAtInput.text.toString(),
-                )
-                // Call updateReport function to save changes
-                updateReport(report.id, updatedReport, token)
-            }
-            .setNegativeButton(R.string.back, null)
-            .show()
     }
 
     private fun deleteReport(reportId: Int) {
@@ -371,45 +311,92 @@ class ReportsActivity : AppCompatActivity() {
     }
 
 
-    private fun updateReport(reportId: Int, updatedReport: ReportCreate, token: String) {
-        Log.d(TAG, "updateReport: Updating report with ID: $reportId")
+    private fun showAddReportDialog(token: String) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_report, null)
+        val reportTypeSpinner = dialogView.findViewById<Spinner>(R.id.add_report_type_spinner)
 
-        val apiService = RetrofitClient.instance
-        apiService.updateReport(reportId, updatedReport, "Bearer $token")
-            .enqueue(object : Callback<ReportRead> {
-                override fun onResponse(call: Call<ReportRead>, response: Response<ReportRead>) {
-                    Log.d(TAG, "updateReport: Response code: ${response.code()}")
+        // Declare a variable to hold report types
+        val reportTypes =
+            listOf("Goals Report", "Budgets Report", "Transactions Report", "Comprehensive Report")
 
-                    if (response.isSuccessful) {
-                        Log.d(TAG, "updateReport: Successfully updated report with ID: $reportId")
-                        Toast.makeText(
-                            this@ReportsActivity,
-                            "report updated successfully.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        fetchReports(token) // Refresh the Reports list
-                    } else {
-                        Log.e(TAG, "updateReport: Failed to update report: ${response.message()}")
-                        Toast.makeText(
-                            this@ReportsActivity,
-                            "Error updating report.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+        // Set up spinner for report types
+        val reportTypeAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, reportTypes)
+        reportTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        reportTypeSpinner.adapter = reportTypeAdapter
 
-                override fun onFailure(call: Call<ReportRead>, t: Throwable) {
-                    Log.e(TAG, "updateReport: API call failed: ${t.message}", t)
-                    Toast.makeText(
-                        this@ReportsActivity,
-                        "Network error: ${t.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
+        // Get today's date in the format yyyy-MM-dd
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val todayDate = dateFormat.format(Calendar.getInstance().time)
+
+        // Show dialog to add report
+        AlertDialog.Builder(this)
+            .setTitle("Add New Report")
+            .setView(dialogView)
+            .setPositiveButton("Add") { _, _ ->
+                // Get the selected report type ID
+                val selectedReportTypeIndex = reportTypeSpinner.selectedItemPosition
+                val selectedReportTypeId = selectedReportTypeIndex + 1  // Assuming IDs start from 1
+
+                // Create the new report data with today's date
+                val newReport = ReportCreate(
+                    user_id = getUserIdFromToken(token),
+                    report_type_id = selectedReportTypeId,
+                    generated_at = todayDate,
+                    data = emptyMap()
+                )
+
+                createReport(newReport, token) // Send the new report to the backend
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
+    private fun createReport(newReport: ReportCreate, token: String) {
+        val apiService = RetrofitClient.instance
 
+        // Prepare the report to be created, ensuring the user_id is correctly passed
+        val reportToCreate = ReportCreate(
+            user_id = getUserIdFromToken(token),
+            report_type_id = newReport.report_type_id,
+            generated_at = newReport.generated_at,
+            data = newReport.data
+        )
+
+        val call = apiService.createReport(reportToCreate, "Bearer $token")
+
+        call.enqueue(object : Callback<ReportRead> {
+            override fun onResponse(call: Call<ReportRead>, response: Response<ReportRead>) {
+                if (response.isSuccessful) {
+                    Log.d(TAG, "createReport: Successfully created report: ${response.body()}")
+                    Toast.makeText(
+                        this@ReportsActivity,
+                        "Report created successfully",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                    fetchReports(token) // Refresh the report list after creation
+                } else {
+                    Log.e(
+                        TAG,
+                        "createReport: Failed to create report. Error code: ${response.code()}"
+                    )
+                    Toast.makeText(
+                        this@ReportsActivity,
+                        "Failed to create report",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            }
+
+            override fun onFailure(call: Call<ReportRead>, t: Throwable) {
+                Log.e(TAG, "createReport: Error creating report: ${t.message}", t)
+                Toast.makeText(this@ReportsActivity, "Error creating report", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        })
+    }
 
     private fun getUserIdFromToken(token: String): Int {
         return try {

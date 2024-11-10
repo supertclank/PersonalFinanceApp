@@ -209,9 +209,9 @@ class GoalsActivity : AppCompatActivity() {
 
             // Set the current and target amounts
             goalView.findViewById<TextView>(R.id.goal_current_amount).text =
-                goal.current_amount.toString()
+                "£${goal.current_amount}"
             goalView.findViewById<TextView>(R.id.goal_target_amount).text =
-                goal.target_amount.toString()
+                "£${goal.target_amount}"
 
             val deleteButton = goalView.findViewById<Button>(R.id.button_delete)
             deleteButton.setOnClickListener {
