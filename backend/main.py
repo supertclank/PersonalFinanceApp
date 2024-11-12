@@ -143,29 +143,28 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         logger.info(f"Decoding token: {token}")
         # Decode the JWT token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        logger.debug(f"Token payload: {payload}")
+        
         user_id: int = payload.get("id")
-        logger.info(f"Extracted user ID from token: {user_id}")
-
-        if user_id is None:
-            logger.error("User ID not found in token payload")
+        if not user_id:
+            logger.error("User ID not found in token payload.")
             raise credentials_exception
         
         # Fetch the user from the database using the user_id
         user = db.query(User).filter(User.id == user_id).first()
         if user is None:
-            logger.error(f"User not found for ID: {user_id}")
+            logger.error(f"No user found for ID: {user_id}")
             raise credentials_exception
         
     except JWTError as e:
-        # Log the JWT error for debugging purposes
         logger.error(f"JWT error: {e}")
         raise credentials_exception
     except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
+        logger.error(f"Unexpected error: {e}")
         raise credentials_exception
 
     logger.info(f"Authenticated user: {user}")
-    return user  # Return the user object
+    return user
 
 # Create an asynchronous engine
 DATABASE_URL = "mysql+aiomysql://root:your_password@localhost/personal_finance_db"
@@ -300,8 +299,8 @@ def create_new_budget(
     )
 
 @app.get("/budgets/", response_model=List[BudgetRead])
-def read_budgets(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_budgets(db, skip=skip, limit=limit)
+def read_budgets(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: User=Depends(get_current_user)):
+    return get_budgets(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @app.get("/budgets/{budget_id}", response_model=BudgetRead)
 def read_budget(budget_id: int, db: Session = Depends(get_db)):
@@ -368,8 +367,8 @@ def create_new_goal(
     )
 
 @app.get("/goals/", response_model=List[GoalsRead])
-def read_goals(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_goals(db, skip=skip, limit=limit)
+def read_goals(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_goals(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @app.get("/goal/{goal_id}", response_model=GoalsRead)
 def read_goal(goal_id: int, db: Session = Depends(get_db)):
@@ -420,7 +419,7 @@ def create_new_report(
         report_data = {
             "user_id": current_user.id,
             "report_type_id": 1,
-            "generated_at": datetime.now().isoformat(),
+            "generated_at": date.today(),
             "data": {"goals": goals_data}
         }
 
@@ -429,7 +428,7 @@ def create_new_report(
         report_data = {
             "user_id": current_user.id,
             "report_type_id": 2,
-            "generated_at": datetime.today().isoformat(),
+            "generated_at": date.today(),
             "data": {"budgets": budgets_data}
         }
 
@@ -438,7 +437,7 @@ def create_new_report(
         report_data = {
             "user_id": current_user.id,
             "report_type_id": 3,
-            "generated_at": datetime.now().isoformat(),
+            "generated_at": date.today(),
             "data": {"transactions": transactions_data}
         }
 
@@ -455,7 +454,7 @@ def create_new_report(
         report_data = {
             "user_id": current_user.id,
             "report_type_id": 4,
-            "generated_at": datetime.now().isoformat(),
+            "generated_at": date.today(),
             "data": combined_data
         }
     
@@ -559,7 +558,7 @@ def get_report_types(db: Session = Depends(get_db)):
 # Transaction endpoints
 @app.post("/transactions/", response_model=TransactionRead)
 def create_new_transaction(
-    transaction: TransactionCreate, 
+    transaction: TransactionCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
     ):
