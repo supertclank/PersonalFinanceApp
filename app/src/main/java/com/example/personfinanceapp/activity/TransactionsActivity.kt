@@ -578,7 +578,6 @@ class TransactionsActivity : AppCompatActivity() {
         })
     }
 
-
     private fun getUserIdFromToken(token: String): Int {
         return try {
             val jwt = JWT(token)

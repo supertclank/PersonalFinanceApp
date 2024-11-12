@@ -2,6 +2,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Body, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.encoders import jsonable_encoder
 
 router = APIRouter()
 
@@ -59,7 +60,7 @@ import uvicorn
 from utils import verify_password
 
 # JWT Token settings and password hashing context
-SECRET_KEY = secrets.token_urlsafe(32)
+SECRET_KEY = "Test"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -467,6 +468,7 @@ def create_new_report(
     # Return the report data
     return ReportRead(
         id=db_report.id,
+        user_id=db_report.user_id,
         report_type_id=db_report.report_type_id,
         data=db_report.data,
         generated_at=db_report.generated_at       
@@ -479,9 +481,9 @@ def fetch_goals_data(db, user_id):
         {
             "id": goal.id,
             "name": goal.name,
-            "target_amount": goal.target_amount,
-            "current_amount": goal.current_amount,
-            "deadline": goal.deadline,
+            "target_amount": jsonable_encoder(goal.target_amount),
+            "current_amount": jsonable_encoder(goal.current_amount),
+            "deadline": jsonable_encoder(goal.deadline),
             "description": goal.description
         }
         for goal in goals
@@ -495,9 +497,9 @@ def fetch_budgets_data(db, user_id):
         {
             "id": budget.id,
             "category_id": budget.budget_category_id,
-            "amount": budget.amount,
-            "start_date": budget.start_date,
-            "end_date": budget.end_date
+            "amount": jsonable_encoder(budget.amount),
+            "start_date": jsonable_encoder(budget.start_date),
+            "end_date": jsonable_encoder(budget.end_date)
         }
         for budget in budgets
     ]
@@ -510,8 +512,8 @@ def fetch_transactions_data(db, user_id):
         {
             "id": transaction.id,
             "category_id": transaction.transaction_category_id,
-            "amount": transaction.amount,
-            "date": transaction.date,
+            "amount": jsonable_encoder(transaction.amount),
+            "date": jsonable_encoder(transaction.date),
             "description": transaction.description
         }
         for transaction in transactions
@@ -520,8 +522,8 @@ def fetch_transactions_data(db, user_id):
 
 
 @app.get("/reports/", response_model=List[ReportRead])
-def read_reports(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_reports(db, skip=skip, limit=limit)
+def read_reports(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_reports(db=db, user_id=current_user.id, skip=skip, limit=limit)
 
 @app.get("/report/{report_id}", response_model=ReportRead)
 def read_report(report_id: int, db: Session = Depends(get_db)):

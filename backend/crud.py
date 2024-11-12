@@ -56,8 +56,8 @@ def get_user_by_username(db: Session, username: str):
 def get_budget(db: Session, budget_id: int):
     return db.query(Budget).filter(Budget.id == budget_id).first()
 
-def get_budgets(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Budget).offset(skip).limit(limit).all()
+def get_budgets(db: Session, user_id: int, skip: int = 0, limit: int = 10):
+    return db.query(Budget).filter(Budget.user_id == user_id).offset(skip).limit(limit).all()
 
 def create_budget(db: Session, budget: BudgetCreate):
     db_budget = Budget(
@@ -81,8 +81,8 @@ def create_budget(db: Session, budget: BudgetCreate):
 def get_goal(db: Session, goal_id: int):
     return db.query(Goal).filter(Goal.id == goal_id).first()
 
-def get_goals(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Goal).offset(skip).limit(limit).all()
+def get_goals(db: Session, user_id: int, skip: int = 0, limit: int = 10):
+    return db.query(Goal).filter(Goal.user_id == user_id).offset(skip).limit(limit).all()
 
 def create_goal(db: Session, goal: GoalsCreate, user_id: int) -> GoalsRead:
     db_goal = Goal(
@@ -109,8 +109,8 @@ def create_goal(db: Session, goal: GoalsCreate, user_id: int) -> GoalsRead:
 def get_report(db: Session, report_id: int):
     return db.query(Report).filter(Report.id == report_id).first()
 
-def get_reports(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Report).offset(skip).limit(limit).all()
+def get_reports(db: Session, user_id: int,  skip: int = 0, limit: int = 10):
+    return db.query(Report).filter(Report.user_id == user_id).offset(skip).limit(limit).all()
 
 def create_report(db: Session, report: ReportCreate, user_id: int) -> ReportRead:
     db_report = Report(
