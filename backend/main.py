@@ -650,6 +650,11 @@ def check_user_exists_by_email(email: str, db: Session = Depends(get_db)):
 def get_user_by_username(username: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == username).first()
     return user is not None
+
+@app.post("/logout/")
+def logout():
+    
+    return
     
 # Entry point to run the server
 if __name__ == "__main__":

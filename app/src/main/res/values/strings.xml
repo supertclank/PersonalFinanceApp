@@ -124,5 +124,15 @@
     <string name="enter_a_type_for_your_report">Enter A Type For Your Report</string>
     <string name="enter_data">Enter Data</string>
     <string name="report_type">Report Type</string>
+    <string name="user_account">User Account</string>
+    <string name="account_settings">Go to Account Settings</string>
+    <string name="logout">Logout</string>
+    <string name="About_and_Support"><![CDATA[About & Support]]></string>
+    <string name="app_version_1_0_0">App Version: 1.0.0</string>
+    <string name="language">Language</string>
+    <string name="font_size">Font Size</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="help_and_support"><![CDATA[Help & Support]]></string>
 
 </resources>
