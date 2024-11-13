@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Base64
 import android.util.Log
+import com.example.personfinanceapp.activity.SettingsActivity
 import org.json.JSONObject
 
 object TokenUtils {
@@ -62,6 +63,14 @@ object TokenUtils {
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString(TOKEN_KEY, token)
+        editor.apply()
+    }
+
+    fun clearToken(settingsActivity: SettingsActivity) {
+        val sharedPreferences: SharedPreferences =
+            settingsActivity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.remove(TOKEN_KEY)
         editor.apply()
     }
 

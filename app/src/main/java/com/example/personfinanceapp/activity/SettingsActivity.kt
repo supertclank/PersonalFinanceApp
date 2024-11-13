@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -21,11 +22,10 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var token: String
-    private lateinit var logoutButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.transactions)
+        setContentView(R.layout.settings)
 
         Log.d(TAG, "onCreate: Initializing the activity")
 
@@ -87,27 +87,56 @@ class SettingsActivity : AppCompatActivity() {
             true
         }
 
-    }
 
-    override fun onBackPressed() {
-        // Close the navigation drawer if it's open, otherwise handle the back press as usual
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
+        findViewById<Button>(R.id.logout_button).setOnClickListener {
+            Log.d(TAG, "onCreate: Logout button clicked")
+            TokenUtils.clearToken(this)
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
+
+        findViewById<Button>(R.id.account_button).setOnClickListener {
+            Log.d(TAG, "onCreate: Account button clicked")
+            showAccountDetailsDialog()
+        }
+
+        findViewById<Spinner>(R.id.spinner_font_size).setOnClickListener {
+            fontSizeSpinner()
+        }
+
+        findViewById<Spinner>(R.id.spinner_language).setOnClickListener {
+            languageSpinner()
+        }
+
+
+
+        override fun onBackPressed() {
+            // Close the navigation drawer if it's open, otherwise handle the back press as usual
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 
+    private fun showAccountDetailsDialog() {
+        val userId = getUserIdFromToken(token)
+        Log.d(TAG, "showAccountDetailsDialog: User ID retrieved: $userId")
 
+    }
 
+    private fun fontSizeSpinner(){
 
+    }
 
+    private fun languageSpinner(){
 
+    }
 
+    private fun updateAccountDetails(userId: Int) {
 
-
-
-
+    }
 
 
     private fun getUserIdFromToken(token: String): Int {
