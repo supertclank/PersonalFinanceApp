@@ -113,23 +113,10 @@
                                 android:text="@string/font_size" />
 
                             <Spinner
-                                android:id="@+id/spinner_font_size"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="16dp" />
-
-                            <TextView
+                                android:id="@+id/font_size_spinner"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingTop="8dp"
-                                android:text="@string/language" />
-
-                            <Spinner
-                                android:id="@+id/spinner_language"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="16dp" />
-
+                                android:layout_marginTop="16dp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>

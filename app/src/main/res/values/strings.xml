@@ -1,5 +1,4 @@
 <resources>
-    <!-- User Authentication Strings -->
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
@@ -20,8 +19,6 @@
     <string name="dashboard">Dashboard</string>
     <string name="menu">Menu</string>
     <string name="todo">To Do</string>
-
-    <!-- Password Recovery Strings -->
     <string name="forgot_username">Forgot Username?</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="enter_email">Enter your Email</string>
@@ -35,24 +32,18 @@
     <string name="go_to_login">Go to Login</string>
     <string name="back_to_login">Back to Login</string>
     <string name="error_message">Something went wrong. Please try again.</string>
-
-    <!-- Error Messages -->
     <string name="email_not_found">Email not found</string>
     <string name="phone_not_found">Phone number not found</string>
     <string name="code_invalid">The verification code is invalid</string>
     <string name="passwords_not_match">Passwords do not match</string>
     <string name="password_too_weak">Password is too weak</string>
     <string name="password_reset_failed">Failed to reset password</string>
-
-    <!-- User Feedback Messages -->
     <string name="user_not_found">The username you entered does not exist.</string>
     <string name="verification_code_sent">Verification code sent to your email/phone</string>
     <string name="incorrect_username_or_password">The username or password you entered is incorrect.</string>
     <string name="login_failed_general">Login failed. Please try again.</string>
     <string name="login_successful">Login successful!</string>
     <string name="enter_credentials">Please enter your username and password.</string>
-
-    <!-- Navigation and Section Titles -->
     <string name="home">Home</string>
     <string name="notifications">Notifications</string>
     <string name="reports">Reports</string>
@@ -60,14 +51,11 @@
     <string name="budgets">Budgets</string>
     <string name="settings">Settings</string>
     <string name="your_financial_overview_will_appear_here">Your financial overview will appear here.</string>
-
-    <!-- Section Headers -->
     <string name="section_forgot_details">Forgot Details</string>
     <string name="section_error_messages">Error Messages</string>
     <string name="section_success_messages">Success Messages</string>
     <string name="section_navigation">Navigation</string>
     <string name="personal_finance">Personal Finance</string>
-
     <string name="navigation_drawer_open">Open Navigation Drawer</string>
     <string name="navigation_drawer_close">Close Navigation Drawer</string>
     <string name="dark_mode">Dark Mode</string>
@@ -95,8 +83,6 @@
     <string name="edit_your_goal_title">Edit Your Goal Title</string>
     <string name="edit_description_for_your_goal">Edit Description For Your Goal</string>
     <string name="edit_deadline">Edit Deadline</string>
-
-    <!-- Budget Strings -->
     <string name="add_budget">Add Budget</string>
     <string name="enter_budget_amount">Enter Budget Amount</string>
     <string name="budget_amount">Budget Amount</string>
@@ -134,5 +120,7 @@
     <string name="terms_of_service">Terms of Service</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="help_and_support"><![CDATA[Help & Support]]></string>
-
+    <string name="sample_text">Sample Text</string>
+    <string name="last_name">Last Name: </string>
+    <string name="save">Save</string>
 </resources>

@@ -37,7 +37,8 @@ from schemas import (
     TokenResponse, LoginRequest,
     BudgetCategoryRead, TransactionCategoryRead,
     ReportTypeRead, NotificationTypeRead,
-    UsernameRecoveryRequest
+    UsernameRecoveryRequest, UserUpdate,
+    UserPreferencesUpdate, UserPreferencesRead
 )
 
 import secrets
@@ -50,7 +51,7 @@ from crud import (
     get_report, create_report, get_reports,
     get_transaction, create_transaction, get_transactions,
     get_notification, create_notification, get_notifications,
-    get_user_by_email,
+    get_user_by_email, get_user_preferences, update_user_preferences
 )
 
 # Uvicorn server import
@@ -238,7 +239,6 @@ async def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     return new_user
 
-
 @app.get("/users/", response_model=List[UserRead])
 def read_users(skip: int = 0, limit: int = 250, db: Session = Depends(get_db)):
     users = get_users(db, skip=skip, limit=limit)
@@ -246,10 +246,59 @@ def read_users(skip: int = 0, limit: int = 250, db: Session = Depends(get_db)):
 
 @app.get("/user/{user_id}", response_model=UserRead)
 def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = get_user(db, user_id=user_id)  # No need for 'await'
+    db_user = get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
+
+@app.put("/user/{user_id}", response_model=UserRead)
+def update_user(
+    user_update: UserUpdate,  # Use the new UserUpdate schema
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Fetch the current user's record from the database
+    db_user = db.query(User).filter(User.id == current_user.id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Update only the fields provided in the request
+    for key, value in user_update.dict(exclude_unset=True).items():
+        setattr(db_user, key, value)
+
+    # Commit the changes to the database
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+@app.get("/user/preferences", response_model=UserPreferencesRead)
+def read_user_preferences(
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    db_user = get_user_preferences(db, current_user.id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return UserPreferencesRead(
+        user_id=db_user.id,
+        dark_mode=db_user.dark_mode,
+        font_size=db_user.font_size,
+    )
+
+@app.put("/user/preferences", response_model=UserPreferencesRead)
+def update_preferences(
+    preferences: UserPreferencesUpdate, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_user)
+):
+    updated_user = update_user_preferences(db, current_user.id, preferences)
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return UserPreferencesRead(
+        user_id=updated_user.id,
+        dark_mode=updated_user.dark_mode,
+        font_size=updated_user.font_size,
+    )
 
 @app.post("/login/", response_model=TokenResponse)
 async def login(

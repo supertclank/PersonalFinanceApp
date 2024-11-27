@@ -17,6 +17,10 @@ class User(Base):
     first_name = Column(String(50))
     last_name = Column(String(50))
     phone_number = Column(String(15))
+    
+    # Preferences fields
+    dark_mode = Column(Boolean, default=False)
+    font_size = Column(String, default="Normal")
 
     # Relationships with other tables
     budgets = relationship("Budget", back_populates="user")

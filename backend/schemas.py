@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime, date
 from typing import Optional
 
@@ -29,6 +29,12 @@ class UserRead(BaseModel):
 
     class Config:
         orm_mode = True
+        
+class UserUpdate(BaseModel):
+    first_name: str
+    last_name: str
+    phone_number: str
+    email: EmailStr
 
 # Login schemas
 class LoginRequest(BaseModel):
@@ -146,3 +152,11 @@ class NotificationTypeRead(BaseModel):
     id: int
     name: str
     description: str
+    
+#User Preferences schemas 
+class UserPreferencesUpdate(BaseModel):
+    dark_mode: Optional[bool] = Field(None, description="Dark mode preference")
+    font_size: Optional[str] = Field(None, description="Font size preference (e.g., 'Small', 'Normal', 'Large')")
+
+class UserPreferencesRead(UserPreferencesUpdate):
+    user_id: int

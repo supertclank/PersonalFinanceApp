@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import User, Budget, Goal, Report, Transaction, Notification
-from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, TransactionRead, NotificationCreate, NotificationRead, UserResponse, GoalsRead, BudgetRead, ReportRead
+from schemas import UserCreate, BudgetCreate, GoalsCreate, ReportCreate, TransactionCreate, TransactionRead, NotificationCreate, NotificationRead, UserResponse, GoalsRead, BudgetRead, ReportRead, UserPreferencesUpdate
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 import datetime
@@ -179,3 +179,19 @@ def create_notification(db: Session, notification: NotificationCreate):
         date = db_notification.date,
         notification_type_id = db_notification.notification_type_id
     ) 
+
+
+def update_user_preferences(db: Session, user_id: int, preferences: UserPreferencesUpdate):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        return None
+    if preferences.dark_mode is not None:
+        db_user.dark_mode = preferences.dark_mode
+    if preferences.font_size is not None:
+        db_user.font_size = preferences.font_size
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def get_user_preferences(db: Session, user_id: int):
+    return db.query(User).filter(User.id == user_id).first()

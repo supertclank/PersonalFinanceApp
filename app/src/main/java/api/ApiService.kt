@@ -16,7 +16,9 @@ import api.data_class.TransactionCategory
 import api.data_class.TransactionCreate
 import api.data_class.TransactionRead
 import api.data_class.UserCreate
+import api.data_class.UserPreferences
 import api.data_class.UserRead
+import api.data_class.UserUpdate
 import api.data_class.UsernameRecoveryRequest
 import retrofit2.Call
 import retrofit2.http.Body
@@ -43,10 +45,19 @@ interface ApiService {
     fun getUsers(@Query("skip") skip: Int, @Query("limit") limit: Int): Call<List<UserRead>>
 
     @GET("user/{user_id}")
-    fun getUser(@Path("user_id") userId: Int): Call<UserRead>
+    fun getUser(
+        @Path("user_id") userId: Int,
+    ): Call<UserRead>
 
     @GET("user/username/{username}")
     fun getUserByUsername(@Path("username") username: String): Call<UserRead>
+
+    @PUT("user/{user_id}")
+    fun updateUser(
+        @Path("user_id") userId: Int,
+        @Body updatedUser: UserUpdate, // Use UserUpdate instead of UserRead
+        @Header("Authorization") token: String,
+    ): Call<UserRead>
 
     @FormUrlEncoded
     @POST("login/")
@@ -223,4 +234,16 @@ interface ApiService {
     // Username recovery endpoint
     @POST("username/recover/")
     fun recoverUsername(@Body recoveryRequest: UsernameRecoveryRequest): Call<Void>
+
+    //User's preferences endpoint
+    @GET("user/preferences")
+    fun getUserPreferences(
+        @Header("Authorization") token: String,
+    ): Call<UserPreferences>
+
+    @PUT("user/preferences")
+    fun updateUserPreferences(
+        @Header("Authorization") token: String,
+        @Body preferences: UserPreferences,
+    ): Call<UserPreferences>
 }

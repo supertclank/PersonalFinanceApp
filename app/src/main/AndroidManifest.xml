@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,63 +16,63 @@
         android:theme="@style/Theme.Personfinanceapp"
         android:usesCleartextTraffic="true">
 
-        <uses-library
-            android:name="org.apache.http.legacy"
-            android:required="false" />
+    <uses-library
+        android:name="org.apache.http.legacy"
+        android:required="false" />
 
-        <activity
-            android:name=".activity.SplashActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+    <activity
+        android:name=".activity.SplashActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
 
-        <activity
-            android:name=".activity.LoginActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.LoginActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.RegisterActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.RegisterActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.ForgotDetailsActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.ForgotDetailsActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.DashboardActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.DashboardActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.AppSettingsActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.AppSettingsActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.SettingsActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.SettingsActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.AccountSettingsActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.AccountSettingsActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.TransactionsActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.TransactionsActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.ReportsActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.ReportsActivity"
+        android:exported="true" />
 
-        <activity
-            android:name=".activity.BudgetsActivity"
-            android:exported="true" />
-        <activity
-            android:name=".activity.GoalsActivity"
-            android:exported="true" />
+    <activity
+        android:name=".activity.BudgetsActivity"
+        android:exported="true" />
 
+    <activity
+        android:name=".activity.GoalsActivity"
+        android:exported="true" />
 
-    </application>
+</application>
 
-</manifest>
+    </manifest>

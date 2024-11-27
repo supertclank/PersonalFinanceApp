@@ -148,7 +148,8 @@ class TransactionsActivity : AppCompatActivity() {
         val apiService = RetrofitClient.instance
         Log.d(TAG, "fetchTransactions: Formatted auth token")
 
-        apiService.getTransactions(0, 10, "Bearer $token").enqueue(object : Callback<List<TransactionRead>> {
+        apiService.getTransactions(0, 10, "Bearer $token")
+            .enqueue(object : Callback<List<TransactionRead>> {
                 override fun onResponse(
                     call: Call<List<TransactionRead>>,
                     response: Response<List<TransactionRead>>,
