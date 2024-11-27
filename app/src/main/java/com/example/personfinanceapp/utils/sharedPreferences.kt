@@ -37,6 +37,10 @@ class SharedPreferenceManager(context: Context, private val apiService: ApiServi
         return sharedPreferences.getBoolean(KEY_DARK_MODE_ENABLED, false)
     }
 
+    fun saveDarkModePreference(isEnabled: Boolean) {
+        sharedPreferences.edit().putBoolean(KEY_DARK_MODE_ENABLED, isEnabled).apply()
+    }
+
     fun saveFontSize(fontSize: String) {
         sharedPreferences.edit().putString(KEY_FONT_SIZE, fontSize).apply()
     }

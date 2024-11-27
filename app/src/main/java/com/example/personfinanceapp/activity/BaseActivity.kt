@@ -1,4 +1,7 @@
+package com.example.personfinanceapp.activity
+
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import api.RetrofitClient
@@ -6,43 +9,58 @@ import com.example.personfinanceapp.utils.SharedPreferenceManager
 
 open class BaseActivity : AppCompatActivity() {
 
+    private val TAG = "BaseActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate called")
         applyUserPreferences()
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume called - applying user preferences")
+        applyUserPreferences()
+    }
+
+    // Apply user preferences (theme and font size)
     private fun applyUserPreferences() {
         val sharedPrefManager = SharedPreferenceManager(this, apiService = RetrofitClient.instance)
 
-        // Get the stored dark mode setting
+        // Theme application
         val isDarkModeEnabled = sharedPrefManager.isDarkModeEnabled()
-
-        // Get the current night mode from resources
-        val currentNightMode = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
-
-        // Only update night mode if the preference is different from the current mode
-        if (isDarkModeEnabled) {
-            if (currentNightMode != android.content.res.Configuration.UI_MODE_NIGHT_YES) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
+        val newNightMode = if (isDarkModeEnabled) {
+            AppCompatDelegate.MODE_NIGHT_YES
         } else {
-            if (currentNightMode != android.content.res.Configuration.UI_MODE_NIGHT_NO) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
+            AppCompatDelegate.MODE_NIGHT_NO
         }
 
-        // Apply font size as per the stored preference
-        val fontSize = sharedPrefManager.getFontSize()
-        when (fontSize) {
-            "Small" -> setFontScale(0.85f)
-            "Large" -> setFontScale(1.15f)
-            else -> setFontScale(1.0f)
+        // Only update if the mode is different
+        if (AppCompatDelegate.getDefaultNightMode() != newNightMode) {
+            AppCompatDelegate.setDefaultNightMode(newNightMode)
+            delegate.applyDayNight() // or recreate() if needed
         }
+
+        // Font size application
+        val fontSize = sharedPrefManager.getFontSize()
+        setFontScale(fontSize)
     }
 
-    private fun setFontScale(fontScale: Float) {
+    // Set font scale based on preference
+    private fun setFontScale(fontSize: String?) {
+        val scale = when (fontSize) {
+            "Small" -> 0.85f
+            "Large" -> 1.15f
+            else -> 1.0f // Default or "Normal"
+        }
+
+        // Get current configuration
         val configuration = resources.configuration
-        configuration.fontScale = fontScale
-        resources.updateConfiguration(configuration, resources.displayMetrics)
+
+        // Only update if the scale is different
+        if (configuration.fontScale != scale) {
+            configuration.fontScale = scale
+            resources.updateConfiguration(configuration, resources.displayMetrics)
+        }
     }
 }

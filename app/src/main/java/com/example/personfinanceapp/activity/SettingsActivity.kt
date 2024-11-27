@@ -1,16 +1,13 @@
 package com.example.personfinanceapp.activity
 
-import BaseActivity
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -19,7 +16,6 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -123,16 +119,15 @@ class SettingsActivity : BaseActivity() {
 
         val darkModeSwitch: SwitchMaterial = findViewById(R.id.dark_mode)
 
-        // Check the saved preference and apply the theme on activity start
-        applySavedTheme(this)
+        val sharedPrefManager = SharedPreferenceManager(this, apiService = RetrofitClient.instance)
 
-        // Set up the listener to toggle dark mode when the switch is changed
+        // Set the initial state of the switch based on the saved preference
+        darkModeSwitch.isChecked = sharedPrefManager.isDarkModeEnabled()
+
+        // Set up the listener to save the dark mode preference when the switch is changed
         darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                enableDarkMode(this)  // Enable dark mode
-            } else {
-                enableLightMode(this)  // Enable light mode
-            }
+            // Save the user's preference in SharedPreferences
+            sharedPrefManager.saveDarkModePreference(isChecked)
         }
     }
 
@@ -311,20 +306,23 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun fontSizeSpinner() {
-        val fontSizeOptions = arrayOf("Large", "Normal", "Small")
-        val fontSizeSpinner = findViewById<Spinner>(R.id.font_size_spinner)
+        val fontSizeOptions = arrayOf("Large", "Normal", "Small") // Font size options
+        val fontSizeSpinner = findViewById<Spinner>(R.id.font_size_spinner) // Get the Spinner view
 
+        // Create an ArrayAdapter to populate the Spinner
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, fontSizeOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        fontSizeSpinner.adapter = adapter
+        fontSizeSpinner.adapter = adapter // Set the adapter to the Spinner
 
         val sharedPrefManager = SharedPreferenceManager(this, apiService = RetrofitClient.instance)
-        val savedFontSize = sharedPrefManager.getFontSize() ?: "Normal"
+
+        // Get the saved font size from SharedPreferences (if available)
+        val savedFontSize = sharedPrefManager.getFontSize() ?: "Normal" // Default to "Normal"
+
+        // Set the Spinner's initial selection based on the saved font size
         fontSizeSpinner.setSelection(fontSizeOptions.indexOf(savedFontSize))
 
-        // Log the saved font size
-        Log.d("FontSize", "Saved font size: $savedFontSize")
-
+        // Attach an OnItemSelectedListener to the Spinner
         fontSizeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -332,16 +330,13 @@ class SettingsActivity : BaseActivity() {
                 position: Int,
                 id: Long,
             ) {
-                // Check if the view is null before using it
                 if (view != null) {
-                    val selectedFontSize = fontSizeOptions[position]
-                    sharedPrefManager.saveFontSize(selectedFontSize)
-                    adjustFontSize(selectedFontSize)
+                    val selectedFontSize = fontSizeOptions[position] // Get the selected font size
 
-                    // Log the font size selected by the user
-                    Log.d("FontSize", "User selected font size: $selectedFontSize")
+                    // Save the selected font size in SharedPreferences
+                    sharedPrefManager.saveFontSize(selectedFontSize)
                 } else {
-                    // Handle the case where view is null
+                    // Handle the case where view is null (e.g., log an error)
                     Log.e("FontSize", "View is null in onItemSelected")
                 }
             }
@@ -350,41 +345,9 @@ class SettingsActivity : BaseActivity() {
                 val defaultFontSize = "Normal"
                 fontSizeSpinner.setSelection(fontSizeOptions.indexOf(defaultFontSize))
                 sharedPrefManager.saveFontSize(defaultFontSize)
-                adjustFontSize(defaultFontSize)
-
-                // Log the default font size selection
                 Log.d("FontSize", "No selection, defaulting to font size: $defaultFontSize")
             }
         }
-    }
-
-    private fun adjustFontSize(fontSize: String) {
-        val baseTextSize = 16f
-
-        val newSize = when (fontSize) {
-            "Large" -> baseTextSize * 1.25f
-            "Small" -> baseTextSize * 0.85f
-            else -> baseTextSize
-        }
-
-        // Log the adjusted font size
-        Log.d("FontSize", "Adjusted font size: $newSize for $fontSize")
-
-        val rootView = findViewById<ViewGroup>(android.R.id.content)
-        rootView.viewTreeObserver.addOnGlobalLayoutListener(object :
-            ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                rootView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-
-                getAllViews(rootView).forEach { view ->
-                    when (view) {
-                        is TextView -> view.textSize = newSize
-                        is Button -> view.textSize = newSize
-                        is EditText -> view.textSize = newSize
-                    }
-                }
-            }
-        })
     }
 
     private fun getAllViews(v: View): List<View> {
@@ -411,56 +374,6 @@ class SettingsActivity : BaseActivity() {
         result.add(v)
         return result
     }
-
-    // Function to enable dark mode
-    fun enableDarkMode(context: Context) {
-        // Enable dark mode
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-
-        // Save the user's preference in SharedPreferences
-        val sharedPref = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putBoolean("isDarkMode", true)
-            apply()
-        }
-
-        // Log the action of enabling dark mode
-        Log.d("Theme", "Dark mode enabled")
-    }
-
-    // Function to enable light mode
-    fun enableLightMode(context: Context) {
-        // Enable light mode
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
-        // Save the user's preference in SharedPreferences
-        val sharedPref = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putBoolean("isDarkMode", false)
-            apply()
-        }
-
-        // Log the action of enabling light mode
-        Log.d("Theme", "Light mode enabled")
-    }
-
-    // Function to check and apply the saved theme when the app starts
-    fun applySavedTheme(context: Context) {
-        val sharedPref = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-        val isDarkMode = sharedPref.getBoolean("isDarkMode", false)
-
-        // Log the theme being applied
-        Log.d("Theme", "Applying saved theme: Dark Mode = $isDarkMode")
-
-        if (isDarkMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            Log.d("Theme", "Dark mode applied")
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            Log.d("Theme", "Light mode applied")
-        }
-    }
-
 
     private fun getUserIdFromToken(token: String): Int {
         return try {
