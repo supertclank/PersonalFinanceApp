@@ -23,9 +23,9 @@ open class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.base_activity_layout)
 
         Log.d(TAG, "onCreate called")
-        setContentView(R.layout.base_activity_layout) // Move setContentView to the beginning of onCreate()
 
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.nav_view)
@@ -35,10 +35,13 @@ open class BaseActivity : AppCompatActivity() {
             isInitialCreation = false
         }
 
-        val toolbar = findViewById(R.id.toolbar) as Toolbar?
-        setSupportActionBar(toolbar)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar) // Find toolbar
 
-        // Set up toggle for the navigation drawer
+        if (supportActionBar == null) {
+            setSupportActionBar(toolbar) // Set support action bar
+        }
+
+        // Set up toggle after setting support action bar
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -99,7 +102,7 @@ open class BaseActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(nightMode)
 
         // Recreate the activity to apply the theme immediately
-        recreate()
+        //recreate()
     }
 
     private fun applyFontSize(fontSize: String) {

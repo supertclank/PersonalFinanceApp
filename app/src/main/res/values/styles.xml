@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorPrimaryDark">@color/md_theme_light_primaryContainer</item>
         <item name="colorAccent">@color/md_theme_light_secondary</item>
@@ -11,7 +11,7 @@
     </style>
 
     <!-- Dark theme -->
-    <style name="AppTheme.Dark" parent="Theme.AppCompat.DayNight.DarkActionBar">
+    <style name="AppTheme.Dark" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorPrimaryDark">@color/md_theme_dark_primaryContainer</item>
         <item name="colorAccent">@color/md_theme_dark_secondary</item>

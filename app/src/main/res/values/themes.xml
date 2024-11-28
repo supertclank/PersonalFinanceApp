@@ -12,6 +12,8 @@
         <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
         <item name="colorError">@color/md_theme_light_error</item>
         <item name="colorOnError">@color/md_theme_light_onError</item>
+
+        <item name="toolbarStyle">@style/MyToolbarStyle</item>
     </style>
 
     <!-- Dark Theme -->
@@ -27,10 +29,23 @@
         <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
         <item name="colorError">@color/md_theme_dark_error</item>
         <item name="colorOnError">@color/md_theme_dark_onError</item>
+
+        <item name="toolbarStyle">@style/MyToolbarStyle</item>
     </style>
 
     <!-- Splash Theme -->
     <style name="Theme.SplashTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
+
+    <!-- Toolbar Style -->
+    <style name="MyToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="titleTextAppearance">@style/MyToolbarTitleTextAppearance</item>
+    </style>
+
+    <!-- Toolbar Title Text Appearance -->
+    <style name="MyToolbarTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@color/md_theme_light_onPrimary</item>
+        <item name="android:textSize">20sp</item>
     </style>
 </resources>

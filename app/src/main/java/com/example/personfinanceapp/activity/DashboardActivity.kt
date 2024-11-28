@@ -14,7 +14,6 @@ import retrofit2.Response
 
 class DashboardActivity : BaseActivity() {
 
-
     private lateinit var greetingTextView: TextView
     private val goalsList = mutableListOf<GoalsRead>()
 
