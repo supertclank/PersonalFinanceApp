@@ -3,11 +3,13 @@ package com.example.personfinanceapp.activity
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -16,6 +18,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -119,15 +122,14 @@ class SettingsActivity : BaseActivity() {
 
         val darkModeSwitch: SwitchMaterial = findViewById(R.id.dark_mode)
 
-        val sharedPrefManager = SharedPreferenceManager(this, apiService = RetrofitClient.instance)
-
-        // Set the initial state of the switch based on the saved preference
-        darkModeSwitch.isChecked = sharedPrefManager.isDarkModeEnabled()
-
-        // Set up the listener to save the dark mode preference when the switch is changed
+        // Set up the listener to toggle dark mode when the switch is changed
         darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            // Save the user's preference in SharedPreferences
-            sharedPrefManager.saveDarkModePreference(isChecked)
+            Log.d(TAG, "onCreate: Dark mode switch changed to $isChecked")
+            if (isChecked) {
+                enableDarkMode(this)  // Enable dark mode
+            } else {
+                enableLightMode(this)  // Enable light mode
+            }
         }
     }
 
@@ -306,23 +308,20 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun fontSizeSpinner() {
-        val fontSizeOptions = arrayOf("Large", "Normal", "Small") // Font size options
-        val fontSizeSpinner = findViewById<Spinner>(R.id.font_size_spinner) // Get the Spinner view
+        val fontSizeOptions = arrayOf("Large", "Normal", "Small")
+        val fontSizeSpinner = findViewById<Spinner>(R.id.font_size_spinner)
 
-        // Create an ArrayAdapter to populate the Spinner
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, fontSizeOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        fontSizeSpinner.adapter = adapter // Set the adapter to the Spinner
+        fontSizeSpinner.adapter = adapter
 
         val sharedPrefManager = SharedPreferenceManager(this, apiService = RetrofitClient.instance)
-
-        // Get the saved font size from SharedPreferences (if available)
-        val savedFontSize = sharedPrefManager.getFontSize() ?: "Normal" // Default to "Normal"
-
-        // Set the Spinner's initial selection based on the saved font size
+        val savedFontSize = sharedPrefManager.getFontSize() ?: "Normal"
         fontSizeSpinner.setSelection(fontSizeOptions.indexOf(savedFontSize))
 
-        // Attach an OnItemSelectedListener to the Spinner
+        // Log the saved font size
+        Log.d("FontSize", "Saved font size: $savedFontSize")
+
         fontSizeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
@@ -330,13 +329,16 @@ class SettingsActivity : BaseActivity() {
                 position: Int,
                 id: Long,
             ) {
+                // Check if the view is null before using it
                 if (view != null) {
-                    val selectedFontSize = fontSizeOptions[position] // Get the selected font size
-
-                    // Save the selected font size in SharedPreferences
+                    val selectedFontSize = fontSizeOptions[position]
                     sharedPrefManager.saveFontSize(selectedFontSize)
+                    adjustFontSize(selectedFontSize)
+
+                    // Log the font size selected by the user
+                    Log.d("FontSize", "User selected font size: $selectedFontSize")
                 } else {
-                    // Handle the case where view is null (e.g., log an error)
+                    // Handle the case where view is null
                     Log.e("FontSize", "View is null in onItemSelected")
                 }
             }
@@ -345,9 +347,41 @@ class SettingsActivity : BaseActivity() {
                 val defaultFontSize = "Normal"
                 fontSizeSpinner.setSelection(fontSizeOptions.indexOf(defaultFontSize))
                 sharedPrefManager.saveFontSize(defaultFontSize)
+                adjustFontSize(defaultFontSize)
+
+                // Log the default font size selection
                 Log.d("FontSize", "No selection, defaulting to font size: $defaultFontSize")
             }
         }
+    }
+
+    private fun adjustFontSize(fontSize: String) {
+        val baseTextSize = 16f
+
+        val newSize = when (fontSize) {
+            "Large" -> baseTextSize * 1.25f
+            "Small" -> baseTextSize * 0.85f
+            else -> baseTextSize
+        }
+
+        // Log the adjusted font size
+        Log.d("FontSize", "Adjusted font size: $newSize for $fontSize")
+
+        val rootView = findViewById<ViewGroup>(android.R.id.content)
+        rootView.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                rootView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                getAllViews(rootView).forEach { view ->
+                    when (view) {
+                        is TextView -> view.textSize = newSize
+                        is Button -> view.textSize = newSize
+                        is EditText -> view.textSize = newSize
+                    }
+                }
+            }
+        })
     }
 
     private fun getAllViews(v: View): List<View> {
@@ -375,6 +409,33 @@ class SettingsActivity : BaseActivity() {
         return result
     }
 
+    private fun updateFontSizeRecursively(view: View, fontSize: Int) {
+        if (view is TextView) {
+            view.textSize = fontSize.toFloat()
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                updateFontSizeRecursively(view.getChildAt(i), fontSize)
+            }
+        }
+    }
+
+    private fun enableDarkMode(context: Context) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("dark_mode", true)
+        editor.apply()
+    }
+
+    private fun enableLightMode(context: Context) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("dark_mode", false)
+        editor.apply()
+    }
+
     private fun getUserIdFromToken(token: String): Int {
         return try {
             val jwt = JWT(token)
@@ -386,5 +447,4 @@ class SettingsActivity : BaseActivity() {
             -1
         }
     }
-
 }

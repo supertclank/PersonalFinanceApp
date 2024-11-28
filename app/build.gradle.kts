@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout) // or the latest version
 
     implementation ("androidx.cardview:cardview:1.0.0")
+    implementation(libs.generativeai)
 
 
 

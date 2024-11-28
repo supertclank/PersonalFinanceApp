@@ -1,36 +1,32 @@
 <resources>
     <!-- Primary Theme -->
     <style name="Theme.Personfinanceapp" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/pastelOrangePrimary</item>
-        <item name="colorPrimaryVariant">@color/pastelOrangePrimaryVariant</item>
-        <item name="colorOnPrimary">@color/pastelOrangeOnPrimary</item>
-        <item name="colorSecondary">@color/pastelOrangeSecondary</item>
-        <item name="colorOnSecondary">@color/pastelOrangeOnSecondary</item>
-        <item name="colorBackground">@color/colorBackground</item>
-        <item name="colorOnBackground">@color/colorOnBackground</item>
-        <item name="colorSurface">@color/colorSurface</item>
-        <item name="colorOnSurface">@color/colorOnSurface</item>
-        <item name="colorError">@color/colorError</item>
-        <item name="colorOnError">@color/colorOnError</item>
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorPrimaryVariant">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorError">@color/md_theme_light_error</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
     </style>
 
     <!-- Dark Theme -->
     <style name="Theme.Personfinanceapp.Dark" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/pastelOrangePrimary</item>
-        <item name="colorPrimaryVariant">@color/pastelOrangePrimaryVariant</item>
-        <item name="colorOnPrimary">@color/pastelOrangeOnPrimary</item>
-        <item name="colorSecondary">@color/pastelOrangeSecondary</item>
-        <item name="colorOnSecondary">@color/pastelOrangeOnSecondary</item>
-        <item name="colorBackground">@color/colorBackgroundDark
-        </item> <!-- Dark background color -->
-        <item name="colorOnBackground">@color/colorOnBackgroundDark
-        </item> <!-- Text color on dark background -->
-        <item name="colorSurface">@color/colorSurfaceDark
-        </item> <!-- Surface color for cards, etc. -->
-        <item name="colorOnSurface">@color/colorOnSurfaceDark</item> <!-- Text color on surface -->
-        <item name="colorError">@color/colorErrorDark</item> <!-- Error color for dark theme -->
-        <item name="colorOnError">@color/colorOnErrorDark
-        </item> <!-- Text color for error messages -->
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>
+        <item name="colorPrimaryVariant">@color/md_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
+        <item name="colorSecondary">@color/md_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_dark_onSecondary</item>
+        <item name="android:colorBackground">@color/md_theme_dark_background</item>
+        <item name="colorOnBackground">@color/md_theme_dark_onBackground</item>
+        <item name="colorSurface">@color/md_theme_dark_surface</item>
+        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
+        <item name="colorError">@color/md_theme_dark_error</item>
+        <item name="colorOnError">@color/md_theme_dark_onError</item>
     </style>
 
     <!-- Splash Theme -->

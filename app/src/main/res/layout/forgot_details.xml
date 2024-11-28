@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
+    android:background="@color/md_theme_light_background"
     android:orientation="horizontal"
     android:padding="16dp">
 
@@ -19,7 +19,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp"
             android:text="@string/forgot_details"
-            android:textColor="@color/pastelOrangeOnPrimary"
+            android:textColor="@color/md_theme_light_onPrimary"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/pastelOrangePrimary"
+            android:backgroundTint="@color/md_theme_light_primary"
             android:hint="@string/enter_email"
             android:inputType="textEmailAddress"
             android:minHeight="48dp" />
@@ -40,9 +40,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/pastelOrangePrimary"
+            android:backgroundTint="@color/md_theme_light_primary"
             android:text="@string/send_request"
-            android:textColor="@color/pastelOrangeOnPrimary" />
+            android:textColor="@color/md_theme_light_onPrimary"  />
 
         <!-- Back to Login button -->
         <Button
@@ -50,9 +50,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@color/pastelOrangePrimaryVariant"
+            android:backgroundTint="@color/md_theme_light_primaryContainer"
             android:text="@string/back_to_login"
-            android:textColor="@color/pastelOrangeOnPrimary" />
+            android:textColor="@color/md_theme_light_onPrimary" />
 
         <!-- Error Message Text -->
         <TextView
@@ -62,7 +62,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
             android:text="@string/error_message"
-            android:textColor="@color/colorError"
+            android:textColor="@color/md_theme_light_error"
             android:visibility="gone" />
 
     </LinearLayout>

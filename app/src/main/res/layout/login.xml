@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/md_theme_light_background"
     android:orientation="horizontal"
     android:padding="16dp">
 
@@ -20,7 +21,7 @@
             android:layout_gravity="top|center_horizontal"
             android:layout_marginBottom="24dp"
             android:text="@string/personal_finance"
-            android:textColor="@color/pastelOrangeOnPrimary"
+            android:textColor="@color/md_theme_light_onPrimary"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -32,6 +33,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:autofillHints=""
+            android:backgroundTint="@color/md_theme_light_primary"
             android:hint="@string/username"
             android:inputType=""
             android:minHeight="48dp" />
@@ -44,6 +46,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:autofillHints=""
+            android:backgroundTint="@color/md_theme_light_primary"
             android:hint="@string/password"
             android:inputType="textPassword"
             android:minHeight="48dp" />
@@ -54,6 +57,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:backgroundTint="@color/md_theme_light_primary"
+            android:textColor="@color/md_theme_light_onPrimary"
             android:text="@string/login" />
 
         <!-- Forgot Details Button -->
@@ -62,6 +67,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:backgroundTint="@color/md_theme_light_primaryContainer"
+            android:textColor="@color/md_theme_light_onPrimary"
             android:text="@string/forgot_details" />
 
         <!-- Register Button -->
@@ -70,6 +77,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:backgroundTint="@color/md_theme_light_tertiaryContainer"
+            android:textColor="@color/md_theme_light_onTertiaryContainer"
             android:text="@string/register" />
+
     </LinearLayout>
 </LinearLayout>

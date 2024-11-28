@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme_Light">light</style>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorPrimaryDark">@color/md_theme_light_primaryContainer</item>
+        <item name="colorAccent">@color/md_theme_light_secondary</item>
+        <item name="android:windowBackground">@color/md_theme_light_background</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+    </style>
 
-    <style name="AppTheme_Dark">dark</style>
+    <!-- Dark theme -->
+    <style name="AppTheme.Dark" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>
+        <item name="colorPrimaryDark">@color/md_theme_dark_primaryContainer</item>
+        <item name="colorAccent">@color/md_theme_dark_secondary</item>
+        <item name="android:windowBackground">@color/md_theme_dark_background</item>
+        <item name="android:colorBackground">@color/md_theme_dark_background</item>
+    </style>
+
 </resources>
