@@ -3,6 +3,7 @@ package com.example.personfinanceapp.activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.FrameLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -34,6 +35,26 @@ open class BaseActivity : AppCompatActivity() {
             applyUserPreferences()
             isInitialCreation = false
         }
+
+        val contentFrame = findViewById<FrameLayout>(R.id.content_frame)
+
+        val dashboardView = layoutInflater.inflate(R.layout.dashboard, contentFrame, false)
+        contentFrame.addView(dashboardView)
+
+        val goalsView = layoutInflater.inflate(R.layout.goals, contentFrame, false)
+        contentFrame.addView(goalsView)
+
+        val budgetsView = layoutInflater.inflate(R.layout.budgets, contentFrame, false)
+        contentFrame.addView(budgetsView)
+
+        val reportsView = layoutInflater.inflate(R.layout.reports, contentFrame, false)
+        contentFrame.addView(reportsView)
+
+        val transactionsView = layoutInflater.inflate(R.layout.transactions, contentFrame, false)
+        contentFrame.addView(transactionsView)
+
+        val settingsView = layoutInflater.inflate(R.layout.settings, contentFrame, false)
+        contentFrame.addView(settingsView)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar) // Find toolbar
 

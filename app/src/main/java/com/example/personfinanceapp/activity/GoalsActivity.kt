@@ -2,20 +2,16 @@ package com.example.personfinanceapp.activity
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import api.RetrofitClient
 import api.data_class.GoalsCreate
@@ -23,15 +19,12 @@ import api.data_class.GoalsRead
 import com.auth0.android.jwt.JWT
 import com.example.personfinanceapp.R
 import com.example.personfinanceapp.utils.TokenUtils
-import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class GoalsActivity : BaseActivity() {
 
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
     private val goalsList = mutableListOf<GoalsRead>()
     private val TAG = "GoalsActivity"
     private lateinit var token: String
@@ -39,9 +32,11 @@ class GoalsActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.goals)
 
         Log.d(TAG, "onCreate: Initializing the activity")
+
+        val contentFrame = findViewById<FrameLayout>(R.id.content_frame)
+        layoutInflater.inflate(R.layout.goals, contentFrame, true)
 
         // Retrieve token using TokenUtil
         token = TokenUtils.getTokenFromStorage(this) ?: run {
@@ -51,43 +46,6 @@ class GoalsActivity : BaseActivity() {
         }
 
         Log.d(TAG, "onCreate: Token retrieved: $token")
-
-        val toolbar: Toolbar = findViewById(R.id.toolbar) // Initialize toolbar
-        setSupportActionBar(toolbar) // Set the toolbar as the action bar
-
-        drawerLayout = findViewById(R.id.drawer_layout)
-        navigationView = findViewById(R.id.nav_view)
-
-        // Set up toggle for the navigation drawer
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-        Log.d(TAG, "onCreate: Navigation drawer toggle set up")
-
-        // Handle navigation item selections
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            Log.d(TAG, "onCreate: Navigation item selected: ${menuItem.itemId}")
-            when (menuItem.itemId) {
-                R.id.nav_home -> startActivity(Intent(this, DashboardActivity::class.java))
-                R.id.nav_transactions -> startActivity(
-                    Intent(
-                        this,
-                        TransactionsActivity::class.java
-                    )
-                )
-
-                R.id.nav_reports -> startActivity(Intent(this, ReportsActivity::class.java))
-                R.id.nav_budgets -> startActivity(Intent(this, BudgetsActivity::class.java))
-                R.id.nav_goals -> startActivity(Intent(this, GoalsActivity::class.java))
-                R.id.nav_settings -> startActivity(Intent(this, SettingsActivity::class.java))
-            }
-            drawerLayout.closeDrawer(GravityCompat.START)
-            Log.d(TAG, "onCreate: Drawer closed after navigation")
-            true
-        }
 
         // Initialize SwipeRefreshLayout
         setupSwipeRefreshLayout()
@@ -101,17 +59,6 @@ class GoalsActivity : BaseActivity() {
         findViewById<Button>(R.id.add_goal_button).setOnClickListener {
             Log.d(TAG, "onCreate: Add Goal button clicked")
             showAddGoalDialog(token)
-        }
-    }
-
-    override fun onBackPressed() {
-        Log.d(TAG, "onBackPressed: Back button pressed")
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            Log.d(TAG, "onBackPressed: Drawer is open, closing it")
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            Log.d(TAG, "onBackPressed: Drawer is closed, calling super.onBackPressed()")
-            super.onBackPressed()
         }
     }
 

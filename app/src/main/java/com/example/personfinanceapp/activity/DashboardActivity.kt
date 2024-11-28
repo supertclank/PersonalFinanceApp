@@ -2,6 +2,7 @@ package com.example.personfinanceapp.activity
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.FrameLayout
 import android.widget.TextView
 import api.RetrofitClient
 import api.data_class.GoalsRead
@@ -19,7 +20,9 @@ class DashboardActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.dashboard) // Set the layout for the dashboard
+
+        val contentFrame = findViewById<FrameLayout>(R.id.content_frame)
+        layoutInflater.inflate(R.layout.dashboard, contentFrame, true)
 
         greetingTextView = findViewById(R.id.greeting_text_view)
 

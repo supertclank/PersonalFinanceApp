@@ -2,7 +2,6 @@ package com.example.personfinanceapp.activity
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.util.Log
@@ -10,14 +9,11 @@ import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import api.RetrofitClient
 import api.data_class.TransactionCategory
@@ -26,15 +22,12 @@ import api.data_class.TransactionRead
 import com.auth0.android.jwt.JWT
 import com.example.personfinanceapp.R
 import com.example.personfinanceapp.utils.TokenUtils
-import com.google.android.material.navigation.NavigationView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class TransactionsActivity : BaseActivity() {
 
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navigationView: NavigationView
     private var transactionsList = mutableListOf<TransactionRead>()
     private var TAG = "TransactionsActivity"
     private lateinit var token: String
@@ -43,9 +36,11 @@ class TransactionsActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.transactions)
 
         Log.d(TAG, "onCreate: Initializing the activity")
+
+        val contentFrame = findViewById<FrameLayout>(R.id.content_frame)
+        layoutInflater.inflate(R.layout.transactions, contentFrame, true)
 
         token = TokenUtils.getTokenFromStorage(this) ?: run {
             Log.e(TAG, "onCreate: Token is null")
@@ -55,55 +50,6 @@ class TransactionsActivity : BaseActivity() {
 
         Log.d(TAG, "onCreate: Token retrieved $token")
 
-        // Set up the toolbar
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        // Initialize the DrawerLayout and NavigationView
-        drawerLayout = findViewById(R.id.drawer_layout)
-        navigationView = findViewById(R.id.nav_view)
-
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
-        Log.d(TAG, "onCreate: Drawer layout initialized")
-
-        // Set up navigation view item selection listener
-        navigationView.setNavigationItemSelectedListener { menuItem ->
-            Log.d(TAG, "onCreate: Navigation item selected ${menuItem.itemId}")
-            // Handle navigation view item selection
-            when (menuItem.itemId) {
-                R.id.nav_home -> {
-                    startActivity(Intent(this, DashboardActivity::class.java))
-                }
-
-                R.id.nav_transactions -> {
-                    startActivity(Intent(this, TransactionsActivity::class.java))
-                }
-
-                R.id.nav_reports -> {
-                    startActivity(Intent(this, ReportsActivity::class.java))
-                }
-
-                R.id.nav_budgets -> {
-                    startActivity(Intent(this, BudgetsActivity::class.java))
-                }
-
-                R.id.nav_goals -> {
-                    startActivity(Intent(this, GoalsActivity::class.java))
-                }
-
-                R.id.nav_settings -> {
-                    startActivity(Intent(this, SettingsActivity::class.java))
-                }
-
-            }
-            drawerLayout.closeDrawer(GravityCompat.START)
-            Log.d(TAG, "OnCreate: Drawer closed after navigation")
-            true
-        }
         setupSwipeRefreshLayout()
         Log.d(TAG, "onCreate: Swipe refresh layout initialized")
 
@@ -114,15 +60,6 @@ class TransactionsActivity : BaseActivity() {
             Log.d(TAG, "onCreate: Add transaction button clicked")
             showAddTransactionDialog(token)
 
-        }
-    }
-
-    override fun onBackPressed() {
-        // Close the navigation drawer if it's open, otherwise handle the back press as usual
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
         }
     }
 
