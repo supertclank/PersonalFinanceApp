@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
         <!-- Swipe to Refresh Layout -->
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"
@@ -58,8 +57,7 @@
                             android:layout_height="wrap_content"
                             android:background="?attr/selectableItemBackground"
                             android:padding="12dp"
-                            android:text="@string/account_settings"
-                            android:textColor="?attr/colorPrimary" />
+                            android:text="@string/account_settings" />
 
                         <Button
                             android:id="@+id/logout_button"
@@ -109,11 +107,12 @@
                             android:id="@+id/font_size_spinner"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp" />
+                            android:layout_marginTop="16dp"
+                            android:minHeight="48dp"
+                            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
         </ScrollView>
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-</RelativeLayout></androidx.drawerlayout.widget.DrawerLayout>
+    </RelativeLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

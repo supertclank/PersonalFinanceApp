@@ -19,7 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/edit_amount"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,7 +32,9 @@
         android:id="@+id/edit_transaction_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/edit_description_for_your_transaction" />
+        android:hint="@string/edit_description_for_your_transaction"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -40,7 +44,8 @@
     <Spinner
         android:id="@+id/spinner_transaction_category"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:minHeight="48dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -52,5 +57,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/edit_date"
-        android:inputType="date" />
+        android:inputType="date"
+        android:minHeight="48dp" />
 </LinearLayout>

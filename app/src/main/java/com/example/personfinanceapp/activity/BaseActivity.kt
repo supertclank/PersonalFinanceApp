@@ -38,28 +38,10 @@ open class BaseActivity : AppCompatActivity() {
 
         val contentFrame = findViewById<FrameLayout>(R.id.content_frame)
 
-        val dashboardView = layoutInflater.inflate(R.layout.dashboard, contentFrame, false)
-        contentFrame.addView(dashboardView)
-
-        val goalsView = layoutInflater.inflate(R.layout.goals, contentFrame, false)
-        contentFrame.addView(goalsView)
-
-        val budgetsView = layoutInflater.inflate(R.layout.budgets, contentFrame, false)
-        contentFrame.addView(budgetsView)
-
-        val reportsView = layoutInflater.inflate(R.layout.reports, contentFrame, false)
-        contentFrame.addView(reportsView)
-
-        val transactionsView = layoutInflater.inflate(R.layout.transactions, contentFrame, false)
-        contentFrame.addView(transactionsView)
-
-        val settingsView = layoutInflater.inflate(R.layout.settings, contentFrame, false)
-        contentFrame.addView(settingsView)
-
-        val toolbar = findViewById<Toolbar>(R.id.toolbar) // Find toolbar
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
 
         if (supportActionBar == null) {
-            setSupportActionBar(toolbar) // Set support action bar
+            setSupportActionBar(toolbar)
         }
 
         // Set up toggle after setting support action bar
@@ -74,7 +56,13 @@ open class BaseActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.nav_home -> startActivity(Intent(this, DashboardActivity::class.java))
-                R.id.nav_transactions -> startActivity(Intent(this, TransactionsActivity::class.java))
+                R.id.nav_transactions -> startActivity(
+                    Intent(
+                        this,
+                        TransactionsActivity::class.java
+                    )
+                )
+
                 R.id.nav_reports -> startActivity(Intent(this, ReportsActivity::class.java))
                 R.id.nav_budgets -> startActivity(Intent(this, BudgetsActivity::class.java))
                 R.id.nav_goals -> startActivity(Intent(this, GoalsActivity::class.java))
@@ -97,24 +85,14 @@ open class BaseActivity : AppCompatActivity() {
     // Apply user preferences (theme and font size)
     private fun applyUserPreferences() {
         val sharedPrefManager = SharedPreferenceManager(this, apiService = RetrofitClient.instance)
-        Log.d(TAG, "Applying user preferences")
-
-        // Apply Dark/Light Mode
         val isDarkModeEnabled = sharedPrefManager.isDarkModeEnabled()
-        Log.d(TAG, "Applying dark mode: $isDarkModeEnabled")
-
-        // Apply Font Size
-        val fontSize = sharedPrefManager.getFontSize() ?: "Normal"
-        Log.d(TAG, "Applying font size: $fontSize")
-
-        // Set the theme and font size
         setAppTheme(isDarkModeEnabled)
+        val fontSize = sharedPrefManager.getFontSize() ?: "Normal"
         applyFontSize(fontSize)
     }
 
     private fun setAppTheme(isDarkModeEnabled: Boolean) {
         Log.d(TAG, "Setting app theme - isDarkModeEnabled: $isDarkModeEnabled")
-        // Set the theme using AppCompatDelegate
         val nightMode = if (isDarkModeEnabled) {
             AppCompatDelegate.MODE_NIGHT_YES
         } else {
@@ -122,8 +100,12 @@ open class BaseActivity : AppCompatActivity() {
         }
         AppCompatDelegate.setDefaultNightMode(nightMode)
 
-        // Recreate the activity to apply the theme immediately
-        //recreate()
+        // Check if the activity needs to be recreated
+        if (!isInitialCreation) {
+            recreate()
+        } else {
+            Log.d(TAG, "Activity is being created for the first time")
+        }
     }
 
     private fun applyFontSize(fontSize: String) {

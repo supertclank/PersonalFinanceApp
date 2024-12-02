@@ -13,7 +13,9 @@
         android:id="@+id/edit_goal_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/edit_your_goal_title" />
+        android:hint="@string/edit_your_goal_title"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -25,7 +27,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/edit_target_amount"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -37,7 +41,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/edit_current_amount"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -48,7 +54,9 @@
         android:id="@+id/edit_goal_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/edit_description_for_your_goal" />
+        android:hint="@string/edit_description_for_your_goal"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -60,5 +68,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/edit_deadline"
-        android:inputType="date" />
+        android:inputType="date"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 </LinearLayout>

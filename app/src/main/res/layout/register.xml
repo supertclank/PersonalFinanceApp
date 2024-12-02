@@ -62,7 +62,8 @@
             android:layout_marginTop="16dp"
             android:hint="@string/username"
             android:inputType="text"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:textColorHint="#757575" />
 
         <!-- First Name Input Field -->
         <EditText
@@ -70,7 +71,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="First Name" />
+            android:hint="@string/first_name"
+            android:minHeight="48dp"
+            android:textColorHint="#757575" />
 
         <!-- Last Name Input Field -->
         <EditText
@@ -78,7 +81,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Last Name" />
+            android:hint="@string/last_name"
+            android:minHeight="48dp" />
 
         <!-- Phone Number Input Field -->
         <EditText
@@ -86,8 +90,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Phone Number"
-            android:inputType="phone" />
+            android:hint="@string/phone_number"
+            android:inputType="phone"
+            android:minHeight="48dp"
+            android:textColorHint="#757575" />
 
         <!-- Password Input Field -->
         <EditText
@@ -109,7 +115,8 @@
             android:layout_marginTop="16dp"
             android:hint="@string/password_conformation"
             android:inputType="textPassword"
-            android:minHeight="48dp" />
+            android:minHeight="48dp"
+            android:textColorHint="#757575" />
 
         <!-- Register Button -->
         <Button

@@ -70,12 +70,7 @@ class SettingsActivity : BaseActivity() {
 
         // Set up the listener to toggle dark mode when the switch is changed
         darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            Log.d(TAG, "onCreate: Dark mode switch changed to $isChecked")
-            if (isChecked) {
-                enableDarkMode(this)  // Enable dark mode
-            } else {
-                enableLightMode(this)  // Enable light mode
-            }
+            setDarkMode(this, isChecked)
         }
     }
 
@@ -246,8 +241,8 @@ class SettingsActivity : BaseActivity() {
         val fontSizeOptions = arrayOf("Large", "Normal", "Small")
         val fontSizeSpinner = findViewById<Spinner>(R.id.font_size_spinner)
 
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, fontSizeOptions)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter = ArrayAdapter(this, R.layout.spinner_item, fontSizeOptions)
+        adapter.setDropDownViewResource(R.layout.spinner_item)
         fontSizeSpinner.adapter = adapter
 
         val sharedPrefManager = SharedPreferenceManager(this, apiService = RetrofitClient.instance)
@@ -264,16 +259,24 @@ class SettingsActivity : BaseActivity() {
                 position: Int,
                 id: Long,
             ) {
-                // Check if the view is null before using it
                 if (view != null) {
                     val selectedFontSize = fontSizeOptions[position]
                     sharedPrefManager.saveFontSize(selectedFontSize)
-                    adjustFontSize(selectedFontSize)
+                    adjustFontSize(selectedFontSize) // Adjust other views' font size
+
+                    // Adjust the font size of the selected spinner item
+                    val spinnerItem = view as TextView
+                    val baseTextSize = 16f // Base size for spinner text
+                    val newTextSize = when (selectedFontSize) {
+                        "Large" -> baseTextSize * 1.25f
+                        "Small" -> baseTextSize * 0.85f
+                        else -> baseTextSize
+                    }
+                    spinnerItem.textSize = newTextSize
 
                     // Log the font size selected by the user
                     Log.d("FontSize", "User selected font size: $selectedFontSize")
                 } else {
-                    // Handle the case where view is null
                     Log.e("FontSize", "View is null in onItemSelected")
                 }
             }
@@ -309,10 +312,13 @@ class SettingsActivity : BaseActivity() {
                 rootView.viewTreeObserver.removeOnGlobalLayoutListener(this)
 
                 getAllViews(rootView).forEach { view ->
-                    when (view) {
-                        is TextView -> view.textSize = newSize
-                        is Button -> view.textSize = newSize
-                        is EditText -> view.textSize = newSize
+                    // Exclude the spinner itself from font size changes
+                    if (view is TextView && view.id != R.id.font_size_spinner) {
+                        when (view) {
+                            is TextView -> view.textSize = newSize
+                            is Button -> view.textSize = newSize
+                            is EditText -> view.textSize = newSize
+                        }
                     }
                 }
             }
@@ -325,9 +331,8 @@ class SettingsActivity : BaseActivity() {
         // Check if the context is an Activity and belongs to excluded activities
         if (currentActivity != null && (
                     currentActivity is LoginActivity ||
-                            currentActivity is RegisterActivity ||
-                            currentActivity is ForgotDetailsActivity
-                    )
+                    currentActivity is RegisterActivity ||
+                    currentActivity is ForgotDetailsActivity)
         ) {
             return emptyList() // Exclude these activities from traversal
         }
@@ -344,31 +349,13 @@ class SettingsActivity : BaseActivity() {
         return result
     }
 
-    private fun updateFontSizeRecursively(view: View, fontSize: Int) {
-        if (view is TextView) {
-            view.textSize = fontSize.toFloat()
-        }
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                updateFontSizeRecursively(view.getChildAt(i), fontSize)
-            }
-        }
-    }
-
-    private fun enableDarkMode(context: Context) {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+    private fun setDarkMode(context: Context, isDarkModeEnabled: Boolean) {
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkModeEnabled) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
         val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("dark_mode", true)
-        editor.apply()
-    }
-
-    private fun enableLightMode(context: Context) {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("dark_mode", false)
-        editor.apply()
+        sharedPreferences.edit().putBoolean("dark_mode", isDarkModeEnabled).apply()
     }
 
     private fun getUserIdFromToken(token: String): Int {

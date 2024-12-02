@@ -13,7 +13,8 @@
     <Spinner
         android:id="@+id/spinner_budget_category"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:minHeight="48dp" />
 
     <!-- Budget Amount -->
     <TextView
@@ -26,7 +27,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/enter_budget_amount"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <!-- Start Date -->
     <TextView
@@ -39,7 +42,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/enter_start_date"
-        android:inputType="date" />
+        android:inputType="date"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <!-- End Date -->
     <TextView
@@ -52,5 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/enter_end_date"
-        android:inputType="date" />
+        android:inputType="date"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 </LinearLayout>

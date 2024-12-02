@@ -22,7 +22,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:hint="@string/enter_amount"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="match_parent"
@@ -37,7 +39,9 @@
         android:layout_marginBottom="16dp"
         android:focusable="false"
         android:hint="@string/enter_date"
-        android:inputType="date" />
+        android:inputType="date"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="match_parent"
@@ -50,7 +54,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:hint="@string/enter_a_description_for_your_transaction" />
+        android:hint="@string/enter_a_description_for_your_transaction"
+        android:minHeight="48dp"
+        android:textColorHint="#757575" />
 
     <TextView
         android:layout_width="match_parent"
@@ -63,5 +69,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        android:minHeight="48dp"
         android:spinnerMode="dropdown" />
 </LinearLayout>
