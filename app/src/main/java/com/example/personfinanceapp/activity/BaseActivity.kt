@@ -6,7 +6,6 @@ import android.util.Log
 import android.widget.FrameLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -85,27 +84,24 @@ open class BaseActivity : AppCompatActivity() {
     // Apply user preferences (theme and font size)
     private fun applyUserPreferences() {
         val sharedPrefManager = SharedPreferenceManager(this, apiService = RetrofitClient.instance)
+
         val isDarkModeEnabled = sharedPrefManager.isDarkModeEnabled()
         setAppTheme(isDarkModeEnabled)
+
         val fontSize = sharedPrefManager.getFontSize() ?: "Normal"
         applyFontSize(fontSize)
     }
 
-    private fun setAppTheme(isDarkModeEnabled: Boolean) {
-        Log.d(TAG, "Setting app theme - isDarkModeEnabled: $isDarkModeEnabled")
-        val nightMode = if (isDarkModeEnabled) {
-            AppCompatDelegate.MODE_NIGHT_YES
-        } else {
-            AppCompatDelegate.MODE_NIGHT_NO
-        }
-        AppCompatDelegate.setDefaultNightMode(nightMode)
-
-        // Check if the activity needs to be recreated
-        if (!isInitialCreation) {
-            recreate()
-        } else {
-            Log.d(TAG, "Activity is being created for the first time")
-        }
+    fun setAppTheme(isDarkModeEnabled: Boolean) {
+        val theme =
+            (
+                    if (isDarkModeEnabled) {
+                        R.style.Theme_Personfinanceapp_Dark
+                    } else {
+                        R.style.Theme_Personfinanceapp
+                    }
+                    )
+        setTheme(theme)
     }
 
     private fun applyFontSize(fontSize: String) {

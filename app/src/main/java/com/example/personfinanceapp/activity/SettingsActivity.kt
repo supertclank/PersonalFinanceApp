@@ -70,7 +70,9 @@ class SettingsActivity : BaseActivity() {
 
         // Set up the listener to toggle dark mode when the switch is changed
         darkModeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            Log.d(TAG, "onCreate: Dark mode switch changed to: $isChecked")
             setDarkMode(this, isChecked)
+            toggleDarkMode(isChecked)
         }
     }
 
@@ -331,8 +333,8 @@ class SettingsActivity : BaseActivity() {
         // Check if the context is an Activity and belongs to excluded activities
         if (currentActivity != null && (
                     currentActivity is LoginActivity ||
-                    currentActivity is RegisterActivity ||
-                    currentActivity is ForgotDetailsActivity)
+                            currentActivity is RegisterActivity ||
+                            currentActivity is ForgotDetailsActivity)
         ) {
             return emptyList() // Exclude these activities from traversal
         }
@@ -350,12 +352,35 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun setDarkMode(context: Context, isDarkModeEnabled: Boolean) {
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkModeEnabled) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
+        Log.d(TAG, "setDarkMode: Setting dark mode to: $isDarkModeEnabled")
+
         val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
-        sharedPreferences.edit().putBoolean("dark_mode", isDarkModeEnabled).apply()
+
+
+        sharedPreferences.edit().putBoolean("dark_mode_enable", isDarkModeEnabled).apply()
+        Log.d(TAG, "setDarkMode: Dark mode preference saved: $isDarkModeEnabled")
+
+        (context as BaseActivity).setAppTheme(isDarkModeEnabled)
+        if (isDarkModeEnabled) {
+            Log.d(TAG, "setDarkMode: Dark mode enabled")
+        } else {
+            Log.d(TAG, "setDarkMode: Dark mode disabled")
+        }
+    }
+
+    private fun toggleDarkMode(isDarkModeEnabled: Boolean) {
+        val sharedPrefManager = SharedPreferenceManager(this, RetrofitClient.instance)
+
+        sharedPrefManager.setDarkModeEnabled(isDarkModeEnabled)
+
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkModeEnabled) {
+                AppCompatDelegate.MODE_NIGHT_YES
+            } else {
+                AppCompatDelegate.MODE_NIGHT_NO
+            }
+        )
+        setAppTheme(isDarkModeEnabled)
     }
 
     private fun getUserIdFromToken(token: String): Int {
