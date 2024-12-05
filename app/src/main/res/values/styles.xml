@@ -1,6 +1,6 @@
 <resources>
     <!-- Primary Theme -->
-    <style name="Theme.Personfinanceapp" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme_Personfinanceapp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorPrimaryVariant">@color/md_theme_light_primaryContainer</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
@@ -18,7 +18,7 @@
     </style>
 
     <!-- Dark Theme -->
-    <style name="Theme.Personfinanceapp.Dark" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme_Personfinanceapp_Dark" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
         <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
         <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
