@@ -55,7 +55,7 @@ interface ApiService {
     @PUT("user/{user_id}")
     fun updateUser(
         @Path("user_id") userId: Int,
-        @Body updatedUser: UserUpdate, // Use UserUpdate instead of UserRead
+        @Body updatedUser: UserUpdate,
         @Header("Authorization") token: String,
     ): Call<UserRead>
 
