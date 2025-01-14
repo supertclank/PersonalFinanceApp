@@ -17,11 +17,11 @@ class ForgotDetailsActivity : AppCompatActivity() {
 
     private lateinit var emailInput: EditText
     private lateinit var sendVerificationButton: Button
-    private lateinit var backToLoginButton: Button // Add this line
+    private lateinit var backToLoginButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.forgot_details) // Set your layout here
+        setContentView(R.layout.forgot_details)
 
         emailInput = findViewById(R.id.forgot_email)
         sendVerificationButton = findViewById(R.id.send_verification_code)
@@ -30,7 +30,7 @@ class ForgotDetailsActivity : AppCompatActivity() {
         sendVerificationButton.setOnClickListener {
             val email = emailInput.text.toString()
             if (email.isNotEmpty()) {
-                recoverUsername(email) // Call your recovery function
+                recoverUsername(email)
             } else {
                 Toast.makeText(this, "Please enter your email", Toast.LENGTH_SHORT).show()
             }
@@ -38,7 +38,7 @@ class ForgotDetailsActivity : AppCompatActivity() {
 
         backToLoginButton.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
-            finish() // Optionally finish this activity
+            finish()
         }
     }
 
@@ -46,7 +46,7 @@ class ForgotDetailsActivity : AppCompatActivity() {
         val recoveryRequest = UsernameRecoveryRequest(email)
         val call = RetrofitClient.instance.recoverUsername(recoveryRequest)
 
-        call.enqueue(object : Callback<Void> { // Adjust the response type based on your API
+        call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Toast.makeText(
